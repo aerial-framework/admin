@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" keyUp="pageKeyHandler(event)"
+		 			creationComplete="init(event)">
+	<mx:states>
+		<mx:State name="pathSelected"/>
+	</mx:states>
+	<mx:HBox width="100%" backgroundColor="#000000" backgroundAlpha="0.1">
+		<mx:Button label="Navigate to project path" icon="@Embed(source='../assets/images/navigation.png')" labelPlacement="left"
+				   click="browseForPath()"/>
+		<mx:Spacer width="100%"/>
+		<mx:Label text="No path selected"/>
+	</mx:HBox>
+	
+	<mx:FileSystemTree id="tree" width="100%" showExtensions="true" showIcons="true" allowMultipleSelection="false"
+					   enumerationMode="{FileSystemEnumerationMode.DIRECTORIES_FIRST}" height="100%" filterFunction="checkExtension"
+					   directoryOpening="trace('>>>> ' + event.file.nativePath)" borderStyle="none"
+					   keyUp="treeKeyHandler(event)" backgroundAlpha="0.2" backgroundColor="#222222" color="#DDDDDD"/>
+	<mx:TextInput id="path" keyDown="pathChange(event)" width="100%"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.FileSystemEnumerationMode;
+			import mx.core.mx_internal;
+			import mx.events.FlexEvent;			
+			
+			private function init(event:FlexEvent):void
+			{
+				use namespace mx_internal;
+				//path.getTextField().addEventListener(KeyboardEvent.KEY_DOWN
+			}
+			
+			private function browseForPath():void
+			{
+				var folder:File = new File();
+				folder.addEventListener(Event.SELECT, folderSelected);
+				folder.browseForDirectory("Navigate to project path");
+			}
+			
+			private function checkExtension(file:File):Boolean
+			{
+				return file.name == "project.xml" || file.isDirectory;
+			}
+
+			private function folderSelected(event:Event):void
+			{
+				var folder:File = event.currentTarget as File;
+				
+				if(folder.exists)
+					path.text = folder.nativePath;
+				
+				pathChange();
+			}
+
+			private function pathChange(event:KeyboardEvent=null):void
+			{
+				if(event)
+					if(event.altKey || event.ctrlKey)
+					{
+						event.preventDefault();
+						event.stopImmediatePropagation();
+						event.stopPropagation();
+						return;
+					}
+				
+				var txt:String = path.text;
+				var file:File;
+				try
+				{
+					file = new File(txt);
+					tree.directory = file;
+				}
+				catch(e:Error)		// catch unnecessary errors
+				{
+				}
+				finally
+				{
+					if(file && file.exists)
+						checkForProject();
+				}
+				//trace(file.exists ? file.nativePath : "Nope"); 
+			}
+
+			private function checkForProject():void
+			{
+				trace(tree.directory.nativePath);
+			}
+			
+			private function treeKeyHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER)
+				{
+					path.text = tree.selectedItem.nativePath;
+					pathChange();
+				}
+			}
+
+			private function pageKeyHandler(event:KeyboardEvent):void
+			{
+				if(event.altKey && event.keyCode == Keyboard.UP)
+				{
+					path.text = tree.directory.resolvePath("../").nativePath;
+					pathChange();
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:VBox>

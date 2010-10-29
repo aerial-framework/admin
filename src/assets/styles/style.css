@@ -42,6 +42,10 @@ Application
 HBox, VBox
 {
 	vertical-align: middle;
+	paddingTop: 8;
+	paddingLeft: 8;
+	paddingRight: 8;
+	paddingBottom: 8;
 }
 
 
@@ -159,6 +163,8 @@ Button
 	selectedOverSkin: Embed(skinClass='Button_selectedOverSkin');
 	selectedDownSkin: Embed(skinClass='Button_selectedDownSkin');
 	selectedDisabledSkin: Embed(skinClass='Button_selectedDisabledSkin');
+	paddingTop: 8;
+	paddingBottom: 6;
 }
 
 

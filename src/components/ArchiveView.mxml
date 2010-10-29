@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" horizontalAlign="center" verticalAlign="middle">
 	<mx:states>
 		<mx:State name="checkingVersion">
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{dropArea}"/>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:Spacer height="100%" id="spacer1"/>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:HBox width="100%" id="hbox2">
-					<mx:Image source="assets/images/progress-indicator.swf"/>
+					<mx:Image source="@Embed(source='../assets/images/progress-indicator.swf')"/>
 					<mx:Label text="Checking version information..." id="label1"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{button1}"/>
 		</mx:State>
 		<mx:State name="downloadProgress" basedOn="checkingVersion">
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:ProgressBar width="100%" labelPlacement="center" id="downloadProgressBar" mode="manual"/>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:Button label="Cancel" click="cancel()"/>
 			</mx:AddChild>
-			<mx:SetStyle target="{panel1}" name="horizontalAlign" value="right"/>
+			<mx:SetStyle target="{container}" name="horizontalAlign" value="right"/>
 			<mx:RemoveChild target="{hbox2}"/>
 		</mx:State>
 		<mx:State name="extracting" basedOn="checkingVersion">
 			<mx:SetProperty target="{label1}" name="text" value="Processing archive"/>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:Label text="{currentFile}" width="100%" textAlign="center" truncateToFit="true" fontWeight="bold"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
@@ -43,9 +43,9 @@
 		</mx:State>
 		<mx:State name="extractDone" basedOn="checkingVersion">
 			<mx:RemoveChild target="{hbox2}"/>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+			<mx:AddChild relativeTo="{container}" position="lastChild">
 				<mx:HBox width="100%">
-					<mx:Image source="assets/images/accept.png"/>
+					<mx:Image source="@Embed(source='../assets/images/accept.png')"/>
 					<mx:Label text="{totalFiles} files written."/>
 					<mx:Spacer width="100%"/>
 					<mx:Button label="Continue"/>
@@ -53,8 +53,10 @@
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
-	<mx:Panel width="100%" height="100%" layout="vertical" title="Get the latest code" horizontalAlign="center" verticalAlign="middle" id="panel1">
-		<mx:Button label="Download the latest archive" width="100%" height="50" id="button1" click="versionCheck()" icon="@Embed(source='../assets/images/zip_file_download.png')"/>
+	<mx:VBox width="400" height="300" horizontalAlign="center" verticalAlign="middle" id="container">
+		<mx:Button label="Download the latest archive" width="100%" height="50" id="button1"
+				   click="versionCheck()" icon="@Embed(source='../assets/images/zip_file_download.png')"
+				   styleName="buttonNoOfficial"/>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="hbox1">
 			<mx:HRule width="100%"/>
 			<mx:Label text="OR"/>
@@ -62,12 +64,12 @@
 		</mx:HBox>
 		<mx:Canvas width="100%" height="100%" borderStyle="solid" borderColor="#3A3A39" backgroundColor="#000000"
 				   backgroundAlpha="0.2" id="dropArea" nativeDragEnter="onDragIn(event)" nativeDragDrop="onDragDrop(event)">
-			<mx:Image horizontalCenter="0" verticalCenter="0" source="assets/images/drag-archive.png" alpha="0.8"/>
+			<mx:Image horizontalCenter="0" verticalCenter="0" source="@Embed(source='../assets/images/drag-archive.png')" alpha="0.8"/>
 			<mx:Canvas width="160" backgroundColor="#222222" backgroundAlpha="0.8" verticalCenter="0" horizontalCenter="0">
 				<mx:Label text="Drop an archive here" horizontalCenter="0" verticalCenter="0" color="#CBCBCB" fontSize="11"/>
 			</mx:Canvas>
 		</mx:Canvas>
-	</mx:Panel>
+	</mx:VBox>
 	
 	<mx:Script>
 		<![CDATA[
