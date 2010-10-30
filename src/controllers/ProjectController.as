@@ -17,6 +17,7 @@ package controllers
 		
 		public var initializeView:Signal;
 		public var savePath:Signal; 
+		public var updateProjects:Signal;
 		
 		// static initializer
 		{
@@ -33,6 +34,7 @@ package controllers
 				// signals
 				initializeView = new Signal(File);
 				savePath = new Signal(File);
+				updateProjects = new Signal();
 				
 				// listeners
 				savePath.add(savePathHandler);
@@ -76,11 +78,14 @@ package controllers
 			
 			descriptor = XMLSerializer.serialize(projects);
 			FileUtil.write(preferencesFile, descriptor.toXMLString());
+			
+			updateProjects.dispatch();
 		}
 		
 		public function getProjects():Array
 		{
 			initFiles();
+			
 			return preferencesFile ? XMLSerializer.deserialize(XML(FileUtil.read(preferencesFile))) as Array : [];
 		}
 	}

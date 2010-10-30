@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:components="components.*"
-			creationComplete="init()" width="800" height="600" showStatusBar="false">
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:pages="pages.*"
+			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right">
 	
 	<mx:HBox width="100%" verticalAlign="middle">
 		<mx:Image source="@Embed(source='assets/images/aerial-logo.png')">
@@ -16,23 +16,28 @@
 		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
 		<mx:Label id="versionStr" fontSize="12" fontWeight="bold" color="#DDDDDD" visible="false" includeInLayout="false"/>
 	</mx:HBox>
-	<mx:Spacer height="20"/>
+	<mx:Spacer height="12"/>
 	
 	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">
-		<mx:HBox width="100%" verticalAlign="middle">
-			<mx:Label text="Previous Projects" color="#222222" fontWeight="bold"/>
-			<mx:ComboBox id="projectsCombo" labelFunction="getProjectDirectoryName" width="150"/>
-			
+		<mx:HBox width="100%" verticalAlign="middle" visible="{pagesVS.selectedChild == newOpenVS}"
+				 										includeInLayout="{pagesVS.selectedChild == newOpenVS}">			
 			<mx:Spacer width="100%"/>
 			
-			<mx:ToggleButtonBar dataProvider="{pagesVS}"/>
+			<mx:ToggleButtonBar dataProvider="{newOpenVS}"/>
 		</mx:HBox>
 		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
-			<components:ArchiveView width="100%" height="100%" label="Start a new Project"/>
-			<components:Project width="100%" height="100%" label="Manage Installation"/>
+			<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
+														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>
+			<mx:ViewStack id="newOpenVS" width="100%" height="100%">
+				<pages:ArchiveView width="100%" height="100%" label="Start a new Project"/>
+				<pages:Project width="100%" height="100%" label="Manage Installation"/>
+			</mx:ViewStack>
 		</mx:ViewStack>
 	</mx:Panel>
+	<mx:Spacer height="6"/>
+	
+	<mx:LinkButton label="http://aerial-project.org" click="navigateToURL(new URLRequest('http://aerial-project.org'))" buttonMode="true" color="#DDDDDD"/>
 	
 	<mx:Script>
 		<![CDATA[	
@@ -40,6 +45,8 @@
 			import air.update.events.UpdateEvent;
 			
 			import controllers.ProjectController;
+			
+			import flash.net.navigateToURL;
 			
 			import mx.controls.Alert;
 			
@@ -58,7 +65,6 @@
 				appUpdater.isInstallUpdateVisible = false;
 				
 				appUpdater.initialize();
-				projectsCombo.dataProvider = ProjectController.instance.getProjects();
 			}
 			
 			private function setApplicationVersion():void
@@ -76,11 +82,6 @@
 			private function onError(event:ErrorEvent):void
 			{
 				Alert.show(event.toString());
-			}
-			
-			private function getProjectDirectoryName(item:String):String
-			{
-				return new File(item).parent.name;
 			}
 		]]>
 	</mx:Script>
