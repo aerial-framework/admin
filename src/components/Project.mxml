@@ -3,30 +3,53 @@
 		 			creationComplete="init(event)">
 	<mx:states>
 		<mx:State name="pathSelected"/>
+		<mx:State name="valid">
+			<mx:SetProperty target="{label1}" name="text" value="Valid Aerial project"/>
+			<mx:AddChild relativeTo="{label1}" position="before">
+				<mx:Image source="@Embed(source='../assets/icons/dusseldorf/check-16.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+				<mx:Button label="Switch to Project Mode" styleName="buttonOfficial"/>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
-	<mx:HBox width="100%" backgroundColor="#000000" backgroundAlpha="0.1">
-		<mx:Button label="Navigate to project path" icon="@Embed(source='../assets/images/navigation.png')" labelPlacement="left"
+	<mx:HRule width="100%"/>
+	<mx:HBox width="100%" color="#DDDDDD" verticalAlign="middle" id="hbox1">
+		<mx:Button label="Navigate to project path" icon="@Embed(source='../assets/icons/dusseldorf/folder-16.png')"
 				   click="browseForPath()"/>
 		<mx:Spacer width="100%"/>
-		<mx:Label text="No path selected"/>
+		<mx:Label text="No path selected" color="#222222" id="label1"/>
 	</mx:HBox>
+	<mx:HRule width="100%"/>
 	
 	<mx:FileSystemTree id="tree" width="100%" showExtensions="true" showIcons="true" allowMultipleSelection="false"
 					   enumerationMode="{FileSystemEnumerationMode.DIRECTORIES_FIRST}" height="100%" filterFunction="checkExtension"
-					   directoryOpening="trace('>>>> ' + event.file.nativePath)" borderStyle="none"
-					   keyUp="treeKeyHandler(event)" backgroundAlpha="0.2" backgroundColor="#222222" color="#DDDDDD"/>
-	<mx:TextInput id="path" keyDown="pathChange(event)" width="100%"/>
+					   directoryOpening="folderSelected(null, event.file)" borderStyle="none"
+					   keyUp="treeKeyHandler(event)" backgroundAlpha="0"/>
+	<!-- backgroundAlpha="0.2" backgroundColor="#222222" color="#DDDDDD" -->
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:TextInput id="path" keyDown="pathChange(event)" width="100%"/>
+		
+	</mx:HBox>
 	
 	<mx:Script>
 		<![CDATA[
+			import controllers.ProjectController;
+			
 			import mx.controls.FileSystemEnumerationMode;
 			import mx.core.mx_internal;
-			import mx.events.FlexEvent;			
+			import mx.events.FlexEvent;
+			
+			import utils.FileUtil;			
+			
+			private var lastPotentialMatch:String;
 			
 			private function init(event:FlexEvent):void
 			{
-				use namespace mx_internal;
 				//path.getTextField().addEventListener(KeyboardEvent.KEY_DOWN
+				
+				path.text = File.desktopDirectory.nativePath;
+				pathChange();
 			}
 			
 			private function browseForPath():void
@@ -41,9 +64,14 @@
 				return file.name == "project.xml" || file.isDirectory;
 			}
 
-			private function folderSelected(event:Event):void
+			private function folderSelected(event:Event=null, file:File=null):void
 			{
-				var folder:File = event.currentTarget as File;
+				var folder:File;
+				
+				if(event)
+					folder = event.currentTarget as File;
+				else if(file)
+					folder = file;
 				
 				if(folder.exists)
 					path.text = folder.nativePath;
@@ -54,19 +82,18 @@
 			private function pathChange(event:KeyboardEvent=null):void
 			{
 				if(event)
-					if(event.altKey || event.ctrlKey)
+					if(event.altKey)
 					{
 						event.preventDefault();
 						event.stopImmediatePropagation();
 						event.stopPropagation();
 						return;
 					}
-				
-				var txt:String = path.text;
+
 				var file:File;
 				try
 				{
-					file = new File(txt);
+					file = new File(path.text);
 					tree.directory = file;
 				}
 				catch(e:Error)		// catch unnecessary errors
@@ -82,7 +109,32 @@
 
 			private function checkForProject():void
 			{
-				trace(tree.directory.nativePath);
+				var potential:File = new File(path.text);
+				if(!potential || !potential.exists)
+					return;
+				
+				if(lastPotentialMatch != potential.nativePath)
+					lastPotentialMatch = potential.nativePath;
+				
+				var projectXML:File = new File(lastPotentialMatch).resolvePath("project.xml");
+				if(projectXML.exists)
+				{
+					// the project descriptor will never be bigger than 1Mb, so ignore bigger (and potentially irrelevant) files
+					if(projectXML.size < (1024 * 1024))
+						validateProject(projectXML);
+					else
+						currentState = null;
+				}
+				else
+					currentState = null; 
+			}
+			
+			private function validateProject(projectXML:File):void
+			{
+				var descriptor:XML = XML(FileUtil.read(projectXML));
+				ProjectController.instance.savePath.dispatch(projectXML);
+				
+				currentState = "valid";
 			}
 			
 			private function treeKeyHandler(event:KeyboardEvent):void

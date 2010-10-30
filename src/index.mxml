@@ -1,28 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:components="components.*"
-			creationComplete="init()" width="800" height="600">
+			creationComplete="init()" width="800" height="600" showStatusBar="false">
 	
-	<mx:ApplicationControlBar width="100%" verticalAlign="top" paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" color="#DDDDDD">
-		<mx:Image source="assets/images/aerial-logo.png" height="54" width="315"/>
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:Image source="@Embed(source='assets/images/aerial-logo.png')">
+			<mx:filters>
+				<mx:GlowFilter alpha="0.5" blurX="12" blurY="6" color="#000000" quality="3" strength="3"/>
+			</mx:filters>
+		</mx:Image>
 		
 		<mx:Spacer width="100%"/>
 		
-		<mx:Label id="versionStr" fontSize="12" fontWeight="bold"/>
-	</mx:ApplicationControlBar>
-	
-	<mx:HBox width="100%" horizontalAlign="right">
-		<mx:ToggleButtonBar dataProvider="{pagesVS}"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
+		<mx:Label id="versionStr" fontSize="12" fontWeight="bold" color="#DDDDDD" visible="false" includeInLayout="false"/>
 	</mx:HBox>
+	<mx:Spacer height="20"/>
 	
-	<mx:ViewStack id="pagesVS" width="100%" height="100%">
-		<components:ArchiveView width="100%" height="100%" label="Start a new Project"/>
-		<components:Project width="100%" height="100%" label="Manage Installation"/>
-	</mx:ViewStack>
+	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">
+		<mx:HBox width="100%" verticalAlign="middle">
+			<mx:Label text="Previous Projects" color="#222222" fontWeight="bold"/>
+			<mx:ComboBox id="projectsCombo" labelFunction="getProjectDirectoryName" width="150"/>
+			
+			<mx:Spacer width="100%"/>
+			
+			<mx:ToggleButtonBar dataProvider="{pagesVS}"/>
+		</mx:HBox>
+		
+		<mx:ViewStack id="pagesVS" width="100%" height="100%">
+			<components:ArchiveView width="100%" height="100%" label="Start a new Project"/>
+			<components:Project width="100%" height="100%" label="Manage Installation"/>
+		</mx:ViewStack>
+	</mx:Panel>
 	
 	<mx:Script>
 		<![CDATA[	
 			import air.update.ApplicationUpdaterUI;
 			import air.update.events.UpdateEvent;
+			
+			import controllers.ProjectController;
 			
 			import mx.controls.Alert;
 			
@@ -41,6 +58,7 @@
 				appUpdater.isInstallUpdateVisible = false;
 				
 				appUpdater.initialize();
+				projectsCombo.dataProvider = ProjectController.instance.getProjects();
 			}
 			
 			private function setApplicationVersion():void
@@ -58,6 +76,11 @@
 			private function onError(event:ErrorEvent):void
 			{
 				Alert.show(event.toString());
+			}
+			
+			private function getProjectDirectoryName(item:String):String
+			{
+				return new File(item).parent.name;
 			}
 		]]>
 	</mx:Script>

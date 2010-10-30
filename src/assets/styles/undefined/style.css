@@ -32,11 +32,11 @@ Application, WindowedApplication
 	background-color: 			#666666;
 	theme-color: 				#333333;
 	font-weight:				normal;
-	background-image:			Embed("general/fondo5.jpg");
+	background-image:			Embed("general/fondo3.jpg");
 	background-size:			"100%";
 	modal-transparency-color:	#000000;
 	modal-transparency-blur:	2;
-	padding-top:				0;
+	padding-top:				12;
 }
 
 
@@ -81,6 +81,8 @@ ComboBox
 	drop-down-style-name:	comboBoxDropDown;
 	padding-left: 1;
 	disabled-color:			#999999;
+	text-input-style-name:	textFieldStyle;
+	text-field-style-name:	textFieldStyle;
 }
 
 
@@ -615,7 +617,7 @@ COMPONENTS
 
 
 
-Alert
+Alert, .panelSkin
 {
 	title-background-skin: 		Embed("general/alert_titulo1.png", scaleGridTop="9", scaleGridBottom="16", scaleGridLeft="13", scaleGridRight="85");
 	/*background-image: 		Embed("general/alert.png",  scaleGridTop="10", scaleGridBottom="58", scaleGridLeft="10", scaleGridRight="147");*/
