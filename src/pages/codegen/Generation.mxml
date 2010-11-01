@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="init()" xmlns:renderers="components.renderers.*">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:renderers="components.renderers.*">
 	<mx:Metadata>
 		[Event(name="back",type="flash.events.Event")]
 	</mx:Metadata>
@@ -9,6 +9,8 @@
 			import controllers.GenerationController;
 			
 			import mx.containers.Canvas;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
@@ -21,30 +23,12 @@
 				
 				GenerationController.instance.log.add(logHandler);
 			}
-			
-			private function resultHandler(event:ResultEvent):void
-			{
-				definitions = event.result;
-				
-				var dp:Array = [];
-				for(var model:String in definitions)
-				{
-					dp.push(model);
-				}
-				
-				modelsList.dataProvider = dp;
-			}
-			
-			private function faultHandler(event:FaultEvent):void
-			{
-				
-			}
 
 			private function generate(modelName:String=null):void
 			{
 				var models:Array = []
 				
-				if(!model)
+				if(!modelName)
 				{
 					for(var model:String in definitions)
 						models.push({name:model, definition:definitions[model]});
@@ -61,14 +45,18 @@
 				var prefix:String = "";
 				var suffix:String = "";
 				
+				if(!message)
+					message = "";
+				
 				switch(type)
 				{
-					case "title":
-						prefix = suffix = "----------";
-						suffix += "<br/>";
+					case "process":
+						prefix = "<b>[PROCESS]</b>\t";
 						break;
 					case "info":
-						prefix = "[INFO]\t\t";
+						prefix = "<b>[INFO]</b>\t\t";
+						break;
+					case "separator":
 						break;
 				}
 				
@@ -77,6 +65,28 @@
 				
 				logTxt.htmlText += prefix + message + suffix + "<br/>";
 				callLater(function(){logTxt.verticalScrollPosition = logTxt.maxVerticalScrollPosition});
+			}
+			
+			private function resultHandler(event:ResultEvent):void
+			{
+				definitions = event.result;
+				
+				var dp:Array = [];
+				for(var model:String in definitions)
+				{
+					dp.push(model);
+				}
+				
+				modelsList.dataProvider = dp;
+				
+				modelsList.selectedIndex = 0;
+				modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+			}
+			
+			private function faultHandler(event:FaultEvent):void
+			{
+				Alert.show("Model defintions could not be read from the server. Please check your configuration values.", "Fault");
+				dispatchEvent(new Event("back"));
 			}
 		]]>
 	</mx:Script>
@@ -116,7 +126,7 @@
 		<mx:VBox height="100%" verticalScrollPolicy="off">
 			<mx:List id="modelsList" height="100%" width="300" change="modelDef.definition = definitions[modelsList.selectedItem]"/>
 			<mx:Button label="Generate all" icon="@Embed(source='../../assets/icons/dusseldorf/attributes-16.png')"
-					   width="100%" labelPlacement="bottom" height="55" moveEffect="Move" click="generate()"/>
+					   width="100%" labelPlacement="bottom" height="55" moveEffect="Fade" click="generate()"/>
 			<mx:Button label="Generate {modelsList.selectedItem}" visible="{modelsList.selectedItem}"
 					   includeInLayout="{modelsList.selectedItem}" icon="@Embed(source='../../assets/icons/dusseldorf/hire-me-16.png')"
 					   width="100%" labelPlacement="bottom" height="55" showEffect="Fade" click="generate(modelsList.selectedItem.toString())"/>

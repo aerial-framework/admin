@@ -2,7 +2,8 @@ package {{package}}
 {
 	import org.aerial.rpc.AbstractVO;
 	import {{package}}.*;
-	{{collectionImport}}
+	{{collectionImport}};
+	
 	[Bindable]	
 	public class {{class}} extends AbstractVO
 	{		
@@ -11,7 +12,6 @@ package {{package}}
 			super("{{package}}.{{remoteClass}}", function(field:String):*{return this[field]});
 		}
 		
-{{privateVars}}{{accessors}}
-		
+{{privateVars}}{{accessors}}		
 	}
 }

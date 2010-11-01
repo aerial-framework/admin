@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:codegen="pages.codegen.*">
 	
-	<mx:ViewStack id="pagesVS" width="100%" height="100%">
+	<mx:ViewStack id="pagesVS" width="100%" height="100%" creationPolicy="all">
 		<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%" height="100%" horizontalAlign="center">
 			<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/category.png')" height="80" labelPlacement="bottom" label="Generate" width="110"
 					   click="pagesVS.selectedChild = generation"/>
