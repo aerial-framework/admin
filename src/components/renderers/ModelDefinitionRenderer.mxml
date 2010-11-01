@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" paddingLeft="10" paddingRight="20" paddingTop="10" verticalGap="2">
+	
+	<mx:Label text="Properties" styleName="weekDayChooserStyle" color="#FFFFFF"/>
+	<mx:Repeater id="propertiesRep">
+		<mx:HBox width="100%" verticalAlign="middle" paddingLeft="10" creationCompleteEffect="Fade">
+			<mx:Label width="100%" text="{propertiesRep.currentItem.name}"/>
+			<mx:Label text="{propertiesRep.currentItem.type}" fontWeight="bold"/>
+		</mx:HBox>
+	</mx:Repeater>
+	
+	<mx:Label text="Relations" styleName="weekDayChooserStyle" color="#FFFFFF" paddingTop="10"/>
+	<mx:Repeater id="relationsRep">
+		<mx:HBox width="100%" verticalAlign="middle" paddingLeft="10" creationCompleteEffect="Fade">
+			<mx:Label width="100%" text="{relationsRep.currentItem.name}"/>
+			<mx:Label text="{relationsRep.currentItem.type}" fontWeight="bold"/>
+		</mx:HBox>
+	</mx:Repeater>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Label;
+			import mx.utils.ObjectUtil;
+			
+			private var _definition:Object;
+			
+			private var properties:Array = [];
+			private var relations:Array = [];
+
+			public function get definition():Object
+			{
+				return _definition;
+			}
+			[Bindable(event="change")]
+
+			public function set definition(value:Object):void
+			{
+				_definition = value;
+				
+				properties = [];
+				relations = [];
+
+				for each(var item:Object in value)
+				{
+					(item.hasOwnProperty("relation") && item.relation == true)
+					?	relations.push(item)
+					:	properties.push(item);
+				}
+					
+				propertiesRep.dataProvider = properties;
+				relationsRep.dataProvider = relations;
+			}
+		]]>
+	</mx:Script>
+</mx:VBox>

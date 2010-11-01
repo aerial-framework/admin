@@ -27,6 +27,7 @@
 		</mx:HBox>
 		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
+            <pages:CodeGeneration width="100%" height="100%"/>
 			<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
 														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>
 			<mx:ViewStack id="newOpenVS" width="100%" height="100%">
@@ -37,13 +38,20 @@
 	</mx:Panel>
 	<mx:Spacer height="6"/>
 	
-	<mx:LinkButton label="http://aerial-project.org" click="navigateToURL(new URLRequest('http://aerial-project.org'))" buttonMode="true" color="#DDDDDD"/>
+	<mx:HBox width="100%">
+		<mx:LinkButton label="http://aerial-project.org" click="navigateToURL(new URLRequest('http://aerial-project.org'))"
+					   buttonMode="true" color="#DDDDDD"/>
+		<mx:Spacer width="100%"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/consulting-16.png')" height="25" width="28"/>
+	</mx:HBox>
+	
 	
 	<mx:Script>
 		<![CDATA[	
 			import air.update.ApplicationUpdaterUI;
 			import air.update.events.UpdateEvent;
 			
+			import controllers.GenerationController;
 			import controllers.ProjectController;
 			
 			import flash.net.navigateToURL;
@@ -58,7 +66,7 @@
 
 				appUpdater.updateURL = "http://aerial-project.org/app-version.xml";
 				appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate);
-				appUpdater.addEventListener(ErrorEvent.ERROR, onError);
+				appUpdater.addEventListener(ErrorEvent.ERROR, onError);				
 				
 				appUpdater.isCheckForUpdateVisible = false;
 				appUpdater.isFileUpdateVisible = false;

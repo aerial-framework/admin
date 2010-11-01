@@ -1,4 +1,19 @@
 /* CSS file */
+.code
+{
+	fontFamily: "Droid Sans Mono";
+	fontSize: 12;
+	fontWeight: normal;
+	fontStyle: normal;
+	color: #FFFFFF;
+}
+
+.title
+{
+	fontFamily: "Lucida Sans";
+	fontSize: 20;
+	fontWeight: normal;
+}
 
 
 @font-face
@@ -437,6 +452,7 @@ Panel
 Panel.dark
 {
 	borderSkin: Embed(source="general/fondo5.jpg");
+	color: #EEEEEE;
 }
 
 .myTitlePanel
@@ -993,6 +1009,27 @@ ToolTip
 	paddding-left:			6;
 	padding-right:			6;
 	padding-top:			3;
+}
+@font-face
+{
+	fontFamily: "Droid Sans Mono";
+	fontWeight: normal;
+	fontStyle: normal;
+	src: local("Droid Sans Mono");
+}
+@font-face
+{
+	fontFamily: "Droid Sans Mono";
+	fontWeight: bold;
+	fontStyle: normal;
+	src: local("Droid Sans Mono");
+}
+@font-face
+{
+	fontFamily: "Droid Sans Mono";
+	fontWeight: bold;
+	fontStyle: italic;
+	src: local("Droid Sans Mono");
 }
 
 

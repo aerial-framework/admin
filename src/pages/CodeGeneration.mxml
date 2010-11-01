@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:codegen="pages.codegen.*">
+	
+	<mx:ViewStack id="pagesVS" width="100%" height="100%">
+		<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%" height="100%" horizontalAlign="center">
+			<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/category.png')" height="80" labelPlacement="bottom" label="Generate" width="110"
+					   click="pagesVS.selectedChild = generation"/>
+			<mx:VRule height="100"/>
+			<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/database.png')" height="80" labelPlacement="bottom" label="Backup &amp; Restore" width="110"
+					   click="dispatchEvent(new Event('openProject'))"/>
+		</mx:HBox>
+		<codegen:Generation id="generation" width="100%" height="100%" back="pagesVS.selectedIndex = 0"/>
+	</mx:ViewStack>
+
+    <mx:Script>
+        <![CDATA[
+        ]]>
+    </mx:Script>
+</mx:VBox>
