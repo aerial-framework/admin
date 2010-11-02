@@ -9,7 +9,7 @@
 				<mx:Image source="@Embed(source='../assets/icons/dusseldorf/check-16.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
-				<mx:Button label="Switch to Project Mode" styleName="buttonOfficial"/>
+				<mx:Button label="Switch to Project Mode" styleName="buttonOfficial" click="parseConfig()"/>
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
@@ -36,9 +36,11 @@
 		<![CDATA[
 			import controllers.ProjectController;
 			
+			import mx.controls.Alert;
 			import mx.controls.FileSystemEnumerationMode;
 			import mx.core.mx_internal;
 			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
 			
 			import utils.FileUtil;			
 			
@@ -154,6 +156,30 @@
 					pathChange();
 				}
 			}
+
+			private function parseConfig():void
+			{
+				var config:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/aerial/config.php");
+				var stream:FileStream = new FileStream();
+				stream.open(config, FileMode.READ);
+				var content:String = stream.readUTFBytes(stream.bytesAvailable);
+				stream.close();
+				
+				var pattern:RegExp = /define\("(.\w+)",\s?("?(.+)"?)\);/g;
+				var matches:Array = content.match(pattern);
+				var definitions:Object = {};
+				
+				for each(var match:String in matches)
+				{
+					var key:String = match.replace(pattern, "$1");
+					var value:String = match.replace(pattern, "$2");
+					
+					definitions[key] = value.replace(/\"/g, "");
+				}
+				
+				Alert.show(definitions["GATEWAY_URL"], "Is this your gateway URL?");
+			}
+
 		]]>
 	</mx:Script>
 </mx:VBox>

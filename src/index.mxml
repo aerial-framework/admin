@@ -51,12 +51,8 @@
 			import air.update.ApplicationUpdaterUI;
 			import air.update.events.UpdateEvent;
 			
-			import controllers.GenerationController;
-			import controllers.ProjectController;
-			
-			import flash.net.navigateToURL;
-			
 			import mx.controls.Alert;
+			import mx.utils.ObjectUtil;
 			
 			private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 			

@@ -5,17 +5,20 @@
 	</mx:Metadata>
 	
 	<mx:Script>
-		<![CDATA[
+		<![CDATA[			
 			import controllers.GenerationController;
 			
 			import mx.containers.Canvas;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
+			import mx.messaging.messages.RemotingMessage;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			[Bindable]
 			private var definitions:Object;
+			
+			private var configuration:Object;
 			
 			private function init():void
 			{
@@ -69,18 +72,25 @@
 			
 			private function resultHandler(event:ResultEvent):void
 			{
-				definitions = event.result;
+				var message:RemotingMessage = event.token.message as RemotingMessage;
 				
-				var dp:Array = [];
-				for(var model:String in definitions)
+				switch(message.operation)
 				{
-					dp.push(model);
+					case "getModelDefinitions":
+						definitions = event.result;
+						
+						var dp:Array = [];
+						for(var model:String in definitions)
+						{
+							dp.push(model);
+						}
+						
+						modelsList.dataProvider = dp;
+						
+						modelsList.selectedIndex = 0;
+						modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+						break;
 				}
-				
-				modelsList.dataProvider = dp;
-				
-				modelsList.selectedIndex = 0;
-				modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
 			}
 			
 			private function faultHandler(event:FaultEvent):void
@@ -108,7 +118,7 @@
 			<mx:RemoveChild target="{modelDef}"/>
 			<mx:AddChild relativeTo="{panel1}" position="lastChild">
 				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
-							 styleName="code"/>
+							 styleName="code" editable="false"/>
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
