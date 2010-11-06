@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-	<debug-mode type="boolean" category="simple" label="Use Debug Mode?">
+	<debug-mode type="boolean" category="simple" label="Use Debug Mode?" default="true">
 		<![CDATA[Turn this setting on to receive debugging information from Aerial in fault handlers.]]>
 	</debug-mode>
 	
@@ -42,6 +42,26 @@
 		<as3 type="folder_name" category="simple" label="ActionScript Base Folder" default="src_flex">
 			<![CDATA[The name of the base folder in which Aerial will generate code for ActionScript models and services.]]>
 		</as3>
+
+        <package type="package" category="advanced" label="Package String" default="org.aerial">
+			<![CDATA[The package string for Aerial to use in code generation which will be converted to a directory structure.]]>
+		</package>
+
+        <models-folder type="folder_name" category="simple" label="Models Path" default="vo">
+			<![CDATA[The name of the folder in which Aerial will place generated Value-Object files (models).]]>
+		</models-folder>
+
+        <services-folder type="folder_name" category="simple" label="Services Path" default="services">
+			<![CDATA[The name of the folder in which Aerial will place generated service files.]]>
+		</services-folder>
+
+        <vo type="folder_name" category="advanced" label="Value-Object Filename Suffix" default="VO">
+			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>
+		</vo>
+
+        <service type="folder_name" category="advanced" label="Service Filename Suffix" default="Service">
+			<![CDATA[The suffix to use when Aerial is creating filenames for services.]]>
+		</service>
 	</code-generation>
 		
 	<options type="container" category="simple" label="Other Options">
@@ -62,26 +82,6 @@
         <use-authentication type="boolean" category="advanced" label="Use ACL Authentication?" default="false">
 			<![CDATA[Turn on this setting to enable ACL (Access-Control-List) authentication.]]>
 		</use-authentication>
-
-        <package type="package" category="advanced" label="Package String" default="org.aerial">
-			<![CDATA[The package string for Aerial to use in code generation which will be converted to a directory structure.]]>
-		</package>
-		
-        <models-folder type="folder_name" category="simple" label="Models Path" default="vo">
-			<![CDATA[The name of the folder in which Aerial will place generated Value-Object files (models).]]>
-		</models-folder>
-		
-        <services-folder type="folder_name" category="simple" label="Services Path" default="services">
-			<![CDATA[The name of the folder in which Aerial will place generated service files.]]>
-		</services-folder>
-
-        <vo type="folder_name" category="advanced" label="Value-Object Filename Suffix" default="VO">
-			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>
-		</vo>
-		
-        <service type="folder_name" category="advanced" label="Service Filename Suffix" default="Service">
-			<![CDATA[The suffix to use when Aerial is creating filenames for services.]]>
-		</service>
 	</options>
 	
 	<server-url type="url" category="simple" label="Server Entrypoint URL" default="http://localhost/{foldername}/server.php">

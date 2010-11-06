@@ -7,12 +7,143 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+			import utils.ConfigurationNode;
+			
+			private var descriptorXML:XML;
+			private var configXML:XML;
+			
+			private var warnings:Array = [];
+			private var errors:Array = [];
 
 			private function parseConfig():void
 			{
+				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
+				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
 				
+				var stream:FileStream = new FileStream();
+				stream.open(descriptorFile, FileMode.READ);
+				descriptorXML = XML(stream.readUTFBytes(stream.bytesAvailable));
+				stream.close();
+				
+				stream.open(configFile, FileMode.READ);
+				configXML = XML(stream.readUTFBytes(stream.bytesAvailable));
+				stream.close();
+				
+				var nodes:Object = {};
+				
+				nodes["debug-mode"] = getSimpleNode("debug-mode", "Debug Mode");
+				nodes["paths"] = getRegularNode("paths", "Paths");
+				nodes["code-generation"] = getRegularNode("code-generation", "Code Generation");
+				nodes["options"] = getRegularNode("options", "Options");
+				nodes["server-url"] = getSimpleNode("server-url", "Server URL");
+				
+				trace("WARNINGS:\n" + warnings.join("\n"));
+				trace("ERRORS:\n" + errors.join("\n"));
+				trace(ObjectUtil.toString(nodes));
 			}
-
+			
+			private function getDebugNode():ConfigurationNode
+			{
+				var cNode:XML = XML(configXML['debug-mode'][0]);
+				var dNode:XML = XML(descriptorXML['debug-mode'][0]);
+				
+				if(!cNode.name() || !dNode.name())
+				{
+					warnings.push("Debug Mode node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
+					return null;
+				}
+				
+				var value:* = cNode.text().toString();
+				if(value == "true" || value == "false")
+					value = value == "true";
+				
+				var node:ConfigurationNode = new ConfigurationNode();
+				node.type = dNode.@type.toString();
+				node.label = dNode.@label.toString();
+				node.category = dNode.@category.toString();
+				node.defaultValue = dNode.@['default'].toString();
+				node.value = value;
+				
+				return node;
+			}
+			
+			private function getSimpleNode(parentNodeName:String, parentNodeLabel:String):ConfigurationNode
+			{
+				var cNode:XML = XML(configXML[parentNodeName][0]);
+				var dNode:XML = XML(descriptorXML[parentNodeName][0]);
+				
+				if(!cNode.name() || !dNode.name())
+				{
+					warnings.push(parentNodeLabel + " node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
+					return null;
+				}
+				
+				var value:* = cNode.text().toString();
+				if(value == "true" || value == "false")
+					value = value == "true";
+				
+				var node:ConfigurationNode = new ConfigurationNode();
+				node.type = dNode.@type.toString();
+				node.label = dNode.@label.toString();
+				node.category = dNode.@category.toString();
+				node.defaultValue = dNode.@['default'].toString();
+				node.value = value;
+				
+				return node;
+			}
+			
+			private function getRegularNode(parentNodeName:String, parentNodeLabel:String):Object
+			{
+				var cNode:XML = XML(configXML[parentNodeName][0]);
+				var dNode:XML = XML(descriptorXML[parentNodeName][0]);
+				
+				if(!cNode.name() || !dNode.name())
+				{
+					errors.push(parentNodeLabel + " node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
+					return null;
+				}
+				
+				// find the children node names that should ideally be in the configuration file
+				var idealChildren:Array = [];
+				for each(var child:XML in dNode.children())
+				{
+					// if the child is CDATA, ignore it
+					if(child.nodeKind() == "text")
+						continue;
+					
+					idealChildren.push(child.name().toString());
+				}
+				
+				var settings:Object = {};
+				
+				// now check what's actually in the config file
+				for each(var nodeName:String in idealChildren)
+				{
+					var testNode:XML = XML(cNode.child(nodeName)[0]);
+					var descriptorNode:XML = XML(dNode.child(nodeName)[0]);
+					
+					if(testNode.name() == null)
+					{
+						settings[nodeName] = null;
+						errors.push("'" + nodeName + "' node is missing in configuration file");
+						continue;
+					}
+					
+					var node:ConfigurationNode = new ConfigurationNode();
+					node.absolute = descriptorNode.@absolute.toString() == "true";
+					node.type = descriptorNode.@type.toString();
+					node.label = descriptorNode.@label.toString();
+					node.category = descriptorNode.@category.toString();
+					node.defaultValue = descriptorNode.@['default'].toString();
+					node.value = testNode.text().toString();
+					
+					settings[nodeName] = node;
+				}
+				
+				return settings;
+			}
 		]]>
 	</mx:Script>
 	
