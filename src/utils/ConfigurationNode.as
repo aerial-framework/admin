@@ -10,10 +10,12 @@ package utils
 		public var multiple:Boolean;
 		public var nodeNameRelevance:Boolean = true;
 		public var options:Array;
+		public var nodeToUse:String;
+		public var description:String;
 		
 		public var value:*;
 		
-		public var children:Array;
+		public var children:Object;
 		
 		public function ConfigurationNode()
 		{
