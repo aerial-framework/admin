@@ -165,6 +165,6 @@
 	
 	<!-- TODO: Make endpoint dynamic -->
 	<mx:RemoteObject id="service" source="core.aerial.Configuration" destination="aerial"
-					 endpoint="http://aerial-test/amfphp/gateway.php"
+					 endpoint="http://aerial-test/server.php"
 					 result="resultHandler(event)" fault="faultHandler(event)"/>
 </mx:VBox>

@@ -27,6 +27,7 @@
 		</mx:HBox>
 		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
+			<pages:ConfigEditor width="100%" height="100%"/>
             <pages:CodeGeneration width="100%" height="100%"/>
 			<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
 														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>
@@ -69,6 +70,35 @@
 				appUpdater.isInstallUpdateVisible = false;
 				
 				appUpdater.initialize();
+				
+				var xml:XML = <data>
+								<this>
+									<is>an example</is>
+									<of>a hierarchical</of>
+									<structure>
+										<that>
+											<goes>many levels deep</goes>
+										</that>
+									</structure>
+								</this>
+								</data>;
+				
+				//trace(ObjectUtil.toString(xmlToObject(xml)));
+			}
+			
+			private function xmlToObject(xml:XML, chain:Object=null):Object
+			{
+				if(!chain)
+					chain = {};
+				
+				for each(var child:XML in xml.children())
+				{
+					(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+					?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
+					:	chain[child.name().toString()] = chain[child.name().toString()] = child.text().toString();
+				}
+				
+				return chain;
 			}
 			
 			private function setApplicationVersion():void

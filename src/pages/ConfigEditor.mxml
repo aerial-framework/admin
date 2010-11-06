@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="parseConfig()">
+	
+	<mx:Metadata>
+		[Event(name="back",type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			private function parseConfig():void
+			{
+				
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" id="hbox1">
+		<mx:Label text="CONFIGURATION EDITOR" styleName="weekDayChooserStyle" fontWeight="bold"/>
+		
+		<mx:Spacer width="100%"/>
+		
+		<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/sign-in.png')" width="45" height="45"
+				   click="dispatchEvent(new Event('back'))" toolTip="Back"/>
+	</mx:HBox>
+</mx:VBox>

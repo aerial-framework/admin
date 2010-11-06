@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<debug-mode type="boolean" category="simple" label="Use Debug Mode?">
+		<![CDATA[Turn this setting on to receive debugging information from Aerial in fault handlers.]]>
+	</debug-mode>
+	
+	<paths type="container" label="Paths">
+		<![CDATA[This set of configuration values contains all the paths needed for Aerial to function.]]>
+		
+		<project type="path" absolute="true" category="simple" label="Base Project Path">
+			<![CDATA[The base directory for the project. This path MUST be absolute.]]>
+		</project>
+		
+		<aerial type="path" category="advanced" label="Aerial Path" default="src_php/lib/aerial">
+			<![CDATA[The base directory for the Aerial library. This path can be relative (to your base project path) or absolute.]]>
+		</aerial>
+		
+		<libs type="path" category="advanced" label="Library Path" default="src_php/lib">
+			<![CDATA[The directory for the Aerial library folder. This path can be relative (to your base project path) or absolute.]]>
+		</libs>
+		
+		<amfphp type="path" category="advanced" label="AMFPHP Path" default="src_php/public_html/amfphp/core">
+			<![CDATA[The directory for the AMFPHP installation to use. This path can be relative (to your base project path) or absolute.]]>
+		</amfphp>
+		
+		<doctrine type="path" category="advanced" label="Doctrine Path" default="src_php/lib/doctrine">
+			<![CDATA[The directory for the Doctrine installation to use. This path can be relative (to your base project path) or absolute.]]>
+		</doctrine>
+		
+		<internal-services type="path" category="advanced" label="Internal Services Path" default="src_php/lib/services">
+			<![CDATA[The directory for the Aerial web services. This path can be relative (to your base project path) or absolute.]]>
+		</internal-services>
+	</paths>
+		
+	<code-generation type="container" category="simple" label="Code Generation Settings">
+		<![CDATA[This set of configuration values contains all the options involved in code generation.]]>
+		
+		<php type="folder_name" category="simple" label="PHP Base Folder" default="src_php">
+			<![CDATA[The name of the base folder in which Aerial will generate code for PHP services.]]>
+		</php>
+		
+		<as3 type="folder_name" category="simple" label="ActionScript Base Folder" default="src_flex">
+			<![CDATA[The name of the base folder in which Aerial will generate code for ActionScript models and services.]]>
+		</as3>
+	</code-generation>
+		
+	<options type="container" category="simple" label="Other Options">
+		<![CDATA[This set of configuration values contains all the miscellaneous options involved in Aerial.]]>
+		
+		<directory-mode type="permissions" category="advanced" label="Directory Permissions" default="0666">
+			<![CDATA[The permission mode (octal) to use when Aerial creates directories.]]>
+		</directory-mode>
+		
+        <file-mode type="permissions" category="advanced" label="File Permissions" default="0644">
+			<![CDATA[The permission mode (octal) to use when Aerial creates files.]]>
+		</file-mode>
+		
+        <use-arraycollection type="boolean" category="advanced" label="Use ArrayCollections?" default="true">
+			<![CDATA[Turn on this setting to receive ArrayCollections back from Aerial instead of simple arrays.]]>
+		</use-arraycollection>
+		
+        <use-authentication type="boolean" category="advanced" label="Use ACL Authentication?" default="false">
+			<![CDATA[Turn on this setting to enable ACL (Access-Control-List) authentication.]]>
+		</use-authentication>
+
+        <package type="package" category="advanced" label="Package String" default="org.aerial">
+			<![CDATA[The package string for Aerial to use in code generation which will be converted to a directory structure.]]>
+		</package>
+		
+        <models-folder type="folder_name" category="simple" label="Models Path" default="vo">
+			<![CDATA[The name of the folder in which Aerial will place generated Value-Object files (models).]]>
+		</models-folder>
+		
+        <services-folder type="folder_name" category="simple" label="Services Path" default="services">
+			<![CDATA[The name of the folder in which Aerial will place generated service files.]]>
+		</services-folder>
+
+        <vo type="folder_name" category="advanced" label="Value-Object Filename Suffix" default="VO">
+			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>
+		</vo>
+		
+        <service type="folder_name" category="advanced" label="Service Filename Suffix" default="Service">
+			<![CDATA[The suffix to use when Aerial is creating filenames for services.]]>
+		</service>
+	</options>
+	
+	<server-url type="url" category="simple" label="Server Entrypoint URL" default="http://localhost/{foldername}/server.php">
+		<![CDATA[The URL of the server.php (remote entry-point) file on the server.]]>
+	</server-url>
+	
+	<database type="container" category="simple" multiple="true" nodeNameRelevance="false" label="Database Settings">
+		<![CDATA[The database connection settings. You can place several entries here but each must have a unique name.]]>
+		
+		<structure type="structure">
+			<engine type="array" category="simple" options="MySQL:mysql,FrontBase:fbsql,InterBase/FireBird:ibase,SQL Server:mssql,MySQLi:mysqli,Oracle:oci,PostgreSQL:pgsql,QuerySlim:queryslim,SQLite2:sqlite" label="Engine" default="mysql">
+				<![CDATA[The database engine.]]>
+			</engine>
+			
+            <host type="url" category="simple" label="Host" default="localhost">
+				<![CDATA[The database host.]]>
+			</host>
+			
+            <database type="string" category="simple" label="Database/Schema Name">
+				<![CDATA[The database/schema name.]]>
+			</database>
+			
+            <username type="string" category="simple" label="Username">
+				<![CDATA[The database username.]]>
+			</username>
+			
+            <password type="string" category="simple" label="Password">
+				<![CDATA[The database password.]]>
+			</password>
+		</structure>
+	</database>
+</config>
