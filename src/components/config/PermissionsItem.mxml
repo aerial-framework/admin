@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config:BaseConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
+					   xmlns:config="components.config.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import controllers.ApplicationController;
+			
+			import utils.ConfigurationUtil;
+			
+			private function init():void
+			{
+				this.pathTxt.text = node.value;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:HBox verticalAlign="middle" width="100%">
+		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\\\/\_\."/>
+		<mx:Button label="Browse"/>
+	</mx:HBox>
+</config:BaseConfigItem>

@@ -1,26 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="parseConfig()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()" verticalScrollPolicy="off">
 	
 	<mx:Metadata>
 		[Event(name="back",type="flash.events.Event")]
 	</mx:Metadata>
+	
 	<mx:Script>
 		<![CDATA[
+			import components.config.BooleanItem;
+			import components.config.FolderItem;
+			import components.config.PathItem;
+			
+			import controllers.ApplicationController;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.core.Application;
+			import mx.core.mx_internal;
 			import mx.events.FlexEvent;
 			import mx.utils.ObjectUtil;
 			
 			import utils.ConfigurationNode;
+			import utils.ConfigurationUtil;
+			import utils.PermissionsUtil;
 			
-			private var descriptorXML:XML;
-			private var configXML:XML;
+			use namespace mx_internal;
 			
-			private var warnings:Array = [];
-			private var errors:Array = [];
+			private function init():void
+			{
+				var nodes:Object = parseConfig();
+				
+				ApplicationController.instance.configMode = ConfigurationUtil.SIMPLE;
+				
+				trace(ObjectUtil.toString(PermissionsUtil.parsePermissions("0777")));
+				trace(PermissionsUtil.getPermissions(PermissionsUtil.parsePermissions("0777")));
+				
+				/* for(var name:String in nodes)
+				{
+					var node:ConfigurationNode = nodes[name] as ConfigurationNode;
+					trace(name + " > " + node.children + " > " + (node.category == ConfigurationParser.SIMPLE));
+					
+					if(!node.children)
+						continue;
+					
+					for(var subName:String in node.children)
+					{
+						var subNode:ConfigurationNode = node.children[subName] as ConfigurationNode;
+						if(subNode)
+							trace("> " + subName + " > " + subNode.children + " > " + (subNode.category == ConfigurationParser.SIMPLE));
+					}
+				} */
+				
+				var item:BooleanItem = new BooleanItem();
+				item.node = nodes["debug-mode"];
+				
+				importantPanel.addChild(item);
+				
+				for each(var pathItem:ConfigurationNode in nodes["paths"].children)
+				{					
+					var pItem:PathItem = new PathItem();
+					pItem.percentWidth = 100;
+					pItem.node = pathItem;
+					
+					if(pathItem.float != -1)
+						pathsPanel.addChildAt(pItem, pathItem.float);
+					else	
+						pathsPanel.addChild(pItem);
+				}
+				
+				for each(var codeGenItem:ConfigurationNode in nodes["code-generation"].children)
+				{					
+					var fItem:FolderItem = new FolderItem();
+					fItem.percentWidth = 100;
+					fItem.node = codeGenItem;
+					
+					/* if(pathItem.float != -1)
+						codeGenPanel.addChildAt(pItem, codeGenItem.float);
+					else	 */
+						codeGenPanel.addChild(fItem);
+				}
+				
+				for each(var optionItem:ConfigurationNode in nodes["options"].children)
+				{					
+					var oItem:FolderItem = new FolderItem();
+					oItem.percentWidth = 100;
+					oItem.node = optionItem;
+					
+					/* if(pathItem.float != -1)
+					codeGenPanel.addChildAt(pItem, codeGenItem.float);
+					else	 */
+					optionsPanel.addChild(oItem);
+				}
+			}
 
-			private function parseConfig():void
+			private function parseConfig():Object
 			{
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
 				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
+				
+				var descriptorXML:XML;
+				var configXML:XML;
 				
 				var stream:FileStream = new FileStream();
 				stream.open(descriptorFile, FileMode.READ);
@@ -33,180 +111,25 @@
 				
 				var nodes:Object = {};
 				
-				nodes["debug-mode"] = getSimpleNode("debug-mode", "Debug Mode");
-				nodes["paths"] = getRegularNode("paths", "Paths");
-				nodes["code-generation"] = getRegularNode("code-generation", "Code Generation");
-				nodes["options"] = getRegularNode("options", "Options");
-				nodes["server-url"] = getSimpleNode("server-url", "Server URL");
-				nodes["database"] = getDatabaseNodes();
+				var parser:ConfigurationUtil = ConfigurationUtil.instance;
+				parser.configXML = configXML;
+				parser.descriptorXML = descriptorXML;
 				
-				trace("WARNINGS:\n" + warnings.join("\n"));
-				trace("ERRORS:\n" + errors.join("\n"));
-				trace(ObjectUtil.toString(nodes));
+				nodes["debug-mode"] = parser.getSimpleNode("debug-mode", "Debug Mode");
+				nodes["paths"] = parser.getRegularNode("paths", "Paths");
+				nodes["code-generation"] = parser.getRegularNode("code-generation", "Code Generation");
+				nodes["options"] = parser.getRegularNode("options", "Options");
+				nodes["server-url"] = parser.getSimpleNode("server-url", "Server URL");
+				nodes["database"] = parser.getDatabaseNodes();
+				
+				return nodes;
 			}
 			
-			private function getSimpleNode(parentNodeName:String, parentNodeLabel:String):ConfigurationNode
-			{
-				var cNode:XML = XML(configXML[parentNodeName][0]);
-				var dNode:XML = XML(descriptorXML[parentNodeName][0]);
-				
-				if(!cNode.name() || !dNode.name())
-				{
-					warnings.push(parentNodeLabel + " node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
-					return null;
-				}
-				
-				var value:* = cNode.text().toString();
-				if(value == "true" || value == "false")
-					value = value == "true";
-				
-				var node:ConfigurationNode = new ConfigurationNode();
-				node.type = dNode.@type.toString();
-				node.label = dNode.@label.toString();
-				node.category = dNode.@category.toString();
-				node.defaultValue = dNode.@['default'].toString();
-				node.value = value;
-				node.description = dNode.text().toString();
-				
-				return node;
-			}
 			
-			private function getRegularNode(parentNodeName:String, parentNodeLabel:String):Object
+
+			private function modeChangeHandler(event:Event):void
 			{
-				var cNode:XML = XML(configXML[parentNodeName][0]);
-				var dNode:XML = XML(descriptorXML[parentNodeName][0]);
-				
-				if(!cNode.name() || !dNode.name())
-				{
-					errors.push(parentNodeLabel + " node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
-					return null;
-				}
-				
-				var parentNode:ConfigurationNode = new ConfigurationNode();
-				parentNode.absolute = dNode.@absolute.toString() == "true";
-				parentNode.type = dNode.@type.toString();
-				parentNode.label = dNode.@label.toString();
-				parentNode.category = dNode.@category.toString();
-				parentNode.defaultValue = dNode.@['default'].toString();
-				parentNode.value = cNode.text().toString();
-				parentNode.description = dNode.text().toString();
-				
-				// find the children node names that should ideally be in the configuration file
-				var idealChildren:Array = [];
-				for each(var child:XML in dNode.children())
-				{
-					// if the child is CDATA, ignore it
-					if(child.nodeKind() == "text")
-						continue;
-					
-					idealChildren.push(child.name().toString());
-				}
-				
-				var children:Object = {};
-				
-				// now check what's actually in the config file
-				for each(var nodeName:String in idealChildren)
-				{
-					var testNode:XML = XML(cNode.child(nodeName)[0]);
-					var descriptorNode:XML = XML(dNode.child(nodeName)[0]);
-					
-					if(testNode.name() == null)
-					{
-						children[nodeName] = null;
-						errors.push("'" + nodeName + "' node is missing in configuration file");
-						continue;
-					}
-					
-					var node:ConfigurationNode = new ConfigurationNode();
-					node.absolute = descriptorNode.@absolute.toString() == "true";
-					node.type = descriptorNode.@type.toString();
-					node.label = descriptorNode.@label.toString();
-					node.category = descriptorNode.@category.toString();
-					node.defaultValue = descriptorNode.@['default'].toString();
-					node.value = testNode.text().toString();
-					node.description = descriptorNode.text().toString();
-					
-					children[nodeName] = node;
-				}
-				
-				parentNode.children = children;
-				return parentNode;
-			}
-			
-			private function getDatabaseNodes():Object
-			{
-				var cNode:XML = XML(configXML["database"][0]);
-				var dNode:XML = XML(descriptorXML["database"][0]);
-				
-				if(!cNode.name() || !dNode.name())
-				{
-					errors.push("Database node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
-					return null;
-				}
-				
-				var parentNode:ConfigurationNode = new ConfigurationNode();
-				parentNode.type = dNode.@type.toString();
-				parentNode.label = dNode.@label.toString();
-				parentNode.category = dNode.@category.toString();
-				parentNode.description = dNode.text().toString();
-				
-				var nodeToUse:String = cNode.@['use'].toString();
-				
-				// create the ideal structure
-				var structure:Array = [];				
-				for each(var element:XML in dNode.structure.children())
-					structure.push(element.name().toString());
-					
-				var children:Object = {};
-				for each(var element:XML in cNode.children())
-				{
-					for each(var elementName:String in structure)
-					{
-						// validate the existent (or non-existent) nodes
-						if(element.child(elementName)[0] == null)
-						{
-							errors.push("'" + elementName + "' node is missing in configuration file");
-							continue;
-						}
-					}
-					
-					var subNodes:Object = {};
-					for each(var subNode:XML in element.children())
-					{
-						var descriptorNode:XML = dNode.structure.child(subNode.name().toString())[0];
-						
-						var node:ConfigurationNode = new ConfigurationNode();
-						node.type = descriptorNode.@type.toString();
-						node.label = descriptorNode.@label.toString();
-						node.category = descriptorNode.@category.toString();
-						node.defaultValue = descriptorNode.@['default'].toString();
-						node.value = subNode.text().toString();
-						node.description = descriptorNode.text().toString();
-						
-						if(descriptorNode.attribute("options")[0] != null)
-						{
-							var options:Array = [];
-							var splitOptions:Array = descriptorNode.@options.toString().split(",");
-							for each(var option:String in splitOptions)
-							{
-								var parts:Array = option.split(":");
-								options.push({label:parts[0], data:parts[1]});
-							}
-							
-							node.options = options;
-						}
-						
-						subNodes[subNode.name().toString()] = node;
-					}
-					
-					children[element.name().toString()] = subNodes;
-					
-					if(element.name().toString() == nodeToUse)
-						parentNode.nodeToUse = element.name().toString();
-				}
-				
-				parentNode.children = children;
-				return parentNode;
+				ApplicationController.instance.configMode = modeGroup.selection.name;
 			}
 		]]>
 	</mx:Script>
@@ -219,4 +142,24 @@
 		<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/sign-in.png')" width="45" height="45"
 				   click="dispatchEvent(new Event('back'))" toolTip="Back"/>
 	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" styleName="myTitlePanel">
+		<mx:RadioButton label="Simple" group="{modeGroup}" textAlign="center"
+						name="{ConfigurationUtil.SIMPLE}" labelPlacement="bottom"
+						creationComplete="event.currentTarget.selected = true"/>
+		<mx:RadioButton label="Advanced" group="{modeGroup}" textAlign="center"
+						name="{ConfigurationUtil.ADVANCED}" labelPlacement="bottom"/>
+	</mx:HBox>
+	
+	<mx:RadioButtonGroup id="modeGroup" change="modeChangeHandler(event)"/>
+	
+	<mx:Canvas id="scrollerPanel" width="100%" height="100%" horizontalScrollPolicy="off" visible="false"
+			   creationComplete="event.currentTarget.visible = true" creationCompleteEffect="Fade">
+		<mx:Form id="form" labelWidth="200" left="8" right="8" paddingLeft="0">
+			<mx:Panel id="importantPanel" title="IMPORTANT SETTINGS" width="100%" styleName="panelStyle"/>
+			<mx:Panel id="pathsPanel" title="PATH SETTINGS" width="100%" styleName="panelStyle"/>
+			<mx:Panel id="codeGenPanel" title="CODE GENERATION SETTINGS" width="100%" styleName="panelStyle"/>
+			<mx:Panel id="optionsPanel" title="OTHER SETTINGS" width="100%" styleName="panelStyle"/>
+		</mx:Form>
+	</mx:Canvas>
 </mx:VBox>

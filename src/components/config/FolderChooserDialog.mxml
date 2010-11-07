@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="500" height="400" showCloseButton="true"
+				title="SELECT A FOLDER" close="PopUpManager.removePopUp(this)" horizontalAlign="right"
+				creationComplete="focusManager.setFocus(tree)" resize="PopUpManager.centerPopUp(this)" resizeEffect="Resize">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.FileSystemEnumerationMode;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			private function getRelativePath():String
+			{
+				return new File(tree.selectedPath).nativePath.substr(new File(basePath).nativePath.length + 1).replace(/\\/gi, "/");
+			}
+			
+			private function createDirectory():void
+			{
+				var base:File = tree.selectedItem as File;
+				var newFolder:File = base.resolvePath(newDirectoryTxt.text);
+				
+				if(!newFolder.exists)
+					newFolder.createDirectory();
+				
+				tree.refresh();
+				currentState = null;
+			}
+		]]>
+	</mx:Script>
+	<mx:states>
+		<mx:State name="createNew">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{tree}"/>
+			<mx:RemoveChild target="{hrule1}"/>
+			<mx:RemoveChild target="{hbox1}"/>
+			<!--<mx:SetStyle name="moveEffect" value="Move"/>-->
+			<mx:SetProperty name="height"/>
+			<mx:SetProperty name="layout" value="horizontal"/>
+			<mx:AddChild position="lastChild">
+				<mx:Label text="{selectedPath.text}/" fontWeight="bold" fontSize="13" click="currentState = null"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:TextInput id="newDirectoryTxt" width="100%" restrict="a-zA-Z0-9\-\_\." enter="createDirectory()"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Create" click="createDirectory()" enabled="{newDirectoryTxt.text.length != 0}"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Cancel" click="currentState = null"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:Button label="Create new directory" id="button1" click="currentState = 'createNew'"/>
+	<mx:FileSystemTree id="tree" width="100%" showIcons="true" allowMultipleSelection="false"
+					   enumerationMode="{FileSystemEnumerationMode.DIRECTORIES_ONLY}" height="100%"
+					   borderStyle="none" backgroundAlpha="0" creationComplete="tree.directory = new File(basePath)"
+					   itemClick="selectedPath.text = getRelativePath()" directoryOpening="selectedPath.text = getRelativePath()"
+					   directoryClosing="selectedPath.text = getRelativePath()"/>
+	
+	<mx:HRule width="100%" id="hrule1"/>
+	<mx:HBox width="100%" verticalAlign="middle" visible="{tree.selectedItem}" includeInLayout="{tree.selectedItem}" id="hbox1">
+		<mx:Label id="selectedPath" width="100%"/>
+		<mx:Button label="Select" click="selected = selectedPath.text; dispatchEvent(new CloseEvent(CloseEvent.CLOSE))"/>
+	</mx:HBox>
+	
+	<mx:String id="basePath"/>
+	<mx:String id="selected"></mx:String>
+</mx:TitleWindow>

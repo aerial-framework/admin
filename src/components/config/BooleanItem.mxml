@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config:BaseConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" xmlns:config="components.config.*">
+	<mx:ComboBox width="100%" dataProvider="{['true', 'false']}" selectedIndex="{node.value == true ? 0 : 1}"/>
+</config:BaseConfigItem>

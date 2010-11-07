@@ -7,7 +7,7 @@
 	<paths type="container" label="Paths">
 		<![CDATA[This set of configuration values contains all the paths needed for Aerial to function.]]>
 		
-		<project type="path" absolute="true" category="simple" label="Base Project Path">
+		<project type="path" absolute="true" category="simple" label="Base Project Path" float="0">
 			<![CDATA[The base directory for the project. This path MUST be absolute.]]>
 		</project>
 		
@@ -32,7 +32,7 @@
 		</internal-services>
 	</paths>
 		
-	<code-generation type="container" category="simple" label="Code Generation Settings">
+	<code-generation type="container" label="Code Generation Settings">
 		<![CDATA[This set of configuration values contains all the options involved in code generation.]]>
 		
 		<php type="folder_name" category="simple" label="PHP Base Folder" default="src_php">
@@ -55,16 +55,16 @@
 			<![CDATA[The name of the folder in which Aerial will place generated service files.]]>
 		</services-folder>
 
-        <vo type="folder_name" category="advanced" label="Value-Object Filename Suffix" default="VO">
+        <vo type="class" category="advanced" label="Value-Object Filename Suffix" default="VO">
 			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>
 		</vo>
 
-        <service type="folder_name" category="advanced" label="Service Filename Suffix" default="Service">
+        <service type="class" category="advanced" label="Service Filename Suffix" default="Service">
 			<![CDATA[The suffix to use when Aerial is creating filenames for services.]]>
 		</service>
 	</code-generation>
 		
-	<options type="container" category="simple" label="Other Options">
+	<options type="container" label="Other Options">
 		<![CDATA[This set of configuration values contains all the miscellaneous options involved in Aerial.]]>
 		
 		<directory-mode type="permissions" category="advanced" label="Directory Permissions" default="0666">
@@ -88,7 +88,7 @@
 		<![CDATA[The URL of the server.php (remote entry-point) file on the server.]]>
 	</server-url>
 	
-	<database type="container" category="simple" multiple="true" nodeNameRelevance="false" label="Database Settings">
+	<database type="container" multiple="true" nodeNameRelevance="false" label="Database Settings">
 		<![CDATA[The database connection settings. You can place several entries here but each must have a unique name.]]>
 		
 		<structure type="structure">

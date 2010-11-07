@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config:BaseConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
+					   xmlns:config="components.config.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import controllers.ApplicationController;
+			
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			import utils.ConfigurationUtil;
+			
+			private function init():void
+			{
+				this.pathTxt.text = node.value;
+			}
+
+			private function showFolderChooser(event:MouseEvent):void
+			{
+				var dialog:FolderChooserDialog = PopUpManager.createPopUp(Sprite(Application.application), FolderChooserDialog, true) as FolderChooserDialog;
+				dialog.basePath = "C:/UniServer/www/open-source/aerial-test";
+				dialog.addEventListener(CloseEvent.CLOSE, dialogCloseHandler);
+				PopUpManager.centerPopUp(dialog);
+			}
+
+			private function dialogCloseHandler(event:CloseEvent):void
+			{
+				var dialog:FolderChooserDialog = event.currentTarget as FolderChooserDialog;
+				if(dialog.selected)
+					pathTxt.text = dialog.selected;
+			}
+
+			private function validatePath(event:Event):void
+			{
+				var file:File = new File("C:/UniServer/www/open-source/aerial-test/" + pathTxt.text);
+				invalidImg.visible = invalidImg.includeInLayout = (!file || !file.exists);
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:HBox verticalAlign="middle" width="100%">
+		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\_\." change="validatePath(event)"/>
+		<mx:Button label="Browse" click="showFolderChooser(event)"/>
+		<mx:Image id="invalidImg" source="@Embed(source='../../assets/icons/dusseldorf/cross.png')"
+				  visible="false" includeInLayout="false"/>
+	</mx:HBox>
+</config:BaseConfigItem>

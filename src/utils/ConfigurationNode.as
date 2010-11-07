@@ -12,6 +12,7 @@ package utils
 		public var options:Array;
 		public var nodeToUse:String;
 		public var description:String;
+		public var float:int = -1;
 		
 		public var value:*;
 		

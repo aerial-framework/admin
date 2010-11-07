@@ -463,7 +463,24 @@ Panel.dark
 	color:			#333333;
 }
 
+.panelStyle
+{
+	background-color:				#F8F8F8;
+	border-color:					#cbcbcb;
+	cornerRadius: 0;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderThickness: 1;
+	titleStyleName: panelStyleTitle;
+}
 
+.panelStyleTitle
+{
+	color:					#333333;
+	font-weight:			bold;
+	font-size:				12;
+	font-family:			"Lucida Sans";
+}
 
 TabNavigator
 {
@@ -861,7 +878,7 @@ TITLE WINDOW
 ------------------------------------------------------------------------
 */
 
-TitleWindow
+TitleWindow.old
 {
 	border-skin:			Embed("general/titleWindow.png", scaleGridTop="42", scaleGridBottom="138", scaleGridLeft="11", scaleGridRight="118");
 	background-size:		"100%";
@@ -880,6 +897,20 @@ TitleWindow
 	close-button-up-skin:	Embed("botones/close.png");
 	close-button-over-skin:	Embed("botones/close1.png");
 	close-button-down-skin:	Embed("botones/close2.png");
+}
+
+TitleWindow
+{
+	background-color:				#F8F8F8;
+	border-color:					#222222;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderThickness: 1;
+	titleStyleName: panelStyleTitle;
+	roundedBottomCorners: false;
+	cornerRadius: 0;
+	borderAlpha: 0.6;
+	backgroundAlpha: 0.9;
 }
 
 .myWindow
