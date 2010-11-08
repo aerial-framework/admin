@@ -1,5 +1,6 @@
 package utils
 {
+	[Bindable]
 	public class ConfigurationNode
 	{
 		public var type:String;
@@ -10,13 +11,14 @@ package utils
 		public var multiple:Boolean;
 		public var nodeNameRelevance:Boolean = true;
 		public var options:Array;
+		public var name:String;
 		public var nodeToUse:String;
 		public var description:String;
-		public var float:int = -1;
+		public var nodeName:String;
 		
 		public var value:*;
 		
-		public var children:Object;
+		public var children:Array;
 		
 		public function ConfigurationNode()
 		{

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config:ConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
-					   xmlns:config="components.config.*">
+				   xmlns:config="components.config.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -15,8 +15,5 @@
 		]]>
 	</mx:Script>
 	
-	<mx:HBox verticalAlign="middle" width="100%">
-		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\\\/\_\."/>
-		<mx:Button label="Browse"/>
-	</mx:HBox>
+	<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\/\_\.\:\~"/>
 </config:ConfigItem>

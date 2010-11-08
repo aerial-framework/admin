@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config:BaseConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
+<config:ConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
 					   xmlns:config="components.config.*">
 	
 	<mx:Script>
@@ -7,16 +7,42 @@
 			import controllers.ApplicationController;
 			
 			import utils.ConfigurationUtil;
+			import utils.PermissionsUtil;
 			
 			private function init():void
 			{
-				this.pathTxt.text = node.value;
+				user.mode = node.value.charAt(1);
+				group.mode = node.value.charAt(2);
+				other.mode = node.value.charAt(3);
+			}
+			
+			public function get mode():String
+			{
+				return "0" + user.mode + group.mode + other.mode;
 			}
 		]]>
 	</mx:Script>
 	
-	<mx:HBox verticalAlign="middle" width="100%">
-		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\\\/\_\."/>
-		<mx:Button label="Browse"/>
+	<mx:HBox verticalAlign="middle">
+		<mx:VBox horizontalAlign="center" verticalAlign="0">
+			<config:PermissionChooser id="user"/>
+			<mx:Canvas width="100%" backgroundColor="#222222">
+				<mx:Label text="User ({user.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>
+			</mx:Canvas>
+		</mx:VBox>
+		<mx:VRule height="50"/>
+		<mx:VBox horizontalAlign="center" verticalAlign="0">
+			<config:PermissionChooser id="group"/>
+			<mx:Canvas width="100%" backgroundColor="#222222">
+				<mx:Label text="Group ({group.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>
+			</mx:Canvas>
+		</mx:VBox>
+		<mx:VRule height="50"/>
+		<mx:VBox horizontalAlign="center" verticalAlign="0">
+			<config:PermissionChooser id="other"/>
+			<mx:Canvas width="100%" backgroundColor="#222222">
+				<mx:Label text="Other ({other.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>
+			</mx:Canvas>
+		</mx:VBox>
 	</mx:HBox>
-</config:BaseConfigItem>
+</config:ConfigItem>

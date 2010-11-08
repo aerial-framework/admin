@@ -46,7 +46,7 @@ package utils
 			return permissions;
 		}
 		
-		private static function parsePermission(permissions:Array):String
+		public static function parsePermission(permissions:Array):String
 		{
 			switch(permissions.join(","))
 			{
@@ -78,7 +78,7 @@ package utils
 			}
 		}
 		
-		private static function parseMode(mode:uint):Array
+		public static function parseMode(mode:uint):Array
 		{
 			switch(mode)
 			{

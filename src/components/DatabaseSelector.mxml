@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">	
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:Label width="100%" text="{nodeName}" styleName="panelStyleTitle"/>
+		<mx:RadioButton id="radio" selected="{selected}" label="Selected" group="{group}"
+						change="selected = radio.selected"/>
+	</mx:HBox>
+	
+	<mx:HRule width="100%"/>
+	
+	<mx:String id="nodeName"/>
+	<mx:Boolean id="selected"/>
+	<mx:RadioButtonGroup id="group"/>
+</mx:VBox>

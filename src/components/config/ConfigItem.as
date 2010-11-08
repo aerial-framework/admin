@@ -8,18 +8,18 @@ package components.config
 	import utils.ConfigurationNode;
 	import utils.ConfigurationUtil;
 	
-	public class BaseConfigItem extends FormItem
+	public class ConfigItem extends FormItem
 	{
 		public var node:ConfigurationNode;
 		
-		public function BaseConfigItem()
+		public function ConfigItem()
 		{
 			super();
 			
 			this.addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
-			this.setStyle("showEffect", "Fade");
+			/*this.setStyle("showEffect", "Fade");
 			this.setStyle("creationCompletionEffect", "Fade");
-			this.setStyle("removeEffect", "Resize");
+			this.setStyle("removeEffect", "Resize");*/
 		}
 
 		private function creationCompleteHandler(event:FlexEvent):void

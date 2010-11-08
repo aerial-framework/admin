@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config:BaseConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
+<config:ConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" creationComplete="init()"
 					   xmlns:config="components.config.*">
 	
 	<mx:Script>
@@ -48,4 +48,4 @@
 		<mx:Image id="invalidImg" source="@Embed(source='../../assets/icons/dusseldorf/cross.png')"
 				  visible="false" includeInLayout="false"/>
 	</mx:HBox>
-</config:BaseConfigItem>
+</config:ConfigItem>

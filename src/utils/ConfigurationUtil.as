@@ -5,6 +5,7 @@ package utils
 		private static var _instance:ConfigurationUtil;
 		
 		public var configXML:XML;
+		public var altConfigXML:XML;
 		public var descriptorXML:XML;
 		
 		public var warnings:Array = [];
@@ -75,7 +76,6 @@ package utils
 			parentNode.defaultValue = dNode.@['default'].toString();
 			parentNode.value = cNode.text().toString();
 			parentNode.description = dNode.text().toString();
-			parentNode.float = dNode.@float[0] == null ? -1 : int(dNode.@float.toString());
 			
 			// find the children node names that should ideally be in the configuration file
 			var idealChildren:Array = [];
@@ -88,7 +88,7 @@ package utils
 				idealChildren.push(child.name().toString());
 			}
 			
-			var children:Object = {};
+			var children:Array = [];
 			
 			// now check what's actually in the config file
 			for each(var nodeName:String in idealChildren)
@@ -105,15 +105,24 @@ package utils
 				
 				var node:ConfigurationNode = new ConfigurationNode();
 				node.absolute = descriptorNode.@absolute.toString() == "true";
+				node.name = descriptorNode.name().toString();
 				node.type = descriptorNode.@type.toString();
 				node.label = descriptorNode.@label.toString();
 				node.category = descriptorNode.@category.toString();
 				node.defaultValue = descriptorNode.@['default'].toString();
 				node.value = testNode.text().toString();
-				node.description = descriptorNode.text().toString();
-				node.float = descriptorNode.@float[0] == null ? -1 : int(descriptorNode.@float.toString());
+
+				if(node.type == "boolean")
+					node.value = node.value == "true";
 				
-				children[nodeName] = node;
+				if(node.type == "array")
+				{
+					
+				}
+				
+				node.description = descriptorNode.text().toString();
+				
+				children.push(node);
 			}
 			
 			parentNode.children = children;
@@ -144,7 +153,7 @@ package utils
 			for each(var element:XML in dNode.structure.children())
 			structure.push(element.name().toString());
 			
-			var children:Object = {};
+			var children:Array = [];
 			for each(var element:XML in cNode.children())
 			{
 				for each(var elementName:String in structure)
@@ -163,12 +172,14 @@ package utils
 					var descriptorNode:XML = dNode.structure.child(subNode.name().toString())[0];
 					
 					var node:ConfigurationNode = new ConfigurationNode();
+					node.name = descriptorNode.name().toString();
 					node.type = descriptorNode.@type.toString();
 					node.label = descriptorNode.@label.toString();
 					node.category = descriptorNode.@category.toString();
 					node.defaultValue = descriptorNode.@['default'].toString();
 					node.value = subNode.text().toString();
 					node.description = descriptorNode.text().toString();
+					node.nodeName = element.name().toString();
 					
 					if(descriptorNode.attribute("options")[0] != null)
 					{
@@ -186,7 +197,7 @@ package utils
 					subNodes[subNode.name().toString()] = node;
 				}
 				
-				children[element.name().toString()] = subNodes;
+				children.push(subNodes);
 				
 				if(element.name().toString() == nodeToUse)
 					parentNode.nodeToUse = element.name().toString();

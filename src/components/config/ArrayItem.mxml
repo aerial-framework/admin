@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config:ConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" xmlns:config="components.config.*"
+				   creationComplete="init()">
+	<mx:ComboBox id="optionSelector" dataProvider="{node.options}"/>
+	
+	<mx:Script>
+		<![CDATA[
+			private function init():void
+			{
+				var selectedIndex:int = -1;
+				
+				for(var i:uint = 0; i < node.options.length; i++)
+				{
+					if(node.value == node.options[i].data)
+						selectedIndex = i;
+				}
+				
+				if(selectedIndex > -1)
+					optionSelector.selectedIndex = selectedIndex;
+			}
+		]]>
+	</mx:Script>
+</config:ConfigItem>

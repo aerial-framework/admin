@@ -4,22 +4,56 @@
 				creationComplete="focusManager.setFocus(tree)" resize="PopUpManager.centerPopUp(this)" resizeEffect="Resize">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.controls.FileSystemEnumerationMode;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			
 			private function getRelativePath():String
 			{
-				return new File(tree.selectedPath).nativePath.substr(new File(basePath).nativePath.length + 1).replace(/\\/gi, "/");
+				var path:String = "";
+				try
+				{
+					path = new File(tree.selectedPath).nativePath.substr(new File(basePath).nativePath.length + 1).replace(/\\/gi, "/");
+				}
+				catch(e:Error){}
+				
+				return path;
 			}
 			
 			private function createDirectory():void
 			{
-				var base:File = tree.selectedItem as File;
+				var base:File = tree.selectedItem ? tree.selectedItem as File : tree.directory;
 				var newFolder:File = base.resolvePath(newDirectoryTxt.text);
+				
+				if(!newFolder)
+				{
+					Alert.show("Could not create directory");
+					return;
+				}
 				
 				if(!newFolder.exists)
 					newFolder.createDirectory();
+				
+				tree.selectedItem = null;
+				
+				tree.refresh();
+				currentState = null;
+			}
+			
+			private function removeDirectory():void
+			{
+				var path:File = new File(basePath + "/" + selectedPath.text);
+				if(path.nativePath == new File(basePath).nativePath)
+				{
+					Alert.show("Are you crazy?! You cannot delete the base directory! Please select an element in the tree.", "Error");
+					return;
+				}
+				
+				path.moveToTrash();
+				
+				tree.selectedItem = null;
+				selectedPath.text = "";
 				
 				tree.refresh();
 				currentState = null;
@@ -27,30 +61,51 @@
 		]]>
 	</mx:Script>
 	<mx:states>
-		<mx:State name="createNew">
+		<mx:State name="createNew" enterState="focusManager.setFocus(newDirectoryTxt)">
 			<mx:RemoveChild target="{button1}"/>
-			<mx:RemoveChild target="{tree}"/>
+			<mx:SetProperty target="{tree}" name="visible" value="false"/>
+			<mx:SetProperty target="{tree}" name="includeInLayout" value="false"/>
 			<mx:RemoveChild target="{hrule1}"/>
 			<mx:RemoveChild target="{hbox1}"/>
 			<!--<mx:SetStyle name="moveEffect" value="Move"/>-->
 			<mx:SetProperty name="height"/>
 			<mx:SetProperty name="layout" value="horizontal"/>
 			<mx:AddChild position="lastChild">
-				<mx:Label text="{selectedPath.text}/" fontWeight="bold" fontSize="13" click="currentState = null"/>
+				<mx:Label text="{selectedPath.text}/" fontWeight="bold" fontSize="13" click="currentState = null" id="label1"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:TextInput id="newDirectoryTxt" width="100%" restrict="a-zA-Z0-9\-\_\." enter="createDirectory()"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="Create" click="createDirectory()" enabled="{newDirectoryTxt.text.length != 0}"/>
+				<mx:Button label="Create" click="createDirectory()" enabled="{newDirectoryTxt.text.length != 0}" id="button2"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:Button label="Cancel" click="currentState = null"/>
 			</mx:AddChild>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:SetProperty name="title" value="CREATE NEW DIRECTORY"/>
+		</mx:State>
+		<mx:State name="remove" basedOn="createNew">
+			<mx:SetProperty target="{button2}" name="label" value="Remove"/>
+			<mx:SetEventHandler target="{button2}" name="click" handler="removeDirectory()"/>
+			<mx:SetProperty name="title" value="REMOVE DIRECTORY"/>
+			<mx:RemoveChild target="{newDirectoryTxt}"/>
+			<mx:SetProperty target="{label1}" name="text" value="{selectedPath.text}"/>
+			<mx:SetStyle target="{label1}" name="fontWeight" value="normal"/>
+			<mx:SetStyle target="{label1}" name="fontSize"/>
+			<mx:SetStyle name="verticalAlign" value="middle"/>
+			<mx:SetProperty target="{label1}" name="width" value="100%"/>
+			<mx:SetStyle target="{label1}" name="textAlign" value="right"/>
+			<mx:SetProperty target="{button2}" name="enabled" value="true"/>
 		</mx:State>
 	</mx:states>
 	
-	<mx:Button label="Create new directory" id="button1" click="currentState = 'createNew'"/>
+	<mx:HBox id="hbox2">
+		<mx:Button icon="@Embed(source='../../assets/icons/dusseldorf/plus-16.png')"
+				   label="Create" id="button1" click="currentState = 'createNew'" height="30"/>
+		<mx:Button icon="@Embed(source='../../assets/icons/dusseldorf/cross.png')" click="currentState = 'remove'"
+				   height="30" label="Remove" id="button3"/>
+	</mx:HBox>
 	<mx:FileSystemTree id="tree" width="100%" showIcons="true" allowMultipleSelection="false"
 					   enumerationMode="{FileSystemEnumerationMode.DIRECTORIES_ONLY}" height="100%"
 					   borderStyle="none" backgroundAlpha="0" creationComplete="tree.directory = new File(basePath)"

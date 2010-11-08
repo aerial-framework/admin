@@ -7,7 +7,7 @@
 	<paths type="container" label="Paths">
 		<![CDATA[This set of configuration values contains all the paths needed for Aerial to function.]]>
 		
-		<project type="path" absolute="true" category="simple" label="Base Project Path" float="0">
+		<project type="path" absolute="true" category="simple" label="Base Project Path">
 			<![CDATA[The base directory for the project. This path MUST be absolute.]]>
 		</project>
 		
@@ -62,10 +62,6 @@
         <service type="class" category="advanced" label="Service Filename Suffix" default="Service">
 			<![CDATA[The suffix to use when Aerial is creating filenames for services.]]>
 		</service>
-	</code-generation>
-		
-	<options type="container" label="Other Options">
-		<![CDATA[This set of configuration values contains all the miscellaneous options involved in Aerial.]]>
 		
 		<directory-mode type="permissions" category="advanced" label="Directory Permissions" default="0666">
 			<![CDATA[The permission mode (octal) to use when Aerial creates directories.]]>
@@ -74,6 +70,10 @@
         <file-mode type="permissions" category="advanced" label="File Permissions" default="0644">
 			<![CDATA[The permission mode (octal) to use when Aerial creates files.]]>
 		</file-mode>
+	</code-generation>
+		
+	<options type="container" label="Other Options">
+		<![CDATA[This set of configuration values contains all the miscellaneous options involved in Aerial.]]>
 		
         <use-arraycollection type="boolean" category="advanced" label="Use ArrayCollections?" default="true">
 			<![CDATA[Turn on this setting to receive ArrayCollections back from Aerial instead of simple arrays.]]>

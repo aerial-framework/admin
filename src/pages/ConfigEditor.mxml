@@ -7,13 +7,21 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import components.DatabaseSelector;
+			import components.config.ArrayItem;
 			import components.config.BooleanItem;
+			import components.config.ConfigItem;
 			import components.config.FolderItem;
+			import components.config.PackageItem;
 			import components.config.PathItem;
+			import components.config.PermissionsItem;
+			import components.config.StringItem;
+			import components.config.URLItem;
 			
 			import controllers.ApplicationController;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.controls.HRule;
 			import mx.core.Application;
 			import mx.core.mx_internal;
 			import mx.events.FlexEvent;
@@ -31,74 +39,88 @@
 				
 				ApplicationController.instance.configMode = ConfigurationUtil.SIMPLE;
 				
-				trace(ObjectUtil.toString(PermissionsUtil.parsePermissions("0777")));
-				trace(PermissionsUtil.getPermissions(PermissionsUtil.parsePermissions("0777")));
+				var panels:Array = [];
+				panels.push({section:"debug-mode", panel:importantPanel});
+				panels.push({section:"paths", panel:pathsPanel});
+				panels.push({section:"code-generation", panel:codeGenPanel});
+				panels.push({section:"options", panel:optionsPanel});
+				panels.push({section:"server-url", panel:importantPanel});
+				panels.push({section:"database", panel:databasePanel});
 				
-				/* for(var name:String in nodes)
+				// loop through all configuration sections
+				for(var section:String in nodes)
 				{
-					var node:ConfigurationNode = nodes[name] as ConfigurationNode;
-					trace(name + " > " + node.children + " > " + (node.category == ConfigurationParser.SIMPLE));
+					// find the panel into which each child should be added
+					var panel:Panel;
+					for each(var obj:Object in panels)
+						if(obj.section == section)
+						{
+							panel = obj.panel;
+							break;
+						}
 					
-					if(!node.children)
-						continue;
-					
-					for(var subName:String in node.children)
+					var settingGroup:ConfigurationNode = nodes[section] as ConfigurationNode;	
+						
+					// simple settings do not have children
+					if(!settingGroup.children || settingGroup.children.length == 0)
+						createField(settingGroup, panel);
+					else
 					{
-						var subNode:ConfigurationNode = node.children[subName] as ConfigurationNode;
-						if(subNode)
-							trace("> " + subName + " > " + subNode.children + " > " + (subNode.category == ConfigurationParser.SIMPLE));
+						var group:RadioButtonGroup = new RadioButtonGroup();
+						
+						// regular settings have simple children
+						for(var i:uint = 0; i < settingGroup.children.length; i++)
+						{
+							// if the child is a ConfigurationNode
+							var node:ConfigurationNode = settingGroup.children[i] as ConfigurationNode;
+							
+							if(node)
+								createField(node, panel);
+							else
+							{
+								// if the node is not a ConfigurationNode, it's probably a more complex array
+								// involved in the database settings section
+								
+								if(settingGroup.children[i].database == undefined)
+									continue;
+								
+								var selector:DatabaseSelector = new DatabaseSelector();
+								selector.group = group;
+								
+								var nodeName:String = settingGroup.children[i]["database"].nodeName;
+								selector.nodeName = nodeName;
+								selector.selected = settingGroup.nodeToUse == nodeName;
+								panel.addChild(selector);
+									
+								for(var setting:String in settingGroup.children[i])
+								{
+									var subNode:ConfigurationNode = settingGroup.children[i][setting] as ConfigurationNode;
+									if(subNode)
+										createField(subNode, panel);
+								}
+								
+								if(i < settingGroup.children.length - 1)
+								{
+									var rule:HRule = new HRule();
+									rule.percentWidth = 100;
+									panel.addChild(rule);
+								}								
+							}
+						}
 					}
-				} */
-				
-				var item:BooleanItem = new BooleanItem();
-				item.node = nodes["debug-mode"];
-				
-				importantPanel.addChild(item);
-				
-				for each(var pathItem:ConfigurationNode in nodes["paths"].children)
-				{					
-					var pItem:PathItem = new PathItem();
-					pItem.percentWidth = 100;
-					pItem.node = pathItem;
-					
-					if(pathItem.float != -1)
-						pathsPanel.addChildAt(pItem, pathItem.float);
-					else	
-						pathsPanel.addChild(pItem);
-				}
-				
-				for each(var codeGenItem:ConfigurationNode in nodes["code-generation"].children)
-				{					
-					var fItem:FolderItem = new FolderItem();
-					fItem.percentWidth = 100;
-					fItem.node = codeGenItem;
-					
-					/* if(pathItem.float != -1)
-						codeGenPanel.addChildAt(pItem, codeGenItem.float);
-					else	 */
-						codeGenPanel.addChild(fItem);
-				}
-				
-				for each(var optionItem:ConfigurationNode in nodes["options"].children)
-				{					
-					var oItem:FolderItem = new FolderItem();
-					oItem.percentWidth = 100;
-					oItem.node = optionItem;
-					
-					/* if(pathItem.float != -1)
-					codeGenPanel.addChildAt(pItem, codeGenItem.float);
-					else	 */
-					optionsPanel.addChild(oItem);
 				}
 			}
-
+			
 			private function parseConfig():Object
 			{
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
 				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
+				var altConfigFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config-alt.xml");
+				
 				
 				var descriptorXML:XML;
 				var configXML:XML;
+				var altConfigXML:XML;
 				
 				var stream:FileStream = new FileStream();
 				stream.open(descriptorFile, FileMode.READ);
@@ -109,6 +131,20 @@
 				configXML = XML(stream.readUTFBytes(stream.bytesAvailable));
 				stream.close();
 				
+				stream.open(altConfigFile, FileMode.READ);
+				altConfigXML = XML(stream.readUTFBytes(stream.bytesAvailable));
+				stream.close();
+				
+				var copy:XML = configXML;
+				//copy = copy.appendChild(configXML.*);
+				copy = copy.replace("debug-mode", altConfigXML["debug-mode"]);
+				copy = copy.replace("database", altConfigXML["database"]);
+				
+				trace(copy.toXMLString());
+				
+				/**
+				 * when in editor and alt stuff is loaded and you change shit, which to replace? config.xml or config-alt.xml?!
+				 */
 				var nodes:Object = {};
 				
 				var parser:ConfigurationUtil = ConfigurationUtil.instance;
@@ -125,7 +161,50 @@
 				return nodes;
 			}
 			
+			private function createField(node:ConfigurationNode, panel:Panel):void
+			{
+				var editorClass:Class = getEditor(node);
+				var editor:ConfigItem = new editorClass();
+				editor.node = node;
+				editor.percentWidth = 100;
+				
+				panel.addChild(editor);
+			}
 			
+			private function getEditor(node:ConfigurationNode):Class
+			{
+				switch(node.type)
+				{
+					case "path":
+						return PathItem;
+						break;
+					case "string":
+						return StringItem;
+						break;
+					case "array":
+						return ArrayItem;
+						break;
+					case "url":
+						return URLItem;
+						break;
+					case "package":
+					case "class":
+						return PackageItem;
+						break;
+					case "folder_name":
+						return FolderItem;
+						break;
+					case "boolean":
+						return BooleanItem;
+						break;
+					case "permissions":
+						return PermissionsItem;
+						break;
+					default:
+						throw new Error("No editor type found for [" + node.type + "].");
+						break;
+				}
+			}			
 
 			private function modeChangeHandler(event:Event):void
 			{
@@ -157,6 +236,7 @@
 			   creationComplete="event.currentTarget.visible = true" creationCompleteEffect="Fade">
 		<mx:Form id="form" labelWidth="200" left="8" right="8" paddingLeft="0">
 			<mx:Panel id="importantPanel" title="IMPORTANT SETTINGS" width="100%" styleName="panelStyle"/>
+			<mx:Panel id="databasePanel" title="DATABASE SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="pathsPanel" title="PATH SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="codeGenPanel" title="CODE GENERATION SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="optionsPanel" title="OTHER SETTINGS" width="100%" styleName="panelStyle"/>
