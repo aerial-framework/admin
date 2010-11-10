@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config:ConfigItem xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:utils="utils.*" xmlns:config="components.config.*"
 				   creationComplete="init()">
-	<mx:ComboBox id="optionSelector" dataProvider="{node.options}"/>
+	<mx:ComboBox id="optionSelector" dataProvider="{node.options}" enabled="{editable}"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -17,6 +17,13 @@
 				
 				if(selectedIndex > -1)
 					optionSelector.selectedIndex = selectedIndex;
+				
+				optionSelector.enabled = editable;
+			}
+			
+			override public function getValue():Object
+			{
+				return optionSelector.selectedItem.data;
 			}
 		]]>
 	</mx:Script>

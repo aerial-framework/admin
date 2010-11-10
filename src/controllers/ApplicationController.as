@@ -1,5 +1,7 @@
 package controllers
 {
+	import components.config.DatabaseSelector;
+	
 	import org.osflash.signals.Signal;
 
 	public class ApplicationController
@@ -7,6 +9,10 @@ package controllers
 		private static var _instance:ApplicationController;
 		
 		public var configModeChanged:Signal;
+		public var configViewChanged:Signal;
+		
+		public var addDatabaseNode:Signal;
+		
 		private var _configMode:String;
 		
 		{
@@ -22,6 +28,8 @@ package controllers
 			}
 			
 			configModeChanged = new Signal(String);
+			configViewChanged = new Signal(String, Boolean);
+			addDatabaseNode = new Signal(DatabaseSelector);
 		}		
 
 		public function get configMode():String

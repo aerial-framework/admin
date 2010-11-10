@@ -12,8 +12,13 @@
 			{
 				this.pathTxt.text = node.value;
 			}
+			
+			override public function getValue():Object
+			{
+				return pathTxt.text;
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\/\_\.\:\~"/>
+	<mx:TextInput id="pathTxt" width="100%" enabled="{editable}"/>
 </config:ConfigItem>

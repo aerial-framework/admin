@@ -12,8 +12,13 @@
 			{
 				this.txt.text = node.value;
 			}
+			
+			override public function getValue():Object
+			{
+				return txt.text;
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:TextInput id="txt" width="100%"/>
+	<mx:TextInput id="txt" width="100%" enabled="{editable}"/>
 </config:ConfigItem>

@@ -707,13 +707,8 @@ Alert, .panelSkin
 
 ScrollBar
 {
-	up-arrow-up-skin: 		ClassReference(null); /*Embed("botones/Scroll_up.png" );*/
-	up-arrow-over-skin:		ClassReference(null); /*Embed("botones/Scroll_up.png");*/
-	up-arrow-down-skin:		ClassReference(null); /*Embed("botones/Scroll_up1.png");*/
-	
-	down-arrow-up-skin:		ClassReference(null); /*Embed("botones/Scroll_down.png" );*/
-	down-arrow-over-skin:	ClassReference(null); /*Embed("botones/Scroll_down.png");*/
-	down-arrow-down-skin:	ClassReference(null); /*Embed("botones/Scroll_down1.png");*/
+	up-arrow-skin: 			ClassReference(null);
+	down-arrow-skin:		ClassReference(null);
 	
 	thumb-up-skin:			Embed("botones/Scroll_barra.png", scaleGridTop="3", scaleGridBottom="7", scaleGridLeft="2", scaleGridRight="11");
 	thumb-over-skin:		Embed("botones/Scroll_barra1.png", scaleGridTop="3", scaleGridBottom="7", scaleGridLeft="2", scaleGridRight="11");
@@ -723,6 +718,10 @@ ScrollBar
 	/*track-down-skin: 		Embed("botones/Scroll_fondo.png", scaleGridTop="26", scaleGridBottom="28", scaleGridLeft="8", scaleGridRight="9");*/
 
 	thumb-icon:				Embed("botones/Scroll_icon.png");
+}
+FormItem
+{
+	indicatorGap: 24;
 }
 
 NumericStepper

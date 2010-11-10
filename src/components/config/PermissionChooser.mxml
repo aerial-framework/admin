@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" enabled="{editable}"
+		 creationComplete="init()" implements="components.config.IConfigItem">
 	<mx:Metadata>
 		[Event(name="change",type="flash.events.Event")]
 	</mx:Metadata>
@@ -10,8 +11,21 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import controllers.ApplicationController;
+			
+			import utils.ConfigurationUtil;
 			import utils.PermissionsUtil;
 			private var _mode:String;
+			
+			private function init():void
+			{
+				ApplicationController.instance.configViewChanged.add(viewChangeHandler);
+			}
+			
+			private function viewChangeHandler(mode:String, enabled:Boolean):void
+			{				
+				this.editable = enabled;
+			}
 			
 			public function set mode(value:String):void
 			{
@@ -54,6 +68,13 @@
 				
 				return PermissionsUtil.parsePermission(permissions);
 			}
+			
+			public function getValue():Object
+			{
+				return mode;
+			}
 		]]>
 	</mx:Script>
+	
+	<mx:Boolean id="editable">true</mx:Boolean>
 </mx:HBox>

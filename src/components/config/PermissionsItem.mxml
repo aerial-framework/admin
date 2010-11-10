@@ -20,6 +20,11 @@
 			{
 				return "0" + user.mode + group.mode + other.mode;
 			}
+			
+			override public function getValue():Object
+			{
+				return mode;
+			}
 		]]>
 	</mx:Script>
 	

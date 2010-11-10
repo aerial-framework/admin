@@ -28,7 +28,7 @@
 		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
 			<pages:ConfigEditor width="100%" height="100%"/>
-            <pages:CodeGeneration width="100%" height="100%"/>
+            <!--<pages:CodeGeneration width="100%" height="100%"/>-->
 			<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
 														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>
 			<mx:ViewStack id="newOpenVS" width="100%" height="100%">

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<config>
-	<debug-mode type="boolean" category="simple" label="Use Debug Mode?" default="true">
-		<![CDATA[Turn this setting on to receive debugging information from Aerial in fault handlers.]]>
-	</debug-mode>
-	
+<config>	
 	<paths type="container" label="Paths">
 		<![CDATA[This set of configuration values contains all the paths needed for Aerial to function.]]>
 		
@@ -75,6 +71,14 @@
 	<options type="container" label="Other Options">
 		<![CDATA[This set of configuration values contains all the miscellaneous options involved in Aerial.]]>
 		
+		<debug-mode type="boolean" category="simple" label="Use Debug Mode?" default="true">
+			<![CDATA[Turn this setting on to receive debugging information from Aerial in fault handlers.]]>
+		</debug-mode>
+		
+		<server-url type="url" category="simple" label="Server Entrypoint URL" default="http://localhost/{foldername}/server.php">
+			<![CDATA[The URL of the server.php (remote entry-point) file on the server.]]>
+		</server-url>
+		
         <use-arraycollection type="boolean" category="advanced" label="Use ArrayCollections?" default="true">
 			<![CDATA[Turn on this setting to receive ArrayCollections back from Aerial instead of simple arrays.]]>
 		</use-arraycollection>
@@ -83,10 +87,6 @@
 			<![CDATA[Turn on this setting to enable ACL (Access-Control-List) authentication.]]>
 		</use-authentication>
 	</options>
-	
-	<server-url type="url" category="simple" label="Server Entrypoint URL" default="http://localhost/{foldername}/server.php">
-		<![CDATA[The URL of the server.php (remote entry-point) file on the server.]]>
-	</server-url>
 	
 	<database type="container" multiple="true" nodeNameRelevance="false" label="Database Settings">
 		<![CDATA[The database connection settings. You can place several entries here but each must have a unique name.]]>

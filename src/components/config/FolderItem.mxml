@@ -38,13 +38,18 @@
 				var file:File = new File("C:/UniServer/www/open-source/aerial-test/" + pathTxt.text);
 				invalidImg.visible = invalidImg.includeInLayout = (!file || !file.exists);
 			}
+			
+			override public function getValue():Object
+			{
+				return pathTxt.text;
+			}
 
 		]]>
 	</mx:Script>
 	
 	<mx:HBox verticalAlign="middle" width="100%">
-		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\_\." change="validatePath(event)"/>
-		<mx:Button label="Browse" click="showFolderChooser(event)"/>
+		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\_\." change="validatePath(event)" enabled="{editable}"/>
+		<mx:Button label="Browse" click="showFolderChooser(event)" enabled="{editable}"/>
 		<mx:Image id="invalidImg" source="@Embed(source='../../assets/icons/dusseldorf/cross.png')"
 				  visible="false" includeInLayout="false"/>
 	</mx:HBox>

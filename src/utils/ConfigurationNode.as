@@ -16,6 +16,9 @@ package utils
 		public var description:String;
 		public var nodeName:String;
 		
+		public var raw:XML;
+		public var parentRaw:XML;
+		
 		public var value:*;
 		
 		public var children:Array;

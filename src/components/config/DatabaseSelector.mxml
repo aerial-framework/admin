@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()"
+		 implements="components.config.IConfigItem" verticalAlign="middle">	
+	
+	<mx:states>
+		<mx:State name="editNodeName">
+			<mx:AddChild relativeTo="{vrule1}" position="before">
+				<mx:TextInput id="nodeNameTxt" text="{nodeName}" width="200" enter="currentState=null"
+							  change="setNodeName()"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{nodeNameLabel}"/>
+		</mx:State>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="middle" height="100%">
+		<mx:Label text="{nodeName}" styleName="panelStyleTitle" click="currentState='editNodeName'" id="nodeNameLabel"/>
+		<mx:VRule height="15" id="vrule1"/>
+		<mx:RadioButton id="radio" selected="{selected}" label="Selected" group="{group}"
+						change="selected = radio.selected" enabled="{editable}"/>
+		
+		<mx:Spacer width="100%"/>
+		<mx:Button click="ApplicationController.instance.addDatabaseNode.dispatch(this)" label="Add"
+				   icon="@Embed(source='../../assets/icons/dusseldorf/plus-16.png')"/>
+	</mx:HBox>
+	
+	<mx:Script>
+		<![CDATA[
+			import controllers.ApplicationController;
+			
+			public var databaseNode:XML;
+			
+			private function init():void
+			{
+				ApplicationController.instance.configViewChanged.add(viewChangeHandler);
+			}
+			
+			private function setNodeName():void
+			{
+				var focalNode:XML = XML(databaseNode[nodeName][0]);
+				if(!focalNode)
+					return;
+				
+				focalNode.setName(nodeNameTxt.text);
+				nodeName = nodeNameTxt.text;
+			}
+			
+			private function viewChangeHandler(mode:String, enabled:Boolean):void
+			{
+				this.editable = enabled;
+			}
+			
+			public function getValue():Object
+			{
+				return radio.selected;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:HRule width="100%"/>
+	
+	<mx:String id="nodeName"/>
+	<mx:Boolean id="selected"/>
+	<mx:RadioButtonGroup id="group"/>
+	<mx:Boolean id="editable">true</mx:Boolean>
+	<mx:Boolean id="isNew"/>
+</mx:VBox>

@@ -14,6 +14,10 @@ package utils
 		public static const SIMPLE:String = "simple";
 		public static const ADVANCED:String = "advanced";
 		
+		public static const HYBRID:String = "hybrid";
+		public static const REGULAR:String = "regular";
+		public static const ALTERNATIVE:String = "alternative";
+		
 		{
 			_instance = new ConfigurationUtil();
 		}
@@ -29,34 +33,6 @@ package utils
 			return _instance;
 		}
 		
-		public function getSimpleNode(parentNodeName:String, parentNodeLabel:String):ConfigurationNode
-		{
-			var cNode:XML = XML(configXML[parentNodeName][0]);
-			var dNode:XML = XML(descriptorXML[parentNodeName][0]);
-			
-			if(!cNode.name() || !dNode.name())
-			{
-				warnings.push(parentNodeLabel + " node is missing in " + (!cNode.name() ? "configuration file " : "configuration descriptor"));
-				return null;
-			}
-			
-			var value:* = cNode.text().toString();
-			var type:String = dNode.@type.toString();
-			
-			if(type == "boolean")
-				value = value == "true";
-			
-			var node:ConfigurationNode = new ConfigurationNode();
-			node.type = dNode.@type.toString();
-			node.label = dNode.@label.toString();
-			node.category = dNode.@category.toString();
-			node.defaultValue = dNode.@['default'].toString();
-			node.value = value;
-			node.description = dNode.text().toString();
-			
-			return node;
-		}
-		
 		public function getRegularNode(parentNodeName:String, parentNodeLabel:String):Object
 		{
 			var cNode:XML = XML(configXML[parentNodeName][0]);
@@ -69,6 +45,7 @@ package utils
 			}
 			
 			var parentNode:ConfigurationNode = new ConfigurationNode();
+			parentNode.name = dNode.name().toString();
 			parentNode.absolute = dNode.@absolute.toString() == "true";
 			parentNode.type = dNode.@type.toString();
 			parentNode.label = dNode.@label.toString();
@@ -76,6 +53,8 @@ package utils
 			parentNode.defaultValue = dNode.@['default'].toString();
 			parentNode.value = cNode.text().toString();
 			parentNode.description = dNode.text().toString();
+			parentNode.raw = cNode;
+			parentNode.parentRaw = configXML;
 			
 			// find the children node names that should ideally be in the configuration file
 			var idealChildren:Array = [];
@@ -111,6 +90,8 @@ package utils
 				node.category = descriptorNode.@category.toString();
 				node.defaultValue = descriptorNode.@['default'].toString();
 				node.value = testNode.text().toString();
+				node.raw = testNode;
+				node.parentRaw = cNode;
 
 				if(node.type == "boolean")
 					node.value = node.value == "true";
@@ -141,17 +122,19 @@ package utils
 			}
 			
 			var parentNode:ConfigurationNode = new ConfigurationNode();
+			parentNode.type = dNode.name().toString();
 			parentNode.type = dNode.@type.toString();
 			parentNode.label = dNode.@label.toString();
 			parentNode.category = dNode.@category.toString();
 			parentNode.description = dNode.text().toString();
+			parentNode.raw = cNode;
 			
 			var nodeToUse:String = cNode.@['use'].toString();
 			
 			// create the ideal structure
 			var structure:Array = [];				
 			for each(var element:XML in dNode.structure.children())
-			structure.push(element.name().toString());
+				structure.push(element.name().toString());
 			
 			var children:Array = [];
 			for each(var element:XML in cNode.children())
@@ -180,6 +163,8 @@ package utils
 					node.value = subNode.text().toString();
 					node.description = descriptorNode.text().toString();
 					node.nodeName = element.name().toString();
+					node.raw = subNode;
+					node.parentRaw = cNode;
 					
 					if(descriptorNode.attribute("options")[0] != null)
 					{

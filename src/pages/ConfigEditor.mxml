@@ -7,11 +7,12 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import components.DatabaseSelector;
 			import components.config.ArrayItem;
 			import components.config.BooleanItem;
 			import components.config.ConfigItem;
+			import components.config.DatabaseSelector;
 			import components.config.FolderItem;
+			import components.config.IConfigItem;
 			import components.config.PackageItem;
 			import components.config.PathItem;
 			import components.config.PermissionsItem;
@@ -19,11 +20,16 @@
 			import components.config.URLItem;
 			
 			import controllers.ApplicationController;
+			import controllers.FileController;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
 			import mx.controls.HRule;
+			import mx.controls.RadioButtonGroup;
 			import mx.core.Application;
+			import mx.core.UIComponent;
 			import mx.core.mx_internal;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.utils.ObjectUtil;
 			
@@ -33,34 +39,78 @@
 			
 			use namespace mx_internal;
 			
+			private var panels:Array = [];
+			private var newXML:XML = new XML();
+			
 			private function init():void
 			{
-				var nodes:Object = parseConfig();
+				ApplicationController.instance.addDatabaseNode.add(addDatabaseNodeHandler);
+				
+				panels.push({section:"options", panel:optionsPanel});
+				panels.push({section:"paths", panel:pathsPanel});
+				panels.push({section:"code-generation", panel:codeGenPanel});
+				panels.push({section:"database", panel:databasePanel});
 				
 				ApplicationController.instance.configMode = ConfigurationUtil.SIMPLE;
 				
-				var panels:Array = [];
-				panels.push({section:"debug-mode", panel:importantPanel});
-				panels.push({section:"paths", panel:pathsPanel});
-				panels.push({section:"code-generation", panel:codeGenPanel});
-				panels.push({section:"options", panel:optionsPanel});
-				panels.push({section:"server-url", panel:importantPanel});
-				panels.push({section:"database", panel:databasePanel});
+				var nodes:Object = parseConfig();
+				createEditors(nodes);
+			}
+			
+			private function addDatabaseNodeHandler(reference:DatabaseSelector):void
+			{
+				/* var selector:DatabaseSelector = new DatabaseSelector();
+				selector.databaseNode = reference.databaseNode;
+				selector.group = reference.group;
 				
+				var copy:XML = XML(reference.databaseNode[reference.nodeName][0]).copy();
+				copy.setName("untitled");	
+				
+				reference.databaseNode.appendChild(copy);
+				
+				selector.nodeName = "untitled";
+				selector.selected = false;
+				selector.isNew = true;
+				databasePanel.addChildAt(selector, databasePanel.getChildIndex(reference));
+				
+				for each(var child:XML in copy.children())
+				{
+					child.setChildren("");
+					
+					var subNode:ConfigurationNode = reference.databaseNode.children[i][setting] as ConfigurationNode;
+					if(subNode)
+						createField(subNode, databasePanel);
+				}
+				
+				var rule:HRule = new HRule();
+				rule.percentWidth = 100;
+				databasePanel.addChild(rule); */
+			}
+			
+			private function clearPanels():void
+			{
+				for each(var item:Object in panels)
+					Panel(item.panel).removeAllChildren();
+			}
+			
+			private function createEditors(nodes:Object):void
+			{				
 				// loop through all configuration sections
 				for(var section:String in nodes)
 				{
 					// find the panel into which each child should be added
 					var panel:Panel;
 					for each(var obj:Object in panels)
-						if(obj.section == section)
-						{
-							panel = obj.panel;
-							break;
-						}
+					if(obj.section == section)
+					{
+						panel = obj.panel;
+						break;
+					}
 					
-					var settingGroup:ConfigurationNode = nodes[section] as ConfigurationNode;	
-						
+					var settingGroup:ConfigurationNode = nodes[section] as ConfigurationNode;
+					if(!settingGroup)
+						continue;
+					
 					// simple settings do not have children
 					if(!settingGroup.children || settingGroup.children.length == 0)
 						createField(settingGroup, panel);
@@ -85,13 +135,14 @@
 									continue;
 								
 								var selector:DatabaseSelector = new DatabaseSelector();
+								selector.databaseNode = settingGroup.raw;
 								selector.group = group;
 								
 								var nodeName:String = settingGroup.children[i]["database"].nodeName;
 								selector.nodeName = nodeName;
 								selector.selected = settingGroup.nodeToUse == nodeName;
 								panel.addChild(selector);
-									
+								
 								for(var setting:String in settingGroup.children[i])
 								{
 									var subNode:ConfigurationNode = settingGroup.children[i][setting] as ConfigurationNode;
@@ -111,12 +162,13 @@
 				}
 			}
 			
-			private function parseConfig():Object
+			private function parseConfig(useAlt:Boolean=false):Object
 			{
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
 				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
 				var altConfigFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config-alt.xml");
 				
+				XML.ignoreComments = false;
 				
 				var descriptorXML:XML;
 				var configXML:XML;
@@ -135,27 +187,21 @@
 				altConfigXML = XML(stream.readUTFBytes(stream.bytesAvailable));
 				stream.close();
 				
-				var copy:XML = configXML;
-				//copy = copy.appendChild(configXML.*);
-				copy = copy.replace("debug-mode", altConfigXML["debug-mode"]);
-				copy = copy.replace("database", altConfigXML["database"]);
+				/* var hybrid:XML = configXML;
+				hybrid.replace("debug-mode", altConfigXML["debug-mode"]);
+				hybrid.replace("database", altConfigXML["database"]);
 				
-				trace(copy.toXMLString());
+				trace(hybrid.toXMLString()); */
 				
-				/**
-				 * when in editor and alt stuff is loaded and you change shit, which to replace? config.xml or config-alt.xml?!
-				 */
 				var nodes:Object = {};
 				
 				var parser:ConfigurationUtil = ConfigurationUtil.instance;
-				parser.configXML = configXML;
+				parser.configXML = useAlt ? altConfigXML : configXML;
 				parser.descriptorXML = descriptorXML;
 				
-				nodes["debug-mode"] = parser.getSimpleNode("debug-mode", "Debug Mode");
 				nodes["paths"] = parser.getRegularNode("paths", "Paths");
 				nodes["code-generation"] = parser.getRegularNode("code-generation", "Code Generation");
 				nodes["options"] = parser.getRegularNode("options", "Options");
-				nodes["server-url"] = parser.getSimpleNode("server-url", "Server URL");
 				nodes["database"] = parser.getDatabaseNodes();
 				
 				return nodes;
@@ -169,6 +215,27 @@
 				editor.percentWidth = 100;
 				
 				panel.addChild(editor);
+			}
+			
+			private function setState(state:String):void
+			{
+				switch(state)
+				{
+					case 'hybrid':
+						ApplicationController.instance.configViewChanged.dispatch(ConfigurationUtil.HYBRID, false);
+						break;
+					case 'regular':
+						var nodes:Object = parseConfig();
+						createEditors(nodes);
+						ApplicationController.instance.configViewChanged.dispatch(ConfigurationUtil.REGULAR, true);
+						break;
+					case 'alternative':
+						clearPanels();
+						var nodes:Object = parseConfig(true);
+						createEditors(nodes);
+						ApplicationController.instance.configViewChanged.dispatch(ConfigurationUtil.ALTERNATIVE, true);
+						break;
+				}
 			}
 			
 			private function getEditor(node:ConfigurationNode):Class
@@ -206,9 +273,74 @@
 				}
 			}			
 
-			private function modeChangeHandler(event:Event):void
+			private function setMode(mode:String):void
 			{
-				ApplicationController.instance.configMode = modeGroup.selection.name;
+				ApplicationController.instance.configMode = mode;
+			}
+
+			private function saveConfig():void
+			{
+				newXML = ConfigurationUtil.instance.configXML;
+				
+				for each(var item:Object in panels)
+					for each(var child:UIComponent in Panel(item.panel).getChildren())
+						if(child is IConfigItem && child.visible && child.includeInLayout)
+						{
+							if(child is ConfigItem)
+							{
+								var config:ConfigItem = child as ConfigItem;
+								
+								/* trace("<<<<<<" + config.node.name + ">>>>>>>");
+								trace(config.node.raw.toXMLString());
+								trace(config.node.parentRaw.toXMLString()); */
+								
+								var isDatabaseNode:Boolean = config.node.nodeName != null;
+								
+								if(isDatabaseNode)
+								{
+									var node:XML = XML(newXML["database"][config.node.nodeName][0]);
+									
+									//XML(config.node.raw.parent()).setName(config
+									config.node.raw.setChildren(config.getValue());
+									node.replace(config.node.name, config.node.raw);
+								}
+								else
+								{
+									var node:XML = XML(newXML[config.node.parentRaw.name().toString()][0]);
+									config.node.raw.setChildren(config.getValue());
+									node.replace(config.node.name, config.node.raw);
+								}
+							}
+							else if(child is DatabaseSelector)
+							{
+								var selector:DatabaseSelector = child as DatabaseSelector;
+								
+								if(Boolean(selector.getValue()))
+									XML(newXML["database"][0]).@['use'] = selector.nodeName;
+							}
+							
+							/* trace("[" + item.section + "]\n" + child + "\n"
+								+ (child as IConfigItem).getValue() + "\n-----------------------"); */
+						}
+						
+				Alert.show("Would you like to make a backup of the original config.xml " +
+								"file before it is overwritten with new values?", "Confirmation", Alert.YES|Alert.NO|Alert.CANCEL, null,
+								backupSelectionHandler);
+			}
+			
+			private function backupSelectionHandler(event:CloseEvent):void
+			{
+				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
+				
+				if(event.detail == Alert.YES)
+				{
+					var backupFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.backup.zip")
+					
+					FileController.instance.backup(configFile, backupFile);
+				}
+				
+				if(event.detail != Alert.CANCEL)
+					FileController.instance.write(configFile, newXML.toXMLString());
 			}
 		]]>
 	</mx:Script>
@@ -222,24 +354,45 @@
 				   click="dispatchEvent(new Event('back'))" toolTip="Back"/>
 	</mx:HBox>
 	
-	<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" styleName="myTitlePanel">
-		<mx:RadioButton label="Simple" group="{modeGroup}" textAlign="center"
-						name="{ConfigurationUtil.SIMPLE}" labelPlacement="bottom"
-						creationComplete="event.currentTarget.selected = true"/>
-		<mx:RadioButton label="Advanced" group="{modeGroup}" textAlign="center"
-						name="{ConfigurationUtil.ADVANCED}" labelPlacement="bottom"/>
+	<mx:HRule width="100%"/>
+	
+	<mx:HBox width="100%" verticalAlign="middle" styleName="myTitlePanel">
+		<mx:ToggleButtonBar width="150" itemClick="setMode(event.item.data)" selectedIndex="0">
+			<mx:dataProvider>
+				<mx:Array>
+					<mx:Object label="Simple" data="{ConfigurationUtil.SIMPLE}"/>
+					<mx:Object label="Advanced" data="{ConfigurationUtil.ADVANCED}"/>
+				</mx:Array>
+			</mx:dataProvider>
+		</mx:ToggleButtonBar>
+		
+		<mx:Spacer width="100%"/>
+		
+		<mx:Button label="Save Configuration" click="saveConfig()" height="35"
+				   icon="@Embed(source='../assets/icons/dusseldorf/upcoming-work-16.png')"/>
+		
+		<mx:Spacer width="100%"/>
+		
+		<mx:ToggleButtonBar width="150" itemClick="setState(event.item.data)" selectedIndex="0">
+			<mx:dataProvider>
+				<mx:Array>
+					<!--<mx:Object label="Hybrid" data="{ConfigurationUtil.HYBRID}"/>-->
+					<mx:Object label="Regular" data="{ConfigurationUtil.REGULAR}"/>
+					<!--<mx:Object label="Alternative" data="{ConfigurationUtil.ALTERNATIVE}"/>-->
+				</mx:Array>
+			</mx:dataProvider>
+		</mx:ToggleButtonBar>
 	</mx:HBox>
 	
-	<mx:RadioButtonGroup id="modeGroup" change="modeChangeHandler(event)"/>
+	<mx:HRule width="100%"/>
 	
 	<mx:Canvas id="scrollerPanel" width="100%" height="100%" horizontalScrollPolicy="off" visible="false"
 			   creationComplete="event.currentTarget.visible = true" creationCompleteEffect="Fade">
-		<mx:Form id="form" labelWidth="200" left="8" right="8" paddingLeft="0">
-			<mx:Panel id="importantPanel" title="IMPORTANT SETTINGS" width="100%" styleName="panelStyle"/>
+		<mx:Form id="form" labelWidth="200" left="0" right="8" paddingLeft="0" paddingTop="0" paddingBottom="0">
+			<mx:Panel id="optionsPanel" title="SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="databasePanel" title="DATABASE SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="pathsPanel" title="PATH SETTINGS" width="100%" styleName="panelStyle"/>
 			<mx:Panel id="codeGenPanel" title="CODE GENERATION SETTINGS" width="100%" styleName="panelStyle"/>
-			<mx:Panel id="optionsPanel" title="OTHER SETTINGS" width="100%" styleName="panelStyle"/>
 		</mx:Form>
 	</mx:Canvas>
 </mx:VBox>
