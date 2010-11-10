@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:pages="pages.*"
-			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right">
+			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right" xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*" xmlns:pairViewStackEffects="org.efflex.mx.pairViewStackEffects.*">
 	
 	<mx:HBox width="100%" verticalAlign="middle">
 		<mx:Image source="@Embed(source='assets/images/aerial-logo.png')">
@@ -11,32 +11,42 @@
 		
 		<mx:Spacer width="100%"/>
 		
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"
+				   click="appControl.showPage.dispatch(ApplicationController.HOME)"/>
 		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
 		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
 		<mx:Label id="versionStr" fontSize="12" fontWeight="bold" color="#DDDDDD" visible="false" includeInLayout="false"/>
 	</mx:HBox>
 	<mx:Spacer height="12"/>
 	
-	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">
-		<mx:HBox width="100%" verticalAlign="middle" visible="{pagesVS.selectedChild == newOpenVS}"
-				 										includeInLayout="{pagesVS.selectedChild == newOpenVS}">			
-			<mx:Spacer width="100%"/>
-			
-			<mx:ToggleButtonBar dataProvider="{newOpenVS}"/>
-		</mx:HBox>
-		
+	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
-			<!--<pages:ConfigEditor width="100%" height="100%"/>-->
-            <!--<pages:CodeGeneration width="100%" height="100%"/>-->
-			<!--<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
-														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>-->
-			<mx:ViewStack id="newOpenVS" width="100%" height="100%">
-				<pages:ArchiveView width="100%" height="100%" label="Start a new Project"/>
-				<pages:Project width="100%" height="100%" label="Manage Installation"/>
-			</mx:ViewStack>
+			<mx:VBox horizontalAlign="center" verticalAlign="middle" showEffect="{fadeEffect}">
+				<mx:HBox horizontalGap="20" verticalAlign="middle">
+					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/plus.png')" height="75"
+							   labelPlacement="bottom" label="New Project" width="135"
+							   click="appControl.showPage.dispatch(ApplicationController.NEW_PROJECT)"/>
+					<mx:VRule height="100%"/>
+					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" height="75"
+							   labelPlacement="bottom" label="Open Recent Project" width="135"
+							   click="appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT)"/>
+					<mx:VRule height="100%"/>
+					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/graphic-design.png')" height="75"
+							   labelPlacement="bottom" label="Open Project" width="135"
+							   click="appControl.showPage.dispatch(ApplicationController.BROWSE_FOR_PROJECT)"/>
+				</mx:HBox>
+			</mx:VBox>
+			<pages:ArchiveView id="newProject" width="100%" height="100%" label="Start a new Project" showEffect="{fadeEffect}"/>
+			<pages:ProjectBrowser id="projectBrowser" width="100%" height="100%" label="Manage Installation" showEffect="{fadeEffect}"/>
+			<pages:ProjectView id="projectView" width="100%" height="100%" label="Manage Installation" showEffect="{fadeEffect}"/>
+			<pages:ConfigEditor id="configEditor" width="100%" height="100%" showEffect="{fadeEffect}"/>
+			<pages:CodeGeneration id="codeGeneration" width="100%" height="100%" showEffect="{fadeEffect}"/>
+			<pages:BackupAndRestore id="backAndRestore" width="100%" height="100%" showEffect="{fadeEffect}"/>
 		</mx:ViewStack>
 	</mx:Panel>
+	
+	<viewStackEffects:Fade id="fadeEffect" duration="500" transparent="true"/>
+	
 	<mx:Spacer height="6"/>
 	
 	<mx:HBox width="100%">
@@ -52,8 +62,12 @@
 			import air.update.ApplicationUpdaterUI;
 			import air.update.events.UpdateEvent;
 			
+			import controllers.ApplicationController;
+			
 			import mx.controls.Alert;
 			import mx.utils.ObjectUtil;
+			
+			private var appControl:ApplicationController = ApplicationController.instance;
 			
 			private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 			
@@ -69,22 +83,37 @@
 				appUpdater.isFileUpdateVisible = false;
 				appUpdater.isInstallUpdateVisible = false;
 				
-				appUpdater.initialize();			
+				appUpdater.initialize();
+				
+				appControl.showPage.add(showPageHandler);
 			}
 			
-			private function xmlToObject(xml:XML, chain:Object=null):Object
+			private function showPageHandler(page:String):void
 			{
-				if(!chain)
-					chain = {};
-				
-				for each(var child:XML in xml.children())
+				switch(page)
 				{
-					(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
-					?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
-					:	chain[child.name().toString()] = chain[child.name().toString()] = child.text().toString();
+					case ApplicationController.HOME:
+						pagesVS.selectedIndex = 0;
+						break;
+					case ApplicationController.NEW_PROJECT:
+						pagesVS.selectedChild = newProject;
+						break;
+					case ApplicationController.BROWSE_FOR_PROJECT:
+						pagesVS.selectedChild = projectBrowser;
+						break;
+					case ApplicationController.OPEN_PROJECT:
+						pagesVS.selectedChild = projectView;
+						break;
+					case ApplicationController.CODE_GENERATION:
+						pagesVS.selectedChild = codeGeneration;
+						break;
+					case ApplicationController.CONFIG_EDITOR:
+						pagesVS.selectedChild = configEditor;
+						break;
+					case ApplicationController.BACKUP_AND_RESTORE:
+						pagesVS.selectedChild = backAndRestore;
+						break;
 				}
-				
-				return chain;
 			}
 			
 			private function setApplicationVersion():void

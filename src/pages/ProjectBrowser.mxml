@@ -2,22 +2,25 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" keyUp="pageKeyHandler(event)"
 		 			creationComplete="init(event)">
 	<mx:states>
-		<mx:State name="pathSelected"/>
 		<mx:State name="valid">
 			<mx:SetProperty target="{label1}" name="text" value="Valid Aerial project"/>
 			<mx:AddChild relativeTo="{label1}" position="before">
 				<mx:Image source="@Embed(source='../assets/icons/dusseldorf/check-16.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
-				<mx:Button label="Switch to Project Mode" styleName="buttonOfficial" click="parseConfig()"/>
+				<mx:Button label="Switch to Project Mode" click="parseConfig()" styleName="buttonOfficial"/>
 			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
+				<mx:Button label="Switch to Project Mode" click="parseConfig()" styleName="buttonOfficial"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{label2}"/>
 		</mx:State>
 	</mx:states>
 	<mx:HRule width="100%"/>
 	<mx:HBox width="100%" color="#DDDDDD" verticalAlign="middle" id="hbox1">
 		<mx:Button label="Navigate to project path" icon="@Embed(source='../assets/icons/dusseldorf/folder-16.png')"
 				   click="browseForPath()"/>
-		<mx:Spacer width="100%"/>
+		<mx:Spacer width="100%" id="spacer1"/>
 		<mx:Label text="No path selected" color="#222222" id="label1"/>
 	</mx:HBox>
 	<mx:HRule width="100%"/>
@@ -26,14 +29,20 @@
 					   enumerationMode="{FileSystemEnumerationMode.DIRECTORIES_FIRST}" height="100%" filterFunction="checkExtension"
 					   directoryOpening="folderSelected(null, event.file)" borderStyle="none"
 					   keyUp="treeKeyHandler(event)" backgroundAlpha="0"/>
-	<!-- backgroundAlpha="0.2" backgroundColor="#222222" color="#DDDDDD" -->
-	<mx:HBox width="100%" verticalAlign="middle">
+	<mx:VBox width="100%" verticalAlign="middle" horizontalAlign="right" verticalGap="1">
 		<mx:TextInput id="path" keyDown="pathChange(event)" width="100%" tabEnabled="false"/>
-		
-	</mx:HBox>
+		<mx:HBox width="100%" verticalAlign="middle" id="hbox2">
+			<mx:Label id="errorTxt" fontSize="11" color="#FF0000" width="100%"/>
+			
+			<mx:Label text="Tab / Shift+Tab to complete, Alt+Up to navigate up tree" fontSize="8" color="#585858" id="label2"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:Array id="existingProjects"/>
 	
 	<mx:Script>
 		<![CDATA[
+			import controllers.ApplicationController;
 			import controllers.ProjectController;
 			
 			import mx.controls.Alert;
@@ -50,12 +59,10 @@
 			private var lastTabOptions:Array;
 			private var lastTabIndex:int = -1;
 			
-			use namespace mx_internal;
+			private var projectFile:File;
 			
 			private function init(event:FlexEvent):void
 			{
-				//path.getTextField().addEventListener(KeyboardEvent.KEY_DOWN
-				
 				path.text = File.desktopDirectory.nativePath;
 				pathChange();
 			}
@@ -72,7 +79,7 @@
 				var sorted:Array = options.sort(Array.CASEINSENSITIVE);
 				var close:Array = [];
 				
-				if(input.length == 0)
+				if(!input || input == "")
 				{
 					close = sorted.sort();
 					return close;
@@ -107,11 +114,11 @@
 
 			private function pathChange(event:KeyboardEvent=null):void
 			{					
+				errorTxt.text = "";
 				path.text = path.text.replace(/\\/g, "/");
 				
 				if(event)
 				{
-					trace(event.altKey + ":" + event.shiftKey + ":" + event.ctrlKey);
 					if(event.altKey)
 					{
 						event.preventDefault();
@@ -135,6 +142,8 @@
 									options.push(folder.name);
 							
 							var input:String = path.text.substr(path.text.lastIndexOf("/") + 1);
+							if(!path.text || path.text == "")
+								return;
 							lastBase = path.text.substr(0, path.text.lastIndexOf("/"));
 							lastTabOptions = getCloseMatches(input, options);
 							lastTabIndex = -1;
@@ -142,7 +151,6 @@
 						
 						if(lastTabOptions.length > 0)
 						{
-							trace(event.shiftKey);
 							lastTabIndex = (event.shiftKey ? lastTabIndex - 1 : lastTabIndex + 1);
 							
 							if(lastTabIndex == lastTabOptions.length)
@@ -171,14 +179,13 @@
 				{
 					file = new File(path.text);
 					tree.directory = file;
+					
+					if(file && file.exists)
+						checkForProject();
 				}
 				catch(e:Error)		// catch unnecessary errors
 				{
-				}
-				finally
-				{					
-					if(file && file.exists)
-						checkForProject();
+					currentState = null;
 				}
 				//trace(file.exists ? file.nativePath : "Nope"); 
 			}
@@ -199,16 +206,30 @@
 					if(projectXML.size < (1024 * 1024))
 						validateProject(projectXML);
 					else
+					{
+						lastPotentialMatch = null;
 						currentState = null;
+					}
 				}
 				else
-					currentState = null; 
+				{
+					lastPotentialMatch = null;
+					currentState = null;
+				}
 			}
 			
-			private function validateProject(projectXML:File):void
+			private function validateProject(projectFile:File):void
 			{
-				var descriptor:XML = XML(FileUtil.read(projectXML));
-				ProjectController.instance.savePath.dispatch(projectXML);
+				this.projectFile = projectFile;
+				
+				var defaultConfigLocation:String = "src_php/lib/config/config.xml";
+				var configPath:File = this.projectFile.parent.resolvePath(defaultConfigLocation);
+				if(!configPath.exists)
+				{
+					currentState = null;
+					errorTxt.text = "Configuration file not found under " + defaultConfigLocation;
+					return;
+				}
 				
 				currentState = "valid";
 			}
@@ -233,25 +254,10 @@
 
 			private function parseConfig():void
 			{
-				var config:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/aerial/config.php");
-				var stream:FileStream = new FileStream();
-				stream.open(config, FileMode.READ);
-				var content:String = stream.readUTFBytes(stream.bytesAvailable);
-				stream.close();
+				ProjectController.instance.savePath.dispatch(this.projectFile.parent);
 				
-				var pattern:RegExp = /define\("(.\w+)",\s?("?(.+)"?)\);/g;
-				var matches:Array = content.match(pattern);
-				var definitions:Object = {};
-				
-				for each(var match:String in matches)
-				{
-					var key:String = match.replace(pattern, "$1");
-					var value:String = match.replace(pattern, "$2");
-					
-					definitions[key] = value.replace(/\"/g, "");
-				}
-				
-				Alert.show(definitions["GATEWAY_URL"], "Is this your gateway URL?");
+				ApplicationController.instance.projectDirectory = this.projectFile.parent;
+				ApplicationController.instance.showPage.dispatch(ApplicationController.OPEN_PROJECT);
 			}
 
 		]]>

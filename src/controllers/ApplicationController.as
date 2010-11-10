@@ -2,6 +2,8 @@ package controllers
 {
 	import components.config.DatabaseSelector;
 	
+	import flash.filesystem.File;
+	
 	import org.osflash.signals.Signal;
 
 	public class ApplicationController
@@ -12,8 +14,19 @@ package controllers
 		public var configViewChanged:Signal;
 		
 		public var addDatabaseNode:Signal;
+		public var showPage:Signal;
+		
+		public static const HOME:String = "home";
+		public static const NEW_PROJECT:String = "newProject";
+		public static const BROWSE_FOR_PROJECT:String = "browseForProject";
+		public static const OPEN_PROJECT:String = "openProject";
+		public static const CODE_GENERATION:String = "codeGeneration";
+		public static const CONFIG_EDITOR:String = "configEditor";
+		public static const BACKUP_AND_RESTORE:String = "backupAndRestore";
 		
 		private var _configMode:String;
+		
+		public var projectDirectory:File;
 		
 		{
 			_instance = new ApplicationController();
@@ -30,6 +43,8 @@ package controllers
 			configModeChanged = new Signal(String);
 			configViewChanged = new Signal(String, Boolean);
 			addDatabaseNode = new Signal(DatabaseSelector);
+			
+			showPage = new Signal(String);
 		}		
 
 		public function get configMode():String

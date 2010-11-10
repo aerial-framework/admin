@@ -1,6 +1,7 @@
 package controllers
 {
 	import flash.filesystem.File;
+	import flash.xml.XMLNodeType;
 	
 	import mx.utils.ObjectUtil;
 	
@@ -55,6 +56,8 @@ package controllers
 				preferencesDirectory.createDirectory();
 			
 			preferencesFile = preferencesDirectory.resolvePath("preferences.xml");
+			if(!preferencesFile.exists)
+				FileController.instance.write(preferencesFile, "");
 		}
 		
 		private function savePathHandler(directory:File):void
@@ -62,12 +65,17 @@ package controllers
 			initFiles();
 			
 			var descriptor:XML;
+			descriptor = XML(FileUtil.read(preferencesFile));
+			
+			var empty:Boolean;
+			
+			if(descriptor.children().length() == 0)
+				empty = true;
 			
 			var projects:Array = [];
 			
-			if(preferencesFile.exists && preferencesFile.size > 0)
+			if(preferencesFile.exists && preferencesFile.size > 0 && !empty)
 			{
-				descriptor = XML(FileUtil.read(preferencesFile));
 				projects = XMLSerializer.deserialize(descriptor) as Array;
 				
 				if(projects.indexOf(directory.nativePath) == -1)
@@ -78,8 +86,33 @@ package controllers
 			
 			descriptor = XMLSerializer.serialize(projects);
 			FileUtil.write(preferencesFile, descriptor.toXMLString());
+		}
+		
+		public function getConfiguration():Object
+		{
+			var config:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.xml");
+			var data:String = FileController.instance.read(config);
+			var parsed:Object = xmlToObject(XML(data));
 			
-			updateProjects.dispatch();
+			return parsed;
+		}
+		
+		private function xmlToObject(xml:XML, chain:Object=null):Object
+		{
+			if(!chain)
+				chain = {};
+			
+			for each(var child:XML in xml.children())
+			{
+				if(child.nodeKind() == "comment")
+					continue;
+				
+				(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+				?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
+				:	chain[child.name().toString()] = chain[child.name().toString()] = child.text().toString();
+			}
+			
+			return chain;
 		}
 		
 		public function getProjects():Array

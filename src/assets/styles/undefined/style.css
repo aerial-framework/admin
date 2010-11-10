@@ -1,4 +1,8 @@
 /* CSS file */
+global
+{
+	color: #222222;
+}
 .code
 {
 	fontFamily: "Droid Sans Mono";
@@ -139,6 +143,18 @@ BUTTON
 ApplicationControlBar
 {
 	borderSkin: 			Embed(source="general/fondo5.jpg");
+}
+
+TextInput.section
+{
+	border-skin:			Embed("botones/boton.png", scaleGridTop="6", scaleGridBottom="14", scaleGridLeft="6", scaleGridRight="14");
+	color: #DDDDDD;
+	fontSize: 14;
+	paddingBottom: 4;
+	paddingLeft: 8;
+	fontWeight: normal;
+	paddingTop: 4;
+	paddingRight: 4;
 }
 
 .buttonOfficial

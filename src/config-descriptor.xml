@@ -43,13 +43,21 @@
 			<![CDATA[The package string for Aerial to use in code generation which will be converted to a directory structure.]]>
 		</package>
 
-        <models-folder type="folder_name" category="simple" label="Models Path" default="vo">
-			<![CDATA[The name of the folder in which Aerial will place generated Value-Object files (models).]]>
-		</models-folder>
+        <php-models-folder type="folder_name" category="simple" label="PHP Models Path" default="vo">
+			<![CDATA[The name of the folder in which Aerial will place generated PHP Doctrine models.]]>
+		</php-models-folder>
 
-        <services-folder type="folder_name" category="simple" label="Services Path" default="services">
-			<![CDATA[The name of the folder in which Aerial will place generated service files.]]>
-		</services-folder>
+        <php-services-folder type="folder_name" category="simple" label="PHP Services Path" default="services">
+			<![CDATA[The name of the folder in which Aerial will place generated PHP service files.]]>
+		</php-services-folder>
+
+        <as3-models-folder type="folder_name" category="simple" label="ActionScript Models Path" default="vo">
+			<![CDATA[The name of the folder in which Aerial will place generated ActionScript Value-Object files (models).]]>
+		</as3-models-folder>
+
+        <as3-services-folder type="folder_name" category="simple" label="ActionScript Services Path" default="services">
+			<![CDATA[The name of the folder in which Aerial will place generated ActionScript service files.]]>
+		</as3-services-folder>
 
         <vo type="class" category="advanced" label="Value-Object Filename Suffix" default="VO">
 			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>

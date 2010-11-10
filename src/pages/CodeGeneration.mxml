@@ -1,19 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:codegen="pages.codegen.*">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:renderers="components.renderers.*">
+	<mx:Script>
+		<![CDATA[			
+			import controllers.GenerationController;
+			import controllers.ProjectController;
+			
+			import mx.containers.Canvas;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.messaging.messages.RemotingMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var definitions:Object;
+			
+			private var configuration:Object;
+			
+			private function init():void
+			{
+				var config:Object = ProjectController.instance.getConfiguration();
+				service.endpoint = config.options["server-url"];
+				
+				service.getModelDefinitions();
+				GenerationController.instance.log.add(logHandler);
+			}
+			
+			private function generate(modelName:String=null):void
+			{
+				var models:Array = []
+				
+				if(!modelName)
+				{
+					for(var model:String in definitions)
+						models.push({name:model, definition:definitions[model]});
+				}
+				else
+					models.push({name:modelName, definition:definitions[modelName]});
+				
+				currentState = "progress";
+				GenerationController.instance.generate(models, phpServices.selected, as3Models.selected, as3Services.selected);
+			}
+			
+			private function logHandler(message:String, type:String):void
+			{
+				var prefix:String = "";
+				var suffix:String = "";
+				
+				if(!message)
+					message = "";
+				
+				switch(type)
+				{
+					case "process":
+						prefix = "<b>[PROCESS]</b>\t";
+						break;
+					case "info":
+						prefix = "<b>[INFO]</b>\t\t";
+						break;
+					case "separator":
+						break;
+				}
+				
+				if(currentState != "progress")
+					return;
+				
+				logTxt.htmlText += prefix + message + suffix + "<br/>";
+				callLater(function(){logTxt.verticalScrollPosition = logTxt.maxVerticalScrollPosition});
+			}
+			
+			private function resultHandler(event:ResultEvent):void
+			{
+				var message:RemotingMessage = event.token.message as RemotingMessage;
+				
+				switch(message.operation)
+				{
+					case "getModelDefinitions":
+						definitions = event.result;
+						
+						var dp:Array = [];
+						for(var model:String in definitions)
+						{
+							dp.push(model);
+						}
+						
+						modelsList.dataProvider = dp;
+						
+						modelsList.selectedIndex = 0;
+						modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+						break;
+				}
+			}
+			
+			private function faultHandler(event:FaultEvent):void
+			{
+				Alert.show("Model defintions could not be read from the server. Please check your configuration values.", "Fault");
+			}
+		]]>
+	</mx:Script>
 	
-	<mx:ViewStack id="pagesVS" width="100%" height="100%" creationPolicy="all">
-		<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%" height="100%" horizontalAlign="center">
-			<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/category.png')" height="80" labelPlacement="bottom" label="Generate" width="110"
-					   click="pagesVS.selectedChild = generation"/>
-			<mx:VRule height="100"/>
-			<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/database.png')" height="80" labelPlacement="bottom" label="Backup &amp; Restore" width="110"
-					   click="dispatchEvent(new Event('openProject'))"/>
-		</mx:HBox>
-		<codegen:Generation id="generation" width="100%" height="100%" back="pagesVS.selectedIndex = 0"/>
-	</mx:ViewStack>
-
-    <mx:Script>
-        <![CDATA[
-        ]]>
-    </mx:Script>
+	<mx:states>
+		<mx:State name="progress">
+			<mx:RemoveChild target="{modelDef}"/>
+			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
+							 styleName="code" editable="false"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:HBox width="100%" height="100%">
+		<mx:VBox height="100%" verticalScrollPolicy="off">
+			<mx:List id="modelsList" height="100%" width="300" change="modelDef.definition = definitions[modelsList.selectedItem]"/>
+			<mx:Button label="Generate all" icon="@Embed(source='../assets/icons/dusseldorf/attributes-16.png')"
+					   width="100%" labelPlacement="bottom" height="55" moveEffect="Fade" click="generate()"/>
+			<mx:Button label="Generate {modelsList.selectedItem}" visible="{modelsList.selectedItem}"
+					   includeInLayout="{modelsList.selectedItem}" icon="@Embed(source='../assets/icons/dusseldorf/hire-me-16.png')"
+					   width="100%" labelPlacement="bottom" height="55" showEffect="Fade" click="generate(modelsList.selectedItem.toString())"/>
+			
+			<mx:VBox width="100%" verticalGap="0">
+				<mx:HRule width="100%"/>
+				<mx:Label text="Generate:" styleName="weekDayChooserStyle" fontWeight="bold"/>
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%">
+					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
+					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
+					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" id="propertiesContainer">
+				<mx:Panel width="100%" layout="vertical" styleName="dark" headerHeight="0" minHeight="{propertiesContainer.height}"
+						  paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="{modelsList.selectedItem}"
+						  includeInLayout="{modelsList.selectedItem}" showEffect="Fade" id="panel1">				
+					<renderers:ModelDefinitionRenderer id="modelDef" width="100%"/>
+				</mx:Panel>
+			</mx:Canvas>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:RemoteObject id="service" source="core.aerial.Configuration" destination="aerial"
+					 result="resultHandler(event)" fault="faultHandler(event)"/>
 </mx:VBox>

@@ -21,7 +21,7 @@
 			private function showFolderChooser(event:MouseEvent):void
 			{
 				var dialog:FolderChooserDialog = PopUpManager.createPopUp(Sprite(Application.application), FolderChooserDialog, true) as FolderChooserDialog;
-				dialog.basePath = "C:/UniServer/www/open-source/aerial-test";
+				dialog.basePath = ApplicationController.instance.projectDirectory.nativePath;
 				dialog.addEventListener(CloseEvent.CLOSE, dialogCloseHandler);
 				PopUpManager.centerPopUp(dialog);
 			}
@@ -35,7 +35,7 @@
 
 			private function validatePath(event:Event):void
 			{
-				var file:File = new File("C:/UniServer/www/open-source/aerial-test/" + pathTxt.text);
+				var file:File = ApplicationController.instance.projectDirectory.resolvePath(pathTxt.text);
 				invalidImg.visible = invalidImg.includeInLayout = (!file || !file.exists);
 			}
 			

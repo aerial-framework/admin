@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()" verticalScrollPolicy="off">
-	
-	<mx:Metadata>
-		[Event(name="back",type="flash.events.Event")]
-	</mx:Metadata>
-	
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" show="init()" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
 			import components.config.ArrayItem;
@@ -52,6 +47,8 @@
 				panels.push({section:"database", panel:databasePanel});
 				
 				ApplicationController.instance.configMode = ConfigurationUtil.SIMPLE;
+				
+				clearPanels();
 				
 				var nodes:Object = parseConfig();
 				createEditors(nodes);
@@ -165,8 +162,8 @@
 			private function parseConfig(useAlt:Boolean=false):Object
 			{
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
-				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
-				var altConfigFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config-alt.xml");
+				var configFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.xml");
+				//var altConfigFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config-alt.xml");
 				
 				XML.ignoreComments = false;
 				
@@ -183,9 +180,9 @@
 				configXML = XML(stream.readUTFBytes(stream.bytesAvailable));
 				stream.close();
 				
-				stream.open(altConfigFile, FileMode.READ);
+				/* stream.open(altConfigFile, FileMode.READ);
 				altConfigXML = XML(stream.readUTFBytes(stream.bytesAvailable));
-				stream.close();
+				stream.close(); */
 				
 				/* var hybrid:XML = configXML;
 				hybrid.replace("debug-mode", altConfigXML["debug-mode"]);
@@ -196,7 +193,7 @@
 				var nodes:Object = {};
 				
 				var parser:ConfigurationUtil = ConfigurationUtil.instance;
-				parser.configXML = useAlt ? altConfigXML : configXML;
+				parser.configXML = configXML;//useAlt ? altConfigXML : configXML;
 				parser.descriptorXML = descriptorXML;
 				
 				nodes["paths"] = parser.getRegularNode("paths", "Paths");
@@ -330,31 +327,23 @@
 			
 			private function backupSelectionHandler(event:CloseEvent):void
 			{
-				var configFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.xml");
+				var configFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.xml");
 				
 				if(event.detail == Alert.YES)
 				{
-					var backupFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config.backup.zip")
+					var backupFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.backup.zip");
 					
 					FileController.instance.backup(configFile, backupFile);
 				}
 				
 				if(event.detail != Alert.CANCEL)
+				{
 					FileController.instance.write(configFile, newXML.toXMLString());
+					Alert.show("Configuration file saved!", "Notification");
+				}
 			}
 		]]>
 	</mx:Script>
-	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" id="hbox1">
-		<mx:Label text="CONFIGURATION EDITOR" styleName="weekDayChooserStyle" fontWeight="bold"/>
-		
-		<mx:Spacer width="100%"/>
-		
-		<mx:Button icon="@Embed(source='../assets/icons/dusseldorf/sign-in.png')" width="45" height="45"
-				   click="dispatchEvent(new Event('back'))" toolTip="Back"/>
-	</mx:HBox>
-	
-	<mx:HRule width="100%"/>
 	
 	<mx:HBox width="100%" verticalAlign="middle" styleName="myTitlePanel">
 		<mx:ToggleButtonBar width="150" itemClick="setMode(event.item.data)" selectedIndex="0">

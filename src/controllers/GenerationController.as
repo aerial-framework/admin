@@ -7,6 +7,8 @@ package controllers
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
 	
+	import mx.core.Application;
+	
 	import org.osflash.signals.Signal;
 
 	public class GenerationController
@@ -20,7 +22,27 @@ package controllers
 		private var beforeTime:int;
 		private var fileCount:uint = 0;
 		
-		private static const BASE:File = File.desktopDirectory.resolvePath("aerial-codegen");
+		private static const AS3_MODELS:String = "as3Models";
+		private static const AS3_SERVICES:String = "as3Services";
+		private static const PHP_SERVICES:String = "phpServices";
+		
+		private var config:Object;
+		
+		private var voSuffix:String;
+		private var serviceSuffix:String;
+		
+		private var as3VOFolder:String;
+		private var as3ServiceFolder:String;
+		
+		private var phpVOFolder:String;
+		private var phpServiceFolder:String;
+		
+		private var as3Base:File;
+		private var phpBase:File;
+		
+		private var packageString:String;
+		
+		private var primitive:Array = ["int", "Number", "uint", "Boolean", "Object", "Array", "String", "Date"];
 		
 		{
 			_instance = new GenerationController();
@@ -29,16 +51,39 @@ package controllers
 		public function GenerationController()
 		{
 			if(_instance)
-				throw new Error("Cannot instantiate Singleton object");
-			else
 			{
-				log = new Signal(String, String);
-				timerStart = new Signal(String);
-				timerEnd = new Signal(String);
-				
-				timerStart.add(timerStartHandler);
-				timerEnd.add(timerEndHandler);
+				throw new Error("Cannot instantiate Singleton object");
+				return;
 			}
+			
+			log = new Signal(String, String);
+			timerStart = new Signal(String);
+			timerEnd = new Signal(String);
+			
+			timerStart.add(timerStartHandler);
+			timerEnd.add(timerEndHandler);
+			
+			config = ProjectController.instance.getConfiguration();
+			
+			voSuffix = config["code-generation"].vo;
+			serviceSuffix = config["code-generation"].service;
+			
+			packageString = config["code-generation"]["package"];
+			var packageName:String = packageString.split(".").join("/") + "/";
+			
+			as3VOFolder = packageName + config["code-generation"]["as3-models-folder"];
+			phpVOFolder = packageName + config["code-generation"]["php-models-folder"];
+			
+			as3ServiceFolder = packageName + config["code-generation"]["as3-services-folder"];
+			phpServiceFolder = packageName + config["code-generation"]["php-services-folder"];
+			
+			as3Base = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["as3"]);
+			if(!as3Base.exists)
+				as3Base.createDirectory();
+			
+			phpBase = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["php"]);
+			if(!phpBase.exists)
+				phpBase.createDirectory();
 		}
 		
 		public static function get instance():GenerationController
@@ -82,13 +127,13 @@ package controllers
 			var template:String = getTemplate("php.service.tmpl");
 			var replacementTokens:Object = {};
 			replacementTokens["model"] = 				model.name;
-			replacementTokens["class"] = 				model.name + "Service";
-			replacementTokens["object"] = 				model.name.charAt(0).toLowerCase() + model.name.substr(1);
+			replacementTokens["class"] = 				model.name + serviceSuffix;
+			//replacementTokens["object"] = 				model.name.charAt(0).toLowerCase() + model.name.substr(1);
 			
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 			
-			writeGenerated(template, "services/" + model.name + "Service.php");
+			writeGenerated(template, model.name + serviceSuffix + ".php", PHP_SERVICES);
 		}
 		
 		private function generateAS3Service(model:Object):void
@@ -98,17 +143,17 @@ package controllers
 			var template:String = getTemplate("as3.service.tmpl");
 			var replacementTokens:Object = {};
 			
-			replacementTokens["model"] = 				model.name + "VO";
-			replacementTokens["class"] = 				model.name + "Service";
-			replacementTokens["package"] = 				"org.aerialproject.service";
-			replacementTokens["modelPackage"] = 		"org.aerialproject.vo";
-			replacementTokens["configPackage"] = 		"org.aerial.config";
+			replacementTokens["model"] = 				model.name + voSuffix;
+			replacementTokens["class"] = 				model.name + serviceSuffix;
+			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-services-folder"];
+			replacementTokens["modelPackage"] = 		packageString + "." + config["code-generation"]["as3-models-folder"];
+			replacementTokens["configPackage"] = 		packageString + ".config";
 			replacementTokens["configClass"] = 			"Config";
 			
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 			
-			writeGenerated(template, "services/" + model.name + "Service.as");
+			writeGenerated(template, model.name + serviceSuffix + ".as", AS3_SERVICES);
 		}
 		
 		private function generateAS3Model(model:Object):void
@@ -118,9 +163,9 @@ package controllers
 			var template:String = getTemplate("as3.vo.tmpl");
 			var replacementTokens:Object = {};
 			
-			replacementTokens["package"] = 				"org.aerialproject.vo";
+			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-models-folder"];
 			replacementTokens["collectionImport"] = 	"import mx.collections.ArrayCollection";
-			replacementTokens["class"] = 				model.name + "VO";
+			replacementTokens["class"] = 				model.name + voSuffix;
 			replacementTokens["remoteClass"] = 			model.name;
 			
 			var properties:Array = [];
@@ -132,6 +177,10 @@ package controllers
 			{
 				var name:String = model.definition[prop].name;
 				var type:String = model.definition[prop].type;
+				
+				// if the type is not primitive, add the VO suffix
+				if(primitive.indexOf(type) == -1)
+					type += voSuffix;
 				
 				properties.push("\t\tprivate var " + name + ":*\n");
 				
@@ -147,18 +196,34 @@ package controllers
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 			
-			writeGenerated(template, "vo/" + model.name + "VO.as");
+			writeGenerated(template, model.name + voSuffix + ".as", AS3_MODELS);
 		}
 		
-		private function writeGenerated(data:String, name:String):void
+		private function writeGenerated(data:String, name:String, type:String):void
 		{
-			var file:File = BASE.resolvePath(name);
+			var file:File;
+			
+			// determine path
+			switch(type)
+			{
+				case AS3_MODELS:
+					file = as3Base.resolvePath(as3VOFolder).resolvePath(name);
+					break;
+				case AS3_SERVICES:
+					file = as3Base.resolvePath(as3ServiceFolder).resolvePath(name);
+					break;
+				case PHP_SERVICES:
+					file = phpBase.resolvePath(phpServiceFolder).resolvePath(name);
+					break;
+			}
+			
 			var size:String = Number(data.length / 1024).toFixed(3) + "Kb";
 			
 			log.dispatch("Writing " + name + " (" + size + ")", "process");
 			
 			var stream:FileStream = new FileStream();
 			stream.open(file, FileMode.WRITE);
+			trace(file.nativePath);
 			stream.writeUTFBytes(data);
 			stream.close();
 			
