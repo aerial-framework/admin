@@ -28,7 +28,7 @@
 					   keyUp="treeKeyHandler(event)" backgroundAlpha="0"/>
 	<!-- backgroundAlpha="0.2" backgroundColor="#222222" color="#DDDDDD" -->
 	<mx:HBox width="100%" verticalAlign="middle">
-		<mx:TextInput id="path" keyDown="pathChange(event)" width="100%"/>
+		<mx:TextInput id="path" keyDown="pathChange(event)" width="100%" tabEnabled="false"/>
 		
 	</mx:HBox>
 	
@@ -46,6 +46,12 @@
 			
 			private var lastPotentialMatch:String;
 			
+			private var lastBase:String;
+			private var lastTabOptions:Array;
+			private var lastTabIndex:int = -1;
+			
+			use namespace mx_internal;
+			
 			private function init(event:FlexEvent):void
 			{
 				//path.getTextField().addEventListener(KeyboardEvent.KEY_DOWN
@@ -59,6 +65,24 @@
 				var folder:File = new File();
 				folder.addEventListener(Event.SELECT, folderSelected);
 				folder.browseForDirectory("Navigate to project path");
+			}
+			
+			private function getCloseMatches(input:String, options:Array):Array
+			{
+				var sorted:Array = options.sort(Array.CASEINSENSITIVE);
+				var close:Array = [];
+				
+				if(input.length == 0)
+				{
+					close = sorted.sort();
+					return close;
+				}
+				
+				for each(var option:String in sorted)
+					if(option.substr(0, input.length) == input)
+						close.push(option);
+				
+				return close.sort();
 			}
 			
 			private function checkExtension(file:File):Boolean
@@ -82,8 +106,12 @@
 			}
 
 			private function pathChange(event:KeyboardEvent=null):void
-			{
+			{					
+				path.text = path.text.replace(/\\/g, "/");
+				
 				if(event)
+				{
+					trace(event.altKey + ":" + event.shiftKey + ":" + event.ctrlKey);
 					if(event.altKey)
 					{
 						event.preventDefault();
@@ -91,6 +119,52 @@
 						event.stopPropagation();
 						return;
 					}
+					
+					if(event.keyCode == Keyboard.TAB)
+					{
+						event.preventDefault();
+						event.stopImmediatePropagation();
+						event.stopPropagation();
+						
+						if(!lastBase || lastTabOptions.length == 0)
+						{
+							var foldersInPath:Array = tree.directory.getDirectoryListing();
+							var options:Array = [];
+							for each(var folder:File in foldersInPath)
+								if(folder.isDirectory)
+									options.push(folder.name);
+							
+							var input:String = path.text.substr(path.text.lastIndexOf("/") + 1);
+							lastBase = path.text.substr(0, path.text.lastIndexOf("/"));
+							lastTabOptions = getCloseMatches(input, options);
+							lastTabIndex = -1;
+						}
+						
+						if(lastTabOptions.length > 0)
+						{
+							trace(event.shiftKey);
+							lastTabIndex = (event.shiftKey ? lastTabIndex - 1 : lastTabIndex + 1);
+							
+							if(lastTabIndex == lastTabOptions.length)
+								lastTabIndex = 0;
+							
+							if(lastTabIndex < 0)
+								lastTabIndex = lastTabOptions.length - 1;
+							
+							path.text = lastBase + "/" + lastTabOptions[lastTabIndex] + "/";
+							path.setSelection(path.text.length, path.text.length);
+						}
+					}
+					else
+					{
+						if(!event.shiftKey)
+						{
+							lastBase = "";
+							lastTabOptions = [];
+							lastTabIndex = -1;
+						}
+					}
+				}
 
 				var file:File;
 				try
@@ -102,7 +176,7 @@
 				{
 				}
 				finally
-				{
+				{					
 					if(file && file.exists)
 						checkForProject();
 				}

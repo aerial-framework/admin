@@ -27,10 +27,10 @@
 		</mx:HBox>
 		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
-			<pages:ConfigEditor width="100%" height="100%"/>
+			<!--<pages:ConfigEditor width="100%" height="100%"/>-->
             <!--<pages:CodeGeneration width="100%" height="100%"/>-->
-			<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
-														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>
+			<!--<pages:Homepage width="100%" height="100%" newProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 0"
+														openProject="pagesVS.selectedChild = newOpenVS; newOpenVS.selectedIndex = 1"/>-->
 			<mx:ViewStack id="newOpenVS" width="100%" height="100%">
 				<pages:ArchiveView width="100%" height="100%" label="Start a new Project"/>
 				<pages:Project width="100%" height="100%" label="Manage Installation"/>
@@ -69,21 +69,7 @@
 				appUpdater.isFileUpdateVisible = false;
 				appUpdater.isInstallUpdateVisible = false;
 				
-				appUpdater.initialize();
-				
-				var xml:XML = <data>
-								<this>
-									<is>an example</is>
-									<of>a hierarchical</of>
-									<structure>
-										<that>
-											<goes>many levels deep</goes>
-										</that>
-									</structure>
-								</this>
-								</data>;
-				
-				//trace(ObjectUtil.toString(xmlToObject(xml)));
+				appUpdater.initialize();			
 			}
 			
 			private function xmlToObject(xml:XML, chain:Object=null):Object
