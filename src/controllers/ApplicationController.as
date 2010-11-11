@@ -15,6 +15,7 @@ package controllers
 		
 		public var addDatabaseNode:Signal;
 		public var showPage:Signal;
+		public var projectSelected:Signal;
 		
 		public static const HOME:String = "home";
 		public static const NEW_PROJECT:String = "newProject";
@@ -26,7 +27,9 @@ package controllers
 		
 		private var _configMode:String;
 		
-		public var projectDirectory:File;
+		private var _projectDirectory:File;
+		
+		public var projectMap:Object = {};
 		
 		{
 			_instance = new ApplicationController();
@@ -40,12 +43,56 @@ package controllers
 				return;
 			}
 			
+			projectMap = {};
+			
 			configModeChanged = new Signal(String);
 			configViewChanged = new Signal(String, Boolean);
 			addDatabaseNode = new Signal(DatabaseSelector);
 			
 			showPage = new Signal(String);
-		}		
+			projectSelected = new Signal(Array);
+		}
+		
+
+		public function get projectDirectory():File
+		{
+			return _projectDirectory;
+		}
+
+		public function set projectDirectory(value:File):void
+		{
+			_projectDirectory = value;
+			addProject(value);
+		}
+
+		private function addProject(directory:File):void
+		{
+			if(!directory)
+				return;
+			
+			projectMap[directory.name] = directory;			
+			projectSelected.dispatch(getProjects());
+		}
+		
+		public function closeProject(directory:File):void
+		{
+			if(!directory)
+				return;
+			
+			delete projectMap[directory.name];	
+			projectDirectory = null;
+			
+			//projectSelected.dispatch(getProjects());
+		}
+		
+		public function getProjects():Array
+		{
+			var projects:Array = [];
+			for(var name:String in projectMap)
+				projects.push({label:name, data:projectMap[name]});
+			
+			return projects;
+		}
 
 		public function get configMode():String
 		{

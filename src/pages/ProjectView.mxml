@@ -5,7 +5,7 @@
 		<mx:State name="projectSelector">
 			<mx:RemoveChild target="{optionsBox}"/>
 			<mx:AddChild position="lastChild">
-				<mx:List id="projectList" width="400" height="200" dataProvider="{projects}"></mx:List>
+				<mx:List id="projectList" width="400" height="200" dataProvider="{projects}"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{projectList}" position="before">
 				<mx:Label text="Select a project" width="400" styleName="title" fontSize="15" fontWeight="bold"/>
@@ -43,6 +43,7 @@
 			import controllers.ProjectController;
 			
 			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
 			
 			private var appControl:ApplicationController = ApplicationController.instance;
 
@@ -59,7 +60,6 @@
 					optionsBox.visible = optionsBox.includeInLayout = true;
 				}
 			}
-
 		]]>
 	</mx:Script>
 </mx:VBox>

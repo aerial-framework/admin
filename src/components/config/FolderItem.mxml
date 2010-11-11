@@ -50,7 +50,8 @@
 	<mx:HBox verticalAlign="middle" width="100%">
 		<mx:TextInput id="pathTxt" width="100%" restrict="a-zA-Z0-9\-\_\." change="validatePath(event)" enabled="{editable}"/>
 		<mx:Button label="Browse" click="showFolderChooser(event)" enabled="{editable}"/>
-		<mx:Image id="invalidImg" source="@Embed(source='../../assets/icons/dusseldorf/cross.png')"
+		<mx:Image id="invalidImg" source="@Embed(source='../../assets/icons/dusseldorf/lightbulb-16.png')"
+				  toolTip="This folder does not exist. Aerial will create it for you."
 				  visible="false" includeInLayout="false"/>
 	</mx:HBox>
 </config:ConfigItem>

@@ -455,7 +455,7 @@ PANELS & WINDOWS
 Panel
 {
 	border-style:			solid;
-	background-color:		#efefef;
+	background-color:		#F7F7F7;
 	font-family: 			"Lucida Sans";
 	font-weight: 			normal;
 	/*title-background-skin: 	Embed("general/titleWindow1.png", scaleGridTop="42", scaleGridBottom="138", scaleGridLeft="11", scaleGridRight="118");
@@ -546,6 +546,26 @@ TabNavigator
 	padding-right:		6;
 }
 
+SuperTabBar
+{
+	tab-height:						25;
+	horizontal-gap: 				1;
+	font-family:					"Lucida Sans";
+	font-size:						11;
+	font-weight:					normal;
+	border-color:					#cbcbcb;
+	border-sides:					"bottom";
+	color:							#333333;
+	text-align:						left;
+	tab-style-name:					"tabNavigatorTab";
+	selected-tab-text-style-name:	"tabNavigatorSelectedText";
+	tab-close-button-style-name:	"tabCloseStyle";
+}
+
+.tabCloseStyle
+{
+	skin:							Embed(source='../../icons/dusseldorf/cross.png');
+}
 
 TabBar
 {
@@ -555,6 +575,7 @@ TabBar
 	font-size:						11;
 	font-weight:					normal;
 	border-color:					#cbcbcb;
+	border-sides:					"bottom";
 	color:							#333333;
 	text-align:						left;
 	tab-style-name:					"tabNavigatorTab";

@@ -8,10 +8,10 @@
 				<mx:Image source="@Embed(source='../assets/icons/dusseldorf/check-16.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
-				<mx:Button label="Switch to Project Mode" click="parseConfig()" styleName="buttonOfficial"/>
+				<mx:Button label="Open Project" click="parseConfig()" styleName="buttonOfficial"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
-				<mx:Button label="Switch to Project Mode" click="parseConfig()" styleName="buttonOfficial"/>
+				<mx:Button label="Open Project" click="parseConfig()" styleName="buttonOfficial"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{label2}"/>
 		</mx:State>
@@ -257,6 +257,8 @@
 				ProjectController.instance.savePath.dispatch(this.projectFile.parent);
 				
 				ApplicationController.instance.projectDirectory = this.projectFile.parent;
+				
+				
 				ApplicationController.instance.showPage.dispatch(ApplicationController.OPEN_PROJECT);
 			}
 

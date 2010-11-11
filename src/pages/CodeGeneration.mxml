@@ -1,10 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:renderers="components.renderers.*">
+	
+	<mx:states>
+		<mx:State name="progress">
+			<mx:RemoveChild target="{modelDef}"/>
+			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
+							 styleName="code" editable="false"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="multiple">
+			<mx:RemoveChild target="{modelDef}"/>
+			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+				<mx:Text id="selectedModels" width="100%"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:HBox width="100%" height="100%">
+		<mx:VBox height="100%" verticalScrollPolicy="off">
+			<mx:List id="modelsList" height="100%" width="300" change="showProperties()"
+					 allowMultipleSelection="true" keyUp="keyHandler(event)" selectAll="showProperties()"/>
+			<mx:Button label="Generate" icon="@Embed(source='../assets/icons/dusseldorf/attributes-16.png')"
+					   width="100%" labelPlacement="bottom" height="55" moveEffect="Fade" click="generate()"
+					   enabled="{modelsList.selectedItems.length != 0}"/>			
+			<mx:VBox width="100%" verticalGap="0">
+				<mx:HRule width="100%"/>
+				<mx:Label text="Generate:" styleName="weekDayChooserStyle" fontWeight="bold"/>
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%">
+					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
+					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
+					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" id="propertiesContainer">
+				<mx:Panel width="100%" layout="vertical" styleName="dark" headerHeight="0" minHeight="{propertiesContainer.height}"
+						  paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="{modelsList.selectedItem}"
+						  includeInLayout="{modelsList.selectedItem}" showEffect="Fade" id="panel1">				
+					<renderers:ModelDefinitionRenderer id="modelDef" width="100%"/>
+				</mx:Panel>
+			</mx:Canvas>
+		</mx:VBox>
+	</mx:HBox>
+	
 	<mx:Script>
 		<![CDATA[			
 			import controllers.GenerationController;
 			import controllers.ProjectController;
 			
+			import mx.collections.ArrayCollection;
 			import mx.containers.Canvas;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
@@ -26,17 +73,13 @@
 				GenerationController.instance.log.add(logHandler);
 			}
 			
-			private function generate(modelName:String=null):void
+			private function generate():void
 			{
-				var models:Array = []
+				var selected:Array = modelsList.selectedItems;
+				var models:Array = [];
 				
-				if(!modelName)
-				{
-					for(var model:String in definitions)
-						models.push({name:model, definition:definitions[model]});
-				}
-				else
-					models.push({name:modelName, definition:definitions[modelName]});
+				for each(var model:String in selected)
+					models.push({name:model, definition:definitions[model]});
 				
 				currentState = "progress";
 				GenerationController.instance.generate(models, phpServices.selected, as3Models.selected, as3Services.selected);
@@ -69,6 +112,29 @@
 				callLater(function(){logTxt.verticalScrollPosition = logTxt.maxVerticalScrollPosition});
 			}
 			
+			private function showProperties():void
+			{
+				if(modelsList.selectedItems.length == 1)
+				{
+					currentState = null;
+					modelDef.definition = definitions[modelsList.selectedItem];
+				}
+				else
+				{
+					currentState = "multiple";
+					selectedModels.text = "Selected models: " + modelsList.selectedItems.join(", ");
+				}
+			}
+			
+			protected function keyHandler(event:KeyboardEvent):void
+			{
+				if((event.ctrlKey || event.commandKey) && event.keyCode == Keyboard.A)
+				{
+					modelsList.selectedItems = ArrayCollection(modelsList.dataProvider).source;
+					showProperties();
+				}
+			}
+			
 			private function resultHandler(event:ResultEvent):void
 			{
 				var message:RemotingMessage = event.token.message as RemotingMessage;
@@ -98,47 +164,6 @@
 			}
 		]]>
 	</mx:Script>
-	
-	<mx:states>
-		<mx:State name="progress">
-			<mx:RemoveChild target="{modelDef}"/>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
-				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
-							 styleName="code" editable="false"/>
-			</mx:AddChild>
-		</mx:State>
-	</mx:states>
-	
-	<mx:HBox width="100%" height="100%">
-		<mx:VBox height="100%" verticalScrollPolicy="off">
-			<mx:List id="modelsList" height="100%" width="300" change="modelDef.definition = definitions[modelsList.selectedItem]"/>
-			<mx:Button label="Generate all" icon="@Embed(source='../assets/icons/dusseldorf/attributes-16.png')"
-					   width="100%" labelPlacement="bottom" height="55" moveEffect="Fade" click="generate()"/>
-			<mx:Button label="Generate {modelsList.selectedItem}" visible="{modelsList.selectedItem}"
-					   includeInLayout="{modelsList.selectedItem}" icon="@Embed(source='../assets/icons/dusseldorf/hire-me-16.png')"
-					   width="100%" labelPlacement="bottom" height="55" showEffect="Fade" click="generate(modelsList.selectedItem.toString())"/>
-			
-			<mx:VBox width="100%" verticalGap="0">
-				<mx:HRule width="100%"/>
-				<mx:Label text="Generate:" styleName="weekDayChooserStyle" fontWeight="bold"/>
-				<mx:HRule width="100%"/>
-				<mx:HBox width="100%">
-					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
-					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
-					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
-				</mx:HBox>
-			</mx:VBox>
-		</mx:VBox>
-		<mx:VBox width="100%" height="100%">
-			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" id="propertiesContainer">
-				<mx:Panel width="100%" layout="vertical" styleName="dark" headerHeight="0" minHeight="{propertiesContainer.height}"
-						  paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="{modelsList.selectedItem}"
-						  includeInLayout="{modelsList.selectedItem}" showEffect="Fade" id="panel1">				
-					<renderers:ModelDefinitionRenderer id="modelDef" width="100%"/>
-				</mx:Panel>
-			</mx:Canvas>
-		</mx:VBox>
-	</mx:HBox>
 	
 	<mx:RemoteObject id="service" source="core.aerial.Configuration" destination="aerial"
 					 result="resultHandler(event)" fault="faultHandler(event)"/>

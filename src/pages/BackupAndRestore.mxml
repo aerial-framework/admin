@@ -1,3 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:code="http://code.google.com/p/flexlib/">
+	
+	<mx:Script>
+		<![CDATA[
+			import controllers.ApplicationController;
+			import controllers.ProjectController;
+			private function init():void
+			{
+				var root:File = ApplicationController.instance.projectDirectory;
+				var config:Object = ProjectController.instance.getConfiguration();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:RadioButtonGroup id="backupGroup"/>
+	
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:VBox width="100%" height="100%">
+			<mx:RadioButton label="Whole Project" group="{backupGroup}" labelPlacement="right"/>
+			<mx:HRule width="100%"/>
+			<mx:RadioButton label="All Models &amp; Services" group="{backupGroup}" labelPlacement="right"/>
+			<mx:HRule width="100%"/>
+			<mx:RadioButton label="AS3 Models &amp; Services" group="{backupGroup}" labelPlacement="right"/>
+			<mx:RadioButton label="AS3 Models" group="{backupGroup}" labelPlacement="right"/>
+			<mx:RadioButton label="AS3 Services" group="{backupGroup}" labelPlacement="right"/>
+			<mx:HRule width="100%"/>
+			<mx:RadioButton label="PHP Models &amp; Services" group="{backupGroup}" labelPlacement="right"/>
+			<mx:RadioButton label="PHP Models" group="{backupGroup}" labelPlacement="right"/>
+			<mx:RadioButton label="PHP Services" group="{backupGroup}" labelPlacement="right"/>
+			<mx:HRule width="100%"/>
+			<mx:Spacer height="100%"/>
+			
+			<mx:Button label="Backup" width="100%" height="35" icon="@Embed(source='../assets/icons/dusseldorf/archives-16.png')"/>
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:Spacer height="100%"/>
+			
+			<mx:Button label="Restore" width="100%" height="35" icon="@Embed(source='../assets/icons/dusseldorf/publish-16.png')"/>
+		</mx:VBox>
+	</mx:HDividedBox>
 </mx:VBox>

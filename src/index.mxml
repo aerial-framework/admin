@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:pages="pages.*"
-			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right" xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*" xmlns:pairViewStackEffects="org.efflex.mx.pairViewStackEffects.*">
+			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right"
+			xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*" xmlns:pairViewStackEffects="org.efflex.mx.pairViewStackEffects.*" xmlns:code="http://code.google.com/p/flexlib/">
 	
 	<mx:HBox width="100%" verticalAlign="middle">
 		<mx:Image source="@Embed(source='assets/images/aerial-logo.png')">
@@ -11,14 +12,15 @@
 		
 		<mx:Spacer width="100%"/>
 		
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"
-				   click="appControl.showPage.dispatch(ApplicationController.HOME)"/>
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
-		<mx:Label id="versionStr" fontSize="12" fontWeight="bold" color="#DDDDDD" visible="false" includeInLayout="false"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"
+				   click="appControl.showPage.dispatch(ApplicationController.HOME)" styleName="buttonOfficial" width="60"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"/>
 	</mx:HBox>
 	<mx:Spacer height="12"/>
 	
+	<code:SuperTabBar id="projectBar" horizontalAlign="right" paddingRight="4"
+					  itemClick="projectSelected(event)" tabClose="projectCloseHandler(event)"/>
 	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
 			<mx:VBox horizontalAlign="center" verticalAlign="middle" showEffect="{fadeEffect}">
@@ -29,7 +31,7 @@
 					<mx:VRule height="100%"/>
 					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" height="75"
 							   labelPlacement="bottom" label="Open Recent Project" width="135"
-							   click="appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT)"/>
+							   click="appControl.projectDirectory = null; appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT)"/>
 					<mx:VRule height="100%"/>
 					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/graphic-design.png')" height="75"
 							   labelPlacement="bottom" label="Open Project" width="135"
@@ -49,10 +51,11 @@
 	
 	<mx:Spacer height="6"/>
 	
-	<mx:HBox width="100%">
+	<mx:HBox width="100%" verticalAlign="middle">
 		<mx:LinkButton label="http://aerial-project.org" click="navigateToURL(new URLRequest('http://aerial-project.org'))"
-					   buttonMode="true" color="#DDDDDD"/>
-		<mx:Spacer width="100%"/>
+					   buttonMode="true" color="#DDDDDD" paddingLeft="-8" width="150"/>
+		<mx:Label width="100%" id="versionStr" textAlign="center" color="#DDDDDD" fontSize="9"/>
+		<mx:Spacer width="116"/>
 		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/consulting-16.png')" height="25" width="28"/>
 	</mx:HBox>
 	
@@ -64,12 +67,17 @@
 			
 			import controllers.ApplicationController;
 			
+			import flexlib.events.SuperTabEvent;
+			
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ItemClickEvent;
 			import mx.utils.ObjectUtil;
 			
 			private var appControl:ApplicationController = ApplicationController.instance;
 			
 			private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+			private var showingDialog:Boolean = false;
 			
 			private function init():void
 			{
@@ -86,6 +94,13 @@
 				appUpdater.initialize();
 				
 				appControl.showPage.add(showPageHandler);
+				appControl.projectSelected.add(projectSelectionHandler);
+			}
+			
+			private function projectSelectionHandler(projects:Array):void
+			{
+				projectBar.dataProvider = projects.length > 0 ? projects : null;
+				trace("updated to " + projects.length);
 			}
 			
 			private function showPageHandler(page:String):void
@@ -120,7 +135,7 @@
 			{
 				var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 				var ns:Namespace = appXML.namespace();
-				versionStr.text = "Version " + appXML.ns::version;
+				versionStr.text = "v" + appXML.ns::version + " (" + appXML.ns::["date-created"] + ")";
 			}
 			
 			private function onUpdate(event:UpdateEvent):void
@@ -132,6 +147,22 @@
 			{
 				Alert.show(event.toString());
 			}
+
+			protected function projectSelected(event:ItemClickEvent):void
+			{
+				appControl.projectDirectory = event.item.data as File;
+				appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+			}
+
+			protected function projectCloseHandler(event:SuperTabEvent):void
+			{
+				var directory:File = projectBar.dataProvider.getItemAt(event.tabIndex).data as File;
+				if(directory)
+					appControl.closeProject(directory);
+				
+				appControl.showPage.dispatch(ApplicationController.HOME);
+			}
+
 		]]>
 	</mx:Script>
 	
