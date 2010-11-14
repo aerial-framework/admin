@@ -17,6 +17,10 @@
 		</mx:State>
 	</mx:states>
 	
+	<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="right">
+		<mx:Label text="Reset"/>
+	</mx:HBox>
+	
 	<mx:HBox width="100%" height="100%">
 		<mx:VBox height="100%" verticalScrollPolicy="off">
 			<mx:List id="modelsList" height="100%" width="300" change="showProperties()"
@@ -30,6 +34,9 @@
 				<mx:HRule width="100%"/>
 				<mx:HBox width="100%">
 					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
+					<mx:CheckBox id="phpModels" label="PHP Models" selected="false" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
 					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
 					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
 				</mx:HBox>

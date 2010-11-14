@@ -7,6 +7,7 @@ package controllers
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
 	
+	import mx.collections.ArrayCollection;
 	import mx.core.Application;
 	
 	import org.osflash.signals.Signal;
@@ -176,13 +177,22 @@ package controllers
 			for(var prop:String in model.definition)
 			{
 				var name:String = model.definition[prop].name;
-				var type:String = model.definition[prop].type;
+				var many:Boolean = model.definition[prop].many && model.definition[prop].relation;
 				
-				// if the type is not primitive, add the VO suffix
-				if(primitive.indexOf(type) == -1)
-					type += voSuffix;
+				var type:String;
 				
-				properties.push("\t\tprivate var " + name + ":*\n");
+				if(many)
+					type = "ArrayCollection";
+				else
+				{
+					type = model.definition[prop].type;
+				
+					// if the type is not primitive, add the VO suffix
+					if(primitive.indexOf(type) == -1)
+						type += voSuffix;
+				}
+				
+				properties.push("\t\tprivate var _" + name + ":*\n");
 				
 				var accessor:String = accessorStub.replace(new RegExp("{{field}}", "gi"), name);
 				accessor = accessor.replace(new RegExp("{{type}}", "gi"), type);
