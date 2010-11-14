@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:renderers="components.renderers.*">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:renderers="components.renderers.*"
+		 implements="interfaces.IRefreshable">
 	
 	<mx:states>
 		<mx:State name="progress">
@@ -7,6 +8,12 @@
 			<mx:AddChild relativeTo="{panel1}" position="lastChild">
 				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
 							 styleName="code" editable="false"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{hbox1}"/>
+			<mx:SetStyle name="horizontalAlign" value="center"/>
+			<mx:SetStyle name="verticalAlign" value="middle"/>
+			<mx:AddChild position="lastChild">
+				<mx:Image source="@Embed(source='../assets/loaders/loader.swf')" width="32" height="32"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="multiple">
@@ -17,11 +24,7 @@
 		</mx:State>
 	</mx:states>
 	
-	<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="right">
-		<mx:Label text="Reset"/>
-	</mx:HBox>
-	
-	<mx:HBox width="100%" height="100%">
+	<mx:HBox width="100%" height="100%" id="hbox1">
 		<mx:VBox height="100%" verticalScrollPolicy="off">
 			<mx:List id="modelsList" height="100%" width="300" change="showProperties()"
 					 allowMultipleSelection="true" keyUp="keyHandler(event)" selectAll="showProperties()"/>
@@ -34,13 +37,13 @@
 				<mx:HRule width="100%"/>
 				<mx:HBox width="100%">
 					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
-					<mx:CheckBox id="phpModels" label="PHP Models" selected="false" width="100%"/>
-				</mx:HBox>
-				<mx:HBox width="100%">
 					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
 					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
 				</mx:HBox>
 			</mx:VBox>
+			<mx:HRule width="100%"/>
+			<mx:Button label="Regenerate PHP Models" width="100%" icon="@Embed(source='../assets/icons/dusseldorf/edit-16.png')"
+					   click="generateModels(true)"/>
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%">
 			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" id="propertiesContainer">
@@ -58,9 +61,12 @@
 			import controllers.GenerationController;
 			import controllers.ProjectController;
 			
+			import interfaces.IRefreshable;
+			
 			import mx.collections.ArrayCollection;
 			import mx.containers.Canvas;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.messaging.messages.RemotingMessage;
 			import mx.rpc.events.FaultEvent;
@@ -71,13 +77,14 @@
 			
 			private var configuration:Object;
 			
-			private function init():void
+			public function init():void
 			{
 				var config:Object = ProjectController.instance.getConfiguration();
 				service.endpoint = config.options["server-url"];
 				
 				service.getModelDefinitions();
 				GenerationController.instance.log.add(logHandler);
+				currentState = null;
 			}
 			
 			private function generate():void
@@ -88,7 +95,6 @@
 				for each(var model:String in selected)
 					models.push({name:model, definition:definitions[model]});
 				
-				currentState = "progress";
 				GenerationController.instance.generate(models, phpServices.selected, as3Models.selected, as3Services.selected);
 			}
 			
@@ -142,14 +148,33 @@
 				}
 			}
 			
+			private function generateModels(hasExisting:Boolean=false):void
+			{
+				if(hasExisting)
+				{
+					Alert.show("Please be aware that this will probably clear your database, so be sure to backup your data " +
+									"before clicking \"OK\"", "Warning", Alert.OK|Alert.CANCEL, null,
+								function(event:CloseEvent)
+								{
+									if(event.detail == Alert.OK)
+										service.generate();
+								});
+				}
+				else
+					service.generate();
+			}
+			
 			private function resultHandler(event:ResultEvent):void
 			{
 				var message:RemotingMessage = event.token.message as RemotingMessage;
+				currentState = null;
 				
 				switch(message.operation)
 				{
 					case "getModelDefinitions":
 						definitions = event.result;
+						if(!definitions)
+							service.dispatchEvent(new FaultEvent(FaultEvent.FAULT, false, false, null, event.token, event.message));
 						
 						var dp:Array = [];
 						for(var model:String in definitions)
@@ -162,16 +187,28 @@
 						modelsList.selectedIndex = 0;
 						modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
 						break;
+					case "generate":
+						Alert.show("Models generated successfully.", "Notification");
+						init();
+						break;
 				}
 			}
 			
 			private function faultHandler(event:FaultEvent):void
 			{
-				Alert.show("Model defintions could not be read from the server. Please check your configuration values.", "Fault");
+				currentState = null;
+				Alert.show("Model definitions could not be read from the server. Please check your configuration values. " +
+					"This error could also be caused by not having generated models present - would you like to attempt " +
+					"to generate the models now?", "Notification", Alert.YES|Alert.NO|Alert.CANCEL, null,
+					function(event:CloseEvent)
+					{
+						if(event.detail == Alert.YES)
+							generateModels();
+					});
 			}
 		]]>
 	</mx:Script>
 	
 	<mx:RemoteObject id="service" source="core.aerial.Configuration" destination="aerial"
-					 result="resultHandler(event)" fault="faultHandler(event)"/>
+					 result="resultHandler(event)" fault="faultHandler(event)" invoke="currentState='progress'"/>
 </mx:VBox>

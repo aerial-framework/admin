@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" xmlns:pages="pages.*"
-			creationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right"
-			xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*" xmlns:pairViewStackEffects="org.efflex.mx.pairViewStackEffects.*" xmlns:code="http://code.google.com/p/flexlib/">
+			applicationComplete="init()" width="800" height="600" showStatusBar="false" verticalGap="0" horizontalAlign="right"
+			xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*" xmlns:pairViewStackEffects="org.efflex.mx.pairViewStackEffects.*"
+			xmlns:code="http://code.google.com/p/flexlib/">
 	
 	<mx:HBox width="100%" verticalAlign="middle">
 		<mx:Image source="@Embed(source='assets/images/aerial-logo.png')">
@@ -12,10 +13,19 @@
 		
 		<mx:Spacer width="100%"/>
 		
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/home-inverted.png')" paddingLeft="8" paddingRight="8"
+				   paddingTop="8" paddingBottom="8" toolTip="Home"
 				   click="appControl.showPage.dispatch(ApplicationController.HOME)" styleName="buttonOfficial" width="60"/>
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"/>
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config-inverted.png')" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work-inverted.png')" paddingLeft="8" paddingRight="8"
+				   paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"
+				   toolTip="Show Projects"
+				   click="appControl.projectDirectory = null; appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT)"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/config-inverted.png')" paddingLeft="8"
+				   paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"
+				   toolTip="Show Config Page" click="appControl.showPage.dispatch(ApplicationController.CONFIG_EDITOR)"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/collaboration-inverted.png')" paddingLeft="8"
+				   paddingRight="8" paddingTop="8" paddingBottom="8" styleName="buttonOfficial" width="60"
+				   toolTip="Refresh Page" click="refreshPage()"/>
 	</mx:HBox>
 	<mx:Spacer height="12"/>
 	
@@ -69,6 +79,8 @@
 			
 			import flexlib.events.SuperTabEvent;
 			
+			import interfaces.IRefreshable;
+			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.ItemClickEvent;
@@ -95,12 +107,19 @@
 				
 				appControl.showPage.add(showPageHandler);
 				appControl.projectSelected.add(projectSelectionHandler);
+				
+				nativeApplication.addEventListener(KeyboardEvent.KEY_UP, keyHandler);
+			}
+
+			private function keyHandler(event:KeyboardEvent):void
+			{
+				if((event.ctrlKey && event.keyCode == Keyboard.R) || event.keyCode == Keyboard.F5)
+					refreshPage();
 			}
 			
 			private function projectSelectionHandler(projects:Array):void
 			{
 				projectBar.dataProvider = projects.length > 0 ? projects : null;
-				trace("updated to " + projects.length);
 			}
 			
 			private function showPageHandler(page:String):void
@@ -161,6 +180,12 @@
 					appControl.closeProject(directory);
 				
 				appControl.showPage.dispatch(ApplicationController.HOME);
+			}
+
+			protected function refreshPage():void
+			{
+				if(appControl.projectDirectory && pagesVS.selectedChild is IRefreshable)
+					IRefreshable(pagesVS.selectedChild).init();
 			}
 
 		]]>

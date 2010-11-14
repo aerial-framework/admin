@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()" xmlns:code="http://code.google.com/p/flexlib/">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" show="init()"
+		 xmlns:code="http://code.google.com/p/flexlib/" implements="interfaces.IRefreshable">
 	
 	<mx:Script>
 		<![CDATA[
 			import controllers.ApplicationController;
 			import controllers.ProjectController;
-			private function init():void
+			
+			import interfaces.IRefreshable;
+			
+			public function init():void
 			{
 				var root:File = ApplicationController.instance.projectDirectory;
 				var config:Object = ProjectController.instance.getConfiguration();

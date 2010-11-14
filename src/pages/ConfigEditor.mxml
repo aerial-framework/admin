@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" show="init()" verticalScrollPolicy="off">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" show="init()" verticalScrollPolicy="off"
+		 implements="interfaces.IRefreshable">
+	
 	<mx:Script>
 		<![CDATA[
 			import components.config.ArrayItem;
@@ -16,6 +18,8 @@
 			
 			import controllers.ApplicationController;
 			import controllers.FileController;
+			
+			import interfaces.IRefreshable;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
@@ -37,8 +41,18 @@
 			private var panels:Array = [];
 			private var newXML:XML = new XML();
 			
-			private function init():void
+			public function init():void
 			{
+				if(!ApplicationController.instance.projectDirectory)
+				{
+					Alert.show("Please select a project first", "Notification",4, null,
+						function(event:CloseEvent)
+						{
+							ApplicationController.instance.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+						});
+					return;
+				}
+				
 				ApplicationController.instance.addDatabaseNode.add(addDatabaseNodeHandler);
 				
 				panels.push({section:"options", panel:optionsPanel});

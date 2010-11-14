@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" horizontalAlign="center" verticalAlign="middle">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()"
+		 horizontalAlign="center" verticalAlign="middle" implements="interfaces.IRefreshable">
 	<mx:states>
 		<mx:State name="checkingVersion">
 			<mx:RemoveChild target="{hbox1}"/>
@@ -79,6 +80,8 @@
 			
 			import events.ArchiveControlEvent;
 			
+			import interfaces.IRefreshable;
+			
 			import mx.controls.Alert;
 			import mx.managers.DragManager;
 			import mx.rpc.events.FaultEvent;
@@ -95,7 +98,7 @@
 			[Bindable] private var fileIndex:uint;
 			[Bindable] private var currentFile:String;
 			
-			private function init():void
+			public function init():void
 			{
 				archiveController.addEventListener(ArchiveControlEvent.ARCHIVE_READ, onExtractStarted);	
 			}

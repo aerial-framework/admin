@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" keyUp="pageKeyHandler(event)"
-		 			creationComplete="init(event)">
+		 			show="init()" implements="interfaces.IRefreshable">
 	<mx:states>
 		<mx:State name="valid">
 			<mx:SetProperty target="{label1}" name="text" value="Valid Aerial project"/>
@@ -45,6 +45,8 @@
 			import controllers.ApplicationController;
 			import controllers.ProjectController;
 			
+			import interfaces.IRefreshable;
+			
 			import mx.controls.Alert;
 			import mx.controls.FileSystemEnumerationMode;
 			import mx.core.mx_internal;
@@ -61,7 +63,7 @@
 			
 			private var projectFile:File;
 			
-			private function init(event:FlexEvent):void
+			public function init():void
 			{
 				path.text = File.desktopDirectory.nativePath;
 				pathChange();
