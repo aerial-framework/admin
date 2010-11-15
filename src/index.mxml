@@ -154,7 +154,8 @@
 			{
 				var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 				var ns:Namespace = appXML.namespace();
-				versionStr.text = "Aerial Admin " + appXML.ns::versionNumber + " using AIR" + NativeApplication.nativeApplication.runtimeVersion;
+				versionStr.text = "Aerial Admin " + appXML.ns::versionNumber +
+					" using AIR" + NativeApplication.nativeApplication.runtimeVersion;
 			}
 			
 			private function onUpdate(event:UpdateEvent):void

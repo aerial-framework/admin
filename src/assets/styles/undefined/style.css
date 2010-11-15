@@ -373,8 +373,9 @@ CheckBox
 	selected-up-icon: 	Embed("botones/chekOn.png");
 	selected-over-icon: Embed("botones/chekOn1.png");
 	selected-down-icon: Embed("botones/chekOn2.png");
-	disabled-icon: 		Embed("botones/chek_dis.png");
+	disabled-icon: 		Embed(source="botones/chek_dis.png");
 	font-family:		"Lucida Sans";
+	selectedDisabledIcon: Embed(source="botones/chek_dis.png");
 }
 
 
@@ -702,7 +703,7 @@ Alert, .panelSkin
 	
 	padding-left: 				0;
 	padding-bottom: 			14;
-	padding-right: 				0;
+	padding-right: 				4;
 	padding-top: 				0;
 	
 	header-height: 				25;

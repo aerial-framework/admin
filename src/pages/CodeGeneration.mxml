@@ -5,10 +5,6 @@
 	<mx:states>
 		<mx:State name="progress">
 			<mx:RemoveChild target="{modelDef}"/>
-			<mx:AddChild relativeTo="{panel1}" position="lastChild">
-				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
-							 styleName="code" editable="false"/>
-			</mx:AddChild>
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:SetStyle name="horizontalAlign" value="center"/>
 			<mx:SetStyle name="verticalAlign" value="middle"/>
@@ -16,36 +12,79 @@
 				<mx:Image source="@Embed(source='../assets/loaders/loader.swf')" width="32" height="32"/>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="log">
+			<mx:RemoveChild target="{modelDef}"/>
+			<mx:AddChild relativeTo="{panel1}" position="lastChild">
+				<mx:TextArea width="100%" height="100%" id="logTxt" backgroundAlpha="0" borderStyle="none" color="#FFFFFF"
+							 styleName="code" editable="false"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{panel1}" name="height" value="100%"/>
+		</mx:State>
 		<mx:State name="multiple">
 			<mx:RemoveChild target="{modelDef}"/>
 			<mx:AddChild relativeTo="{panel1}" position="lastChild">
 				<mx:Text id="selectedModels" width="100%"/>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="noModels">
+			<mx:RemoveChild target="{modelsList}"/>
+			<mx:RemoveChild target="{propertiesContainer}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:SetStyle target="{hbox1}" name="horizontalAlign" value="center"/>
+			<mx:SetStyle target="{hbox1}" name="verticalAlign" value="middle"/>
+			<mx:SetProperty target="{vbox2}" name="height"/>
+			<mx:SetProperty target="{phpServices}" name="enabled" value="false"/>
+			<mx:SetProperty target="{as3Models}" name="enabled" value="false"/>
+			<mx:SetProperty target="{as3Services}" name="enabled" value="false"/>
+			<mx:SetProperty target="{phpModels}" name="selected" value="true"/>
+			<mx:SetProperty target="{button1}" name="enabled" value="true"/>
+		</mx:State>
 	</mx:states>
 	
+	<mx:RadioButtonGroup id="fromGroup"/>
+	
 	<mx:HBox width="100%" height="100%" id="hbox1">
-		<mx:VBox height="100%" verticalScrollPolicy="off">
+		<mx:VBox height="100%" verticalScrollPolicy="off" id="vbox2">
 			<mx:List id="modelsList" height="100%" width="300" change="showProperties()"
 					 allowMultipleSelection="true" keyUp="keyHandler(event)" selectAll="showProperties()"/>
 			<mx:Button label="Generate" icon="@Embed(source='../assets/icons/dusseldorf/attributes-16.png')"
 					   width="100%" labelPlacement="bottom" height="55" moveEffect="Fade" click="generate()"
-					   enabled="{modelsList.selectedItems.length != 0}"/>			
+					   enabled="{modelsList.selectedItems.length != 0}" id="button1"/>			
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:HRule width="100%"/>
-				<mx:Label text="Generate:" styleName="weekDayChooserStyle" fontWeight="bold"/>
+				<mx:Label text="Generation Options:" styleName="weekDayChooserStyle" fontWeight="bold"/>
 				<mx:HRule width="100%"/>
-				<mx:HBox width="100%">
-					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%"/>
-					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%"/>
-					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%"/>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="phpServices" label="PHP Services" selected="true" width="100%" enabled="{!phpModels.selected}"/>
+					<mx:CheckBox id="phpModels" label="PHP Models" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%" enabled="{!phpModels.selected}"/>
+					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%" enabled="{!phpModels.selected}"/>
 				</mx:HBox>
 			</mx:VBox>
-			<mx:HRule width="100%"/>
-			<mx:Button label="Regenerate PHP Models" width="100%" icon="@Embed(source='../assets/icons/dusseldorf/edit-16.png')"
-					   click="generateModels(true)"/>
+			<mx:VBox id="regenBox" width="100%" verticalGap="0" visible="{phpModels.selected}" includeInLayout="{phpModels.selected}"
+					 showEffect="Resize">
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:Label text="PHP Model Generation Options:" styleName="weekDayChooserStyle" fontWeight="bold"/>
+					<mx:Spacer width="100%"/>
+					<mx:Image source="@Embed(source='../assets/icons/dusseldorf/consulting-16.png')" buttonMode="true"
+							  click="showRegenHelp()"/>
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:Label text="Generate from:" width="145" styleName="weekDayChooserStyle" fontSize="11"/>
+					<mx:RadioButton id="useYAMLRadio" label="YAML" group="{fromGroup}" selected="true"/>
+					<mx:RadioButton id="useDBRadio" label="Database" group="{fromGroup}"/>
+				</mx:HBox>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:Label text="Re-create Database?" width="145" styleName="weekDayChooserStyle" fontSize="11"/>
+					<mx:CheckBox id="regenDB" selected="false" width="100%"/>
+				</mx:HBox>
+			</mx:VBox>
 		</mx:VBox>
-		<mx:VBox width="100%" height="100%">
+		<mx:VBox width="100%" height="100%" id="vbox1">
 			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" id="propertiesContainer">
 				<mx:Panel width="100%" layout="vertical" styleName="dark" headerHeight="0" minHeight="{propertiesContainer.height}"
 						  paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="{modelsList.selectedItem}"
@@ -88,14 +127,47 @@
 			}
 			
 			private function generate():void
+			{				
+				if(!phpModels.selected)
+				{
+					generateRegular();
+					return;
+				}
+
+				generateModels(fromGroup.selection == useYAMLRadio, regenDB.selected);
+			}
+			
+			private function generateModels(fromYAML:Boolean=true, regenDB:Boolean=false):void
+			{
+				service.generate(fromYAML, regenDB);
+			}
+			
+			private function generateRegular():void
 			{
 				var selected:Array = modelsList.selectedItems;
 				var models:Array = [];
+				
+				currentState = "log";
 				
 				for each(var model:String in selected)
 					models.push({name:model, definition:definitions[model]});
 				
 				GenerationController.instance.generate(models, phpServices.selected, as3Models.selected, as3Services.selected);
+			}
+			
+			private function showRegenHelp():void
+			{
+				var helpTxt:String = "Aerial uses Doctrine - a PHP-based ORM that generates PHP models for you based off either " +
+										"a schema YAML file and/or a database. What these so-called 'models' allow you to do is " + 
+										"work with your data in an object-oriented fashion and Doctrine will take care of the persistence. " +
+										"\nAerial, in turn, uses these PHP models to generate ActionScript models & services, as well as " + 
+										"PHP services that all interact with those models. Due to this fact, you need to generate PHP models " + 
+										"before you can continue with other code generation. The options detailed below allow you to " + 
+										"customize the way that Doctrine generates these models for you.\n" + 
+										"You can generate your PHP models from a YAML file (schema.yml) that you have created or from a " +
+										"database that you have created. You can also choose whether or not to regenerate your database " +
+										"based off the new models - this is only pertinent if you're generating from a YAML schema.";
+				Alert.show(helpTxt, "PHP Model Generation Help");
 			}
 			
 			private function logHandler(message:String, type:String):void
@@ -118,11 +190,11 @@
 						break;
 				}
 				
-				if(currentState != "progress")
+				if(currentState != "log")
 					return;
 				
 				logTxt.htmlText += prefix + message + suffix + "<br/>";
-				callLater(function(){logTxt.verticalScrollPosition = logTxt.maxVerticalScrollPosition});
+				callLater(function(){logTxt.verticalScrollPosition = logTxt.maxVerticalScrollPosition + 10});
 			}
 			
 			private function showProperties():void
@@ -146,22 +218,6 @@
 					modelsList.selectedItems = ArrayCollection(modelsList.dataProvider).source;
 					showProperties();
 				}
-			}
-			
-			private function generateModels(hasExisting:Boolean=false):void
-			{
-				if(hasExisting)
-				{
-					Alert.show("Please be aware that this will probably clear your database, so be sure to backup your data " +
-									"before clicking \"OK\"", "Warning", Alert.OK|Alert.CANCEL, null,
-								function(event:CloseEvent)
-								{
-									if(event.detail == Alert.OK)
-										service.generate();
-								});
-				}
-				else
-					service.generate();
 			}
 			
 			private function resultHandler(event:ResultEvent):void
@@ -189,6 +245,7 @@
 						break;
 					case "generate":
 						Alert.show("Models generated successfully.", "Notification");
+						phpModels.selected = false;
 						init();
 						break;
 				}
@@ -196,15 +253,22 @@
 			
 			private function faultHandler(event:FaultEvent):void
 			{
+				var message:RemotingMessage = event.token.message as RemotingMessage;
 				currentState = null;
-				Alert.show("Model definitions could not be read from the server. Please check your configuration values. " +
-					"This error could also be caused by not having generated models present - would you like to attempt " +
-					"to generate the models now?", "Notification", Alert.YES|Alert.NO|Alert.CANCEL, null,
-					function(event:CloseEvent)
-					{
-						if(event.detail == Alert.YES)
-							generateModels();
-					});
+				
+				switch(message.operation)
+				{
+					case "getModelDefinitions":
+						Alert.show("Model definitions could not be read from the server. Please check your configuration values. " +
+							"This error could also be caused by not having generated models present. " +
+							"You can close this dialog and generate your PHP models using the options provided.", "Notification",
+							4, null, function(){currentState = "noModels"});
+						break;
+					default:
+						Alert.show("An unexpected error occured. Please report this to danny@aerial-project.org:\n" + 
+									event.fault.faultString + "\n" + event.fault.faultDetail + "\n" + event.fault.faultCode, "Notification");
+						break;
+				}
 			}
 		]]>
 	</mx:Script>

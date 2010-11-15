@@ -20,7 +20,7 @@
 		
 		<mx:Spacer width="100%"/>
 		<mx:Button click="ApplicationController.instance.addDatabaseNode.dispatch(this)" label="Add"
-				   icon="@Embed(source='../../assets/icons/dusseldorf/plus-16.png')"/>
+				   icon="@Embed(source='../../assets/icons/dusseldorf/plus-16.png')" visible="false"/>
 	</mx:HBox>
 	
 	<mx:Script>

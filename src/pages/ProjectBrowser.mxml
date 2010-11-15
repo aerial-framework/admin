@@ -23,6 +23,7 @@
 		<mx:Spacer width="100%" id="spacer1"/>
 		<mx:Label text="No path selected" color="#222222" id="label1"/>
 	</mx:HBox>
+	
 	<mx:HRule width="100%"/>
 	
 	<mx:FileSystemTree id="tree" width="100%" showExtensions="true" showIcons="true" allowMultipleSelection="false"

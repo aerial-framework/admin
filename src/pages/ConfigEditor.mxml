@@ -61,6 +61,9 @@
 				panels.push({section:"database", panel:databasePanel});
 				
 				ApplicationController.instance.configMode = ConfigurationUtil.SIMPLE;
+				setMode(ConfigurationUtil.SIMPLE);
+				
+				modeToggle.selectedIndex = 0;
 				
 				clearPanels();
 				
@@ -360,7 +363,7 @@
 	</mx:Script>
 	
 	<mx:HBox width="100%" verticalAlign="middle" styleName="myTitlePanel">
-		<mx:ToggleButtonBar width="150" itemClick="setMode(event.item.data)" selectedIndex="0">
+		<mx:ToggleButtonBar id="modeToggle" width="150" itemClick="setMode(event.item.data)" selectedIndex="0">
 			<mx:dataProvider>
 				<mx:Array>
 					<mx:Object label="Simple" data="{ConfigurationUtil.SIMPLE}"/>
@@ -374,17 +377,17 @@
 		<mx:Button label="Save Configuration" click="saveConfig()" height="35"
 				   icon="@Embed(source='../assets/icons/dusseldorf/upcoming-work-16.png')"/>
 		
-		<mx:Spacer width="100%"/>
+		<!--<mx:Spacer width="100%"/>-->
 		
-		<mx:ToggleButtonBar width="150" itemClick="setState(event.item.data)" selectedIndex="0">
+		<!--<mx:ToggleButtonBar width="150" itemClick="setState(event.item.data)" selectedIndex="0" visible="false">
 			<mx:dataProvider>
-				<mx:Array>
+				<mx:Array>-->
 					<!--<mx:Object label="Hybrid" data="{ConfigurationUtil.HYBRID}"/>-->
-					<mx:Object label="Regular" data="{ConfigurationUtil.REGULAR}"/>
+					<!--<mx:Object label="Regular" data="{ConfigurationUtil.REGULAR}"/>-->
 					<!--<mx:Object label="Alternative" data="{ConfigurationUtil.ALTERNATIVE}"/>-->
-				</mx:Array>
+				<!--</mx:Array>
 			</mx:dataProvider>
-		</mx:ToggleButtonBar>
+		</mx:ToggleButtonBar>-->
 	</mx:HBox>
 	
 	<mx:HRule width="100%"/>

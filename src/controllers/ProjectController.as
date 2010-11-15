@@ -119,7 +119,13 @@ package controllers
 		{
 			initFiles();
 			
-			return preferencesFile ? XMLSerializer.deserialize(XML(FileUtil.read(preferencesFile))) as Array : [];
+			var descriptor:XML = XML(FileUtil.read(preferencesFile));
+			var empty:Boolean;
+			
+			if(descriptor.children().length() == 0)
+				empty = true;
+			
+			return !empty ? XMLSerializer.deserialize(XML(FileUtil.read(preferencesFile))) as Array : [];
 		}
 	}
 }
