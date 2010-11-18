@@ -4,13 +4,12 @@ package {{package}}
 	import org.aerial.system.IConfig;
 	
 	import {{modelPackage}}.{{model}};
-	import {{configPackage}}.{{configClass}};
 
 	public class {{class}} extends AbstractService
 	{
 		public function {{class}}()
 		{
-			super("{{class}}", Config.SERVER_URL, {{model}});
+			super("{{class}}", "{{server-url}}", {{model}});
 		}
 	}
 }
