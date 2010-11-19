@@ -150,7 +150,6 @@ package controllers
 			replacementTokens["modelPackage"] = 		packageString + "." + config["code-generation"]["as3-models-folder"];
 			replacementTokens["configPackage"] = 		packageString + ".config";
 			replacementTokens["configClass"] = 			"Config";
-			replacementTokens["server-url"] =			config["options"]["server-url"];
 			
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
