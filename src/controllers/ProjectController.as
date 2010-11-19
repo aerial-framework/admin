@@ -20,6 +20,8 @@ package controllers
 		public var savePath:Signal; 
 		public var updateProjects:Signal;
 		
+		private var bootstrapValues:Array = [];
+		
 		// static initializer
 		{
 			// create instance
@@ -90,6 +92,8 @@ package controllers
 		
 		public function getConfiguration():Object
 		{
+			bootstrapValues = [];
+			
 			var config:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.xml");
 			var data:String = FileController.instance.read(config);
 			var parsed:Object = xmlToObject(XML(data));
@@ -107,13 +111,51 @@ package controllers
 				if(child.nodeKind() == "comment")
 					continue;
 				
-				(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
-				?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
-				:	chain[child.name().toString()] = chain[child.name().toString()] = child.text().toString();
+				if(child.attribute("include-in-bootstrap").toString() == "true")
+				{
+					(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+					?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
+					:	chain[child.name().toString()] = {"include":true, value:child.text().toString()};
+					
+					bootstrapValues.push({name:child.name().toString(), value:child.text().toString()});
+				}
+				else
+				{
+					(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+					?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])
+					:	chain[child.name().toString()] = {value:child.text().toString()};
+				}
 			}
 			
 			return chain;
 		}
+		
+		public function getBootstrapValues():Array
+		{
+			return bootstrapValues;
+		}
+		
+		/*public function xmlToObjectFlat(xml:XML, chain:Object=null, string:String=null):Object
+		{
+			if(!chain)
+				chain = {};
+			
+			if(!string)
+				string = "";
+			
+			for each(var child:XML in xml.children())
+			{
+				if(child.nodeKind() == "comment")
+					continue;
+				
+				
+				(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+				?	chain[string + "/" + child.name().toString()] = xmlToObjectFlat(child, chain[child.name().toString()], string + "/" + child.name().toString())
+				:	chain[string + "/" + child.name().toString()] = child.text().toString();
+			}
+			
+			return chain;
+		}*/
 		
 		public function getProjects():Array
 		{

@@ -9,6 +9,7 @@ package controllers
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.Application;
+	import mx.utils.ObjectUtil;
 	
 	import org.osflash.signals.Signal;
 
@@ -26,6 +27,7 @@ package controllers
 		private static const AS3_MODELS:String = "as3Models";
 		private static const AS3_SERVICES:String = "as3Services";
 		private static const PHP_SERVICES:String = "phpServices";
+		private static const BOOTSTRAP:String = "bootstrap";
 		
 		private var config:Object;
 		
@@ -40,6 +42,8 @@ package controllers
 		
 		private var as3Base:File;
 		private var phpBase:File;
+		
+		private var bootstrapBase:File;
 		
 		private var packageString:String;
 		
@@ -66,25 +70,30 @@ package controllers
 			
 			config = ProjectController.instance.getConfiguration();
 			
-			voSuffix = config["code-generation"].vo;
-			serviceSuffix = config["code-generation"].service;
+			voSuffix = config["code-generation"].vo.value;
+			serviceSuffix = config["code-generation"].service.value;
 			
-			packageString = config["code-generation"]["package"];
+			packageString = config["code-generation"]["package"].value;
 			var packageName:String = packageString.split(".").join("/") + "/";
 			
-			as3VOFolder = packageName + config["code-generation"]["as3-models-folder"];
-			phpVOFolder = packageName + config["code-generation"]["php-models-folder"];
+			as3VOFolder = packageName + config["code-generation"]["as3-models-folder"].value;
+			phpVOFolder = packageName + config["code-generation"]["php-models-folder"].value;
 			
-			as3ServiceFolder = packageName + config["code-generation"]["as3-services-folder"];
-			phpServiceFolder = packageName + config["code-generation"]["php-services-folder"];
+			as3ServiceFolder = packageName + config["code-generation"]["as3-services-folder"].value;
+			phpServiceFolder = packageName + config["code-generation"]["php-services-folder"].value;
 			
-			as3Base = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["as3"]);
+			as3Base = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["as3"].value);
 			if(!as3Base.exists)
 				as3Base.createDirectory();
 			
-			phpBase = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["php"]);
+			phpBase = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["php"].value);
 			if(!phpBase.exists)
 				phpBase.createDirectory();
+			
+			var bootstrapStructure:String = config["code-generation"]["bootstrap-package"].value.replace(/\./gi, "/");
+			bootstrapBase = as3Base.resolvePath(bootstrapStructure);
+			if(!bootstrapBase.exists)
+				bootstrapBase.createDirectory();
 		}
 		
 		public static function get instance():GenerationController
@@ -92,9 +101,9 @@ package controllers
 			return _instance;
 		}
 		
-		public function generate(models:Array, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean):void
+		public function generate(models:Array, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
 		{
-			if(!phpServices && !as3Models && !as3Services)
+			if(!phpServices && !as3Models && !as3Services && !bootstrap)
 				return;
 			
 			log.dispatch("<b>Code Generation initialized</b><br/>", "process");
@@ -117,6 +126,8 @@ package controllers
 				if(as3Services)		generateAS3Service(model);
 				if(as3Models)		generateAS3Model(model);
 			}
+			
+			if(bootstrap)			generateBootstrapper();
 			
 			timerEnd.dispatch("Code generation of " + fileCount + " files completed");
 		}
@@ -146,11 +157,12 @@ package controllers
 			
 			replacementTokens["model"] = 				model.name + voSuffix;
 			replacementTokens["class"] = 				model.name + serviceSuffix;
-			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-services-folder"];
-			replacementTokens["modelPackage"] = 		packageString + "." + config["code-generation"]["as3-models-folder"];
+			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-services-folder"].value;
+			replacementTokens["modelPackage"] = 		packageString + "." + config["code-generation"]["as3-models-folder"].value;
 			replacementTokens["configPackage"] = 		packageString + ".config";
 			replacementTokens["configClass"] = 			"Config";
-			replacementTokens["server-url"] =			config["options"]["server-url"];
+			replacementTokens["bootstrapPackage"] = 	config["code-generation"]["bootstrap-package"].value;
+			replacementTokens["bootstrapClass"] = 		config["code-generation"]["bootstrap-filename"].value;
 			
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
@@ -165,7 +177,7 @@ package controllers
 			var template:String = getTemplate("as3.vo.tmpl");
 			var replacementTokens:Object = {};
 			
-			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-models-folder"];
+			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-models-folder"].value;
 			replacementTokens["collectionImport"] = 	"import mx.collections.ArrayCollection";
 			replacementTokens["class"] = 				model.name + voSuffix;
 			replacementTokens["remoteClass"] = 			model.name;
@@ -210,6 +222,52 @@ package controllers
 			writeGenerated(template, model.name + voSuffix + ".as", AS3_MODELS);
 		}
 		
+		private function sanitizeConstName(name:String):String
+		{
+			return name.replace("-", "_").toUpperCase();
+		}
+		
+		private function getConstType(value:String):String
+		{
+			var type:String = "String";
+			if(value == "true" || value == "false")
+				return "Boolean";
+			
+			return type;
+		}
+		
+		private function generateBootstrapper():void
+		{			
+			log.dispatch("Initiating Bootstrapper generation", "process");
+			
+			var template:String = getTemplate("bootstrap.tmpl");
+			var replacementTokens:Object = {};
+			
+			replacementTokens["package"] = 				config["code-generation"]["bootstrap-package"].value;
+			replacementTokens["class"] = 				config["code-generation"]["bootstrap-filename"].value;
+			
+			var bootstrapConsts:Array = ProjectController.instance.getBootstrapValues();
+			replacementTokens["configValues"] = [];
+			for each(var item:Object in bootstrapConsts)
+			{
+				var type:String = getConstType(item.value);
+				var value:String = item.value;
+				
+				if(type == "String")
+					value = '"' + value + '"';
+				
+				replacementTokens["configValues"].push("\t\tpublic static const " + 
+												sanitizeConstName(item.name) + ":" + type + " = " + value + ";");
+			}
+			
+			replacementTokens["configValues"] = replacementTokens["configValues"].join("\n");
+			
+			for(var property:String in replacementTokens)
+				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
+			
+			writeGenerated(template, replacementTokens["class"] + ".as", BOOTSTRAP);
+		}
+		
 		private function writeGenerated(data:String, name:String, type:String):void
 		{
 			var file:File;
@@ -226,6 +284,9 @@ package controllers
 				case PHP_SERVICES:
 					file = phpBase.resolvePath(phpServiceFolder).resolvePath(name);
 					break;
+				case BOOTSTRAP:
+					file = bootstrapBase.resolvePath(name);
+					break;
 			}
 			
 			var size:String = Number(data.length / 1024).toFixed(3) + "Kb";
@@ -234,7 +295,7 @@ package controllers
 			
 			var stream:FileStream = new FileStream();
 			stream.open(file, FileMode.WRITE);
-			trace(file.nativePath);
+			//trace(file.nativePath);
 			stream.writeUTFBytes(data);
 			stream.close();
 			

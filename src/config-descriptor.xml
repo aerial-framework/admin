@@ -58,6 +58,14 @@
         <as3-services-folder type="folder_name" category="simple" label="ActionScript Services Path" default="services">
 			<![CDATA[The name of the folder in which Aerial will place generated ActionScript service files.]]>
 		</as3-services-folder>
+		
+	    <bootstrap-package type="package" category="advanced" label="Bootstrapper Package" default="org.aerial.bootstrap">
+	    	<![CDATA[The package string to be used for the Aerial ActionScript bootstrapper file.]]>
+	    </bootstrap-package>
+	    
+	    <bootstrap-filename type="class" category="advanced" label="Bootstrapper Filename" default="Aerial">
+	    	<![CDATA[The name of the Aerial ActionScript bootstrapper file.]]>
+	    </bootstrap-filename>
 
         <vo type="class" category="advanced" label="Value-Object Filename Suffix" default="VO">
 			<![CDATA[The suffix to use when Aerial is creating filenames for Value-Objects (models).]]>

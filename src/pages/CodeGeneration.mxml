@@ -37,6 +37,8 @@
 			<mx:SetProperty target="{as3Models}" name="enabled" value="false"/>
 			<mx:SetProperty target="{as3Services}" name="enabled" value="false"/>
 			<mx:SetProperty target="{phpModels}" name="selected" value="true"/>
+			<mx:SetProperty target="{bootstrap}" name="enabled" value="true"/>
+			<mx:SetProperty target="{bootstrap}" name="selected" value="true"/>
 			<mx:SetProperty target="{button1}" name="enabled" value="true"/>
 		</mx:State>
 	</mx:states>
@@ -61,6 +63,10 @@
 				<mx:HBox width="100%" verticalAlign="middle">
 					<mx:CheckBox id="as3Models" label="AS3 Models" selected="true" width="100%" enabled="{!phpModels.selected}"/>
 					<mx:CheckBox id="as3Services" label="AS3 Services" selected="true" width="100%" enabled="{!phpModels.selected}"/>
+				</mx:HBox>
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="bootstrap" label="Bootstrap Class" selected="true" width="100%" enabled="{!phpModels.selected}"
+						toolTip="The 'Bootstrap Class' is a class that contains some of your configuration values as static constants"/>
 				</mx:HBox>
 			</mx:VBox>
 			<mx:VBox id="regenBox" width="100%" verticalGap="0" visible="{phpModels.selected}" includeInLayout="{phpModels.selected}"
@@ -119,7 +125,7 @@
 			public function init():void
 			{
 				var config:Object = ProjectController.instance.getConfiguration();
-				service.endpoint = config.options["server-url"];
+				service.endpoint = config.options["server-url"].value;
 				
 				service.getModelDefinitions();
 				GenerationController.instance.log.add(logHandler);
@@ -152,7 +158,9 @@
 				for each(var model:String in selected)
 					models.push({name:model, definition:definitions[model]});
 				
-				GenerationController.instance.generate(models, phpServices.selected, as3Models.selected, as3Services.selected);
+				GenerationController.instance.generate(models, phpServices.selected,
+														as3Models.selected, as3Services.selected,
+														bootstrap.selected);
 			}
 			
 			private function showRegenHelp():void
