@@ -127,6 +127,10 @@
             <password type="string" category="simple" label="Password">
 				<![CDATA[The database password.]]>
 			</password>
+
+            <port type="string" category="simple" label="Port" default="3306">
+                <![CDATA[The database port.]]>
+            </port>
 		</structure>
 	</database>
 </config>

@@ -120,7 +120,8 @@ package controllers
 			
 			for each(var model:Object in models)
 			{
-				log.dispatch(null, "separator");
+                if(phpServices || as3Services || as3Models)
+				    log.dispatch(null, "separator");
 				
 				if(phpServices)		generatePHPService(model);
 				if(as3Services)		generateAS3Service(model);
