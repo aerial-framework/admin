@@ -225,7 +225,7 @@
 			{
 				this.projectFile = projectFile;
 				
-				var defaultConfigLocation:String = "src_php/lib/config/config.xml";
+				var defaultConfigLocation:String = "src_php/config/config.xml";
 				var configPath:File = this.projectFile.parent.resolvePath(defaultConfigLocation);
 				if(!configPath.exists)
 				{

@@ -94,7 +94,7 @@ package controllers
 		{
 			bootstrapValues = [];
 			
-			var config:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/lib/config/config.xml");
+			var config:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/config/config.xml");
 			var data:String = FileController.instance.read(config);
 			var parsed:Object = xmlToObject(XML(data));
 			

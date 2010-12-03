@@ -160,8 +160,6 @@ package controllers
 			replacementTokens["class"] = 				model.name + serviceSuffix;
 			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-services-folder"].value;
 			replacementTokens["modelPackage"] = 		packageString + "." + config["code-generation"]["as3-models-folder"].value;
-			replacementTokens["configPackage"] = 		packageString + ".config";
-			replacementTokens["configClass"] = 			"Config";
 			replacementTokens["bootstrapPackage"] = 	config["code-generation"]["bootstrap-package"].value;
 			replacementTokens["bootstrapClass"] = 		config["code-generation"]["bootstrap-filename"].value;
 			
