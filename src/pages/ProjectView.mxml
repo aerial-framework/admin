@@ -13,7 +13,7 @@
 			<mx:AddChild position="lastChild">
 				<mx:HBox width="400" verticalAlign="middle">
 					<mx:Button label="Select project" width="75%" height="35" enabled="{projectList.selectedItem}"
-							   click="appControl.projectDirectory = new File(projectList.selectedItem.toString()); validateProject()"/>
+							   click="selectProject()"/>
 					<mx:Button label="Back" width="25%" styleName="buttonOfficial" height="35"
 							   click="appControl.showPage.dispatch(ApplicationController.HOME)"/>
 				</mx:HBox>
@@ -40,10 +40,12 @@
 	<mx:Script>
 		<![CDATA[
 			import controllers.ApplicationController;
+			import controllers.FileController;
 			import controllers.ProjectController;
 			
 			import interfaces.IRefreshable;
 			
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
 			
@@ -57,17 +59,59 @@
 				validateProject();
 			}
 
-			protected function validateProject():void
+			protected function validateProject(showError:Boolean=false):void
 			{
 				if(!appControl.projectDirectory || !appControl.projectDirectory.exists)
 				{
 					currentState = "projectSelector";
 					projects = ProjectController.instance.getProjects();
+					
+					if(showError)
+					{
+						Alert.show("Project could not be found. Please check the project.xml file in the root of your project " +
+							"and check that the folder you're attempting to open actually exists", "Error");
+					}
 				}
 				else
 				{
 					currentState = null;
 					optionsBox.visible = optionsBox.includeInLayout = true;
+				}
+			}
+			
+			private function selectProject():void
+			{
+				appControl.projectDirectory = new File(projectList.selectedItem.toString());
+				
+				var projectFile:File = appControl.projectDirectory.resolvePath("project.xml");
+				if(!projectFile.exists)
+				{
+					validateProject(true);
+					return;
+				}
+					
+				var contents:XML = XML(FileController.instance.read(projectFile));
+				var configPath:String = contents["config-path"].text().toString();
+				var configFile:File = appControl.projectDirectory.resolvePath(configPath + "/config.xml");
+				var configAltFile:File = appControl.projectDirectory.resolvePath(configPath + "/config-alt.xml");
+				
+				if(!appControl.projectDirectory.resolvePath(configPath).exists)
+				{
+					Alert.show("Configuration path invalid. Please check the " + configPath + " directory and " +
+									"validate the path in project.xml in the root of your project", "Error");
+				}
+				else if(!configFile.exists)
+				{
+					Alert.show("Configuration file invalid. Please check the " + configPath + " directory and " +
+									"validate the path in project.xml in the root of your project", "Error");
+				}
+				else
+				{
+					validateProject(true);
+					
+					appControl.configDirectory = appControl.projectDirectory.resolvePath(configPath);
+					appControl.configFile = configFile;
+					appControl.configAltFile = configAltFile;
 				}
 			}
 		]]>

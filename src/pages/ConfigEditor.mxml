@@ -179,8 +179,7 @@
 			private function parseConfig(useAlt:Boolean=false):Object
 			{
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
-				var configFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/config/config.xml");
-				//var altConfigFile:File = new File("C:/UniServer/www/open-source/aerial-test/src_php/lib/config/config-alt.xml");
+				var configFile:File = ApplicationController.instance.configFile;
 				
 				XML.ignoreComments = false;
 				
@@ -193,7 +192,7 @@
 				descriptorXML = XML(stream.readUTFBytes(stream.bytesAvailable));
 				stream.close();
 				
-				stream.open(configFile, FileMode.READ);
+				stream.open(ApplicationController.instance.configFile, FileMode.READ);
 				configXML = XML(stream.readUTFBytes(stream.bytesAvailable));
 				stream.close();
 				

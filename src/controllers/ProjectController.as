@@ -3,6 +3,7 @@ package controllers
 	import flash.filesystem.File;
 	import flash.xml.XMLNodeType;
 	
+	import mx.collections.ArrayCollection;
 	import mx.utils.ObjectUtil;
 	
 	import org.libspark.serialization.XMLSerializer;
@@ -94,8 +95,7 @@ package controllers
 		{
 			bootstrapValues = [];
 			
-			var config:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/config/config.xml");
-			var data:String = FileController.instance.read(config);
+			var data:String = FileController.instance.read(ApplicationController.instance.configFile);
 			var parsed:Object = xmlToObject(XML(data));
 			
 			return parsed;
@@ -167,7 +167,20 @@ package controllers
 			if(descriptor.children().length() == 0)
 				empty = true;
 			
-			return !empty ? XMLSerializer.deserialize(XML(FileUtil.read(preferencesFile))) as Array : [];
+			if(empty)
+				return [];
+			else
+			{
+				var projects:ArrayCollection = new ArrayCollection(XMLSerializer.deserialize(XML(FileUtil.read(preferencesFile))) as Array);
+				for each(var dir:String in projects)
+				{
+					var directory:File = new File(dir);
+					if(!directory.exists)
+						projects.removeItemAt(projects.getItemIndex(dir));
+				}
+				
+				return projects.source;
+			}
 		}
 	}
 }

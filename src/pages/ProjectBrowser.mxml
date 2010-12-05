@@ -44,6 +44,7 @@
 	<mx:Script>
 		<![CDATA[
 			import controllers.ApplicationController;
+			import controllers.FileController;
 			import controllers.ProjectController;
 			
 			import interfaces.IRefreshable;
@@ -63,6 +64,8 @@
 			private var lastTabIndex:int = -1;
 			
 			private var projectFile:File;
+			
+			private var appControl:ApplicationController = ApplicationController.instance;
 			
 			public function init():void
 			{
@@ -225,12 +228,14 @@
 			{
 				this.projectFile = projectFile;
 				
-				var defaultConfigLocation:String = "src_php/config/config.xml";
-				var configPath:File = this.projectFile.parent.resolvePath(defaultConfigLocation);
-				if(!configPath.exists)
+				var contents:XML = XML(FileController.instance.read(projectFile));
+				var configPath:String = contents["config-path"].text().toString();
+				var configFile:File = projectFile.parent.resolvePath(configPath + "/config.xml");
+				
+				if(!configFile.exists)
 				{
 					currentState = null;
-					errorTxt.text = "Configuration file not found under " + defaultConfigLocation;
+					errorTxt.text = "Configuration file not found under " + configPath + "/config.xml";
 					return;
 				}
 				
@@ -259,10 +264,20 @@
 			{
 				ProjectController.instance.savePath.dispatch(this.projectFile.parent);
 				
-				ApplicationController.instance.projectDirectory = this.projectFile.parent;
+				appControl.projectDirectory = this.projectFile.parent;
 				
+				// find config path
+				var projectXML:File = new File(path.text);
+				var contents:XML = XML(FileController.instance.read(projectXML));
+				var configPath:String = contents["config-path"].text().toString();
+				var configFile:File = appControl.projectDirectory.resolvePath(configPath + "/config.xml");
+				var configAltFile:File = appControl.projectDirectory.resolvePath(configPath + "/config-alt.xml");
 				
-				ApplicationController.instance.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+				appControl.configDirectory = appControl.projectDirectory.resolvePath(configPath);
+				appControl.configFile = configFile;
+				appControl.configAltFile = configAltFile;
+				
+				appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT);
 			}
 
 		]]>

@@ -28,6 +28,9 @@ package controllers
 		private var _configMode:String;
 		
 		private var _projectDirectory:File;
+		private var _configFile:File;
+		private var _configAltFile:File;
+		private var _configDirectory:File;
 		
 		public var projectMap:Object = {};
 		
@@ -63,6 +66,36 @@ package controllers
 		{
 			_projectDirectory = value;
 			addProject(value);
+		}
+		
+		public function get configFile():File
+		{
+			return _configFile;
+		}
+		
+		public function set configFile(value:File):void
+		{
+			_configFile = value;
+		}
+		
+		public function get configDirectory():File
+		{
+			return _configDirectory;
+		}
+		
+		public function set configDirectory(value:File):void
+		{
+			_configDirectory = value;
+		}
+		
+		public function get configAltFile():File
+		{
+			return _configAltFile;
+		}
+		
+		public function set configAltFile(value:File):void
+		{
+			_configAltFile = value;
 		}
 
 		private function addProject(directory:File):void
