@@ -81,6 +81,8 @@
 			
 			import interfaces.IRefreshable;
 			
+			import org.aerial.rpc.message.AerialErrorMessage;			AerialErrorMessage;
+			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.ItemClickEvent;
