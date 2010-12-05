@@ -4,6 +4,7 @@ package controllers
 	import flash.xml.XMLNodeType;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	import mx.utils.ObjectUtil;
 	
 	import org.libspark.serialization.XMLSerializer;
@@ -94,6 +95,14 @@ package controllers
 		public function getConfiguration():Object
 		{
 			bootstrapValues = [];
+			
+			if(!ApplicationController.instance.configFile.exists)
+			{
+				Alert.show("Configuration path invalid. Please check the " + 
+					ApplicationController.instance.configFile.parent.name + " directory and " +
+					"validate the path in project.xml in the root of your project", "Error");
+				return null;
+			}
 			
 			var data:String = FileController.instance.read(ApplicationController.instance.configFile);
 			var parsed:Object = xmlToObject(XML(data));
