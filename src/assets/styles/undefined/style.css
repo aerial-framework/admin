@@ -21,22 +21,6 @@ global
 }
 
 
-@font-face
-{
-	fontFamily: "Lucida Sans";
-	fontWeight: normal;
-	fontStyle: normal;
-	src: local("Lucida Sans");
-}
-@font-face
-{
-	fontFamily: "Lucida Sans";
-	fontWeight: bold;
-	fontStyle: normal;
-	src: local("Lucida Sans");
-}
-
-
 CursorManager
 {
 	busy-cursor: Embed("UndefinedPersonalSkinLoad.swf");
@@ -1084,35 +1068,13 @@ ToolTip
 	fontFamily: "Droid Sans Mono";
 	fontWeight: normal;
 	fontStyle: normal;
-	src: local("Droid Sans Mono");
+	src: url("assets/fonts/DROIDSANSMONO.TTF");
 }
+
 @font-face
 {
-	fontFamily: "Droid Sans Mono";
-	fontWeight: bold;
+	fontFamily: "Lucida Sans";
+	fontWeight: normal;
 	fontStyle: normal;
-	src: local("Droid Sans Mono");
+	src: url("assets/fonts/LSANS.TTF");
 }
-@font-face
-{
-	fontFamily: "Droid Sans Mono";
-	fontWeight: bold;
-	fontStyle: italic;
-	src: local("Droid Sans Mono");
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
