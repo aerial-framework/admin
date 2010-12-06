@@ -130,7 +130,7 @@
 				archiveController.addEventListener(ArchiveControlEvent.DOWNLOAD_COMPLETE, browseForLocation);
 				
 				archive = File.applicationStorageDirectory.resolvePath("aerial-" + archiveInfo["version"] + ".zip");
-				archiveController.downloadArchive("file:///C:/UniServer/www/aerial/1.0alpha/1.0alpha.zip", archiveInfo["hostname"], archive);
+				archiveController.downloadArchive(archiveInfo["url"], archiveInfo["hostname"], archive);
 			}
 			
 			private function browseForLocation(event:Event=null):void
