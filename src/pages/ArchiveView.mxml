@@ -9,22 +9,27 @@
 				<mx:Spacer height="100%" id="spacer1"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{container}" position="lastChild">
-				<mx:HBox width="100%" id="hbox2">
+				<mx:HBox width="100%" id="hbox2" verticalAlign="middle" horizontalAlign="center">
 					<mx:Image source="@Embed(source='../assets/images/progress-indicator.swf')"/>
-					<mx:Label text="Checking version information..." id="label1"/>
+					<mx:Label text="Checking version information..." id="label1" styleName="title" fontSize="13"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{button1}"/>
+			<mx:SetProperty target="{container}" name="styleName" value="dark"/>
+			<mx:SetStyle target="{container}" name="paddingBottom" value="20"/>
+			<mx:SetStyle target="{container}" name="paddingLeft" value="20"/>
+			<mx:SetStyle target="{container}" name="paddingRight" value="20"/>
+			<mx:SetStyle target="{container}" name="paddingTop" value="20"/>
 		</mx:State>
 		<mx:State name="downloadProgress" basedOn="checkingVersion">
-			<mx:AddChild relativeTo="{container}" position="lastChild">
-				<mx:ProgressBar width="100%" labelPlacement="center" id="downloadProgressBar" mode="manual"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{container}" position="lastChild">
-				<mx:Button label="Cancel" click="cancel()"/>
-			</mx:AddChild>
-			<mx:SetStyle target="{container}" name="horizontalAlign" value="right"/>
 			<mx:RemoveChild target="{hbox2}"/>
+			<mx:AddChild relativeTo="{container}" position="lastChild">
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:ProgressBar width="90%" labelPlacement="center" id="downloadProgressBar"
+									mode="manual" color="#888888" height="25" fontWeight="bold"/>
+					<mx:Button label="Cancel" click="cancel()" id="button2" height="25"/>
+				</mx:HBox>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="extracting" basedOn="checkingVersion">
 			<mx:SetProperty target="{label1}" name="text" value="Processing archive"/>
@@ -39,17 +44,20 @@
 			</mx:AddChild>
 			<mx:RemoveChild target="{spacer1}"/>
 			<mx:AddChild relativeTo="{hbox2}" position="before">
-				<mx:TextArea width="100%" height="100%" editable="false" selectable="false" id="fileLog"/>
+				<mx:TextArea width="100%" height="100%" editable="false" selectable="false" id="fileLog"
+							 backgroundAlpha="0.0" color="#FFFFFF" styleName="code" fontSize="10"
+							 verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="extractDone" basedOn="checkingVersion">
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:AddChild relativeTo="{container}" position="lastChild">
-				<mx:HBox width="100%">
+				<mx:HBox width="100%" verticalAlign="middle">
 					<mx:Image source="@Embed(source='../assets/images/accept.png')"/>
 					<mx:Label text="{totalFiles} files written."/>
 					<mx:Spacer width="100%"/>
-					<mx:Button label="Continue"/>
+					<mx:Button label="Continue"
+							   click="currentState = null; ApplicationController.instance.showPage.dispatch(ApplicationController.HOME)"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -59,13 +67,14 @@
 		<mx:Button label="Download the latest archive" width="100%" height="50" id="button1"
 				   click="versionCheck()" icon="@Embed(source='../assets/images/zip_file_download.png')"
 				   styleName="buttonNoOfficial"/>
-		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="hbox1">
+		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="hbox1" visible="false" includeInLayout="false">
 			<mx:HRule width="100%"/>
 			<mx:Label text="OR"/>
 			<mx:HRule width="100%"/>
 		</mx:HBox>
 		
-		<mx:Panel width="100%" height="100%" id="dropArea" nativeDragEnter="onDragIn(event)" nativeDragDrop="onDragDrop(event)" styleName="dark" layout="vertical" horizontalAlign="center" verticalAlign="middle">
+		<mx:Panel width="100%" height="100%" id="dropArea" nativeDragEnter="onDragIn(event)" nativeDragDrop="onDragDrop(event)"
+				  styleName="dark" layout="vertical" horizontalAlign="center" verticalAlign="middle" visible="false" includeInLayout="false">
 			<mx:Image horizontalCenter="0" verticalCenter="0" source="@Embed(source='../assets/images/drag-archive.png')" alpha="0.8"/>
 			<mx:Canvas width="160" backgroundColor="#222222" backgroundAlpha="0.8" verticalCenter="0" horizontalCenter="0">
 				<mx:Label text="Drop an archive here" horizontalCenter="0" verticalCenter="0" color="#CBCBCB" fontSize="11"/>
@@ -75,6 +84,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import controllers.ApplicationController;
 			import controllers.ArchiveController;
 			import controllers.CoreVersionController;
 			
@@ -119,8 +129,8 @@
 				archiveController.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
 				archiveController.addEventListener(ArchiveControlEvent.DOWNLOAD_COMPLETE, browseForLocation);
 				
-				archive = File.applicationStorageDirectory.resolvePath("aerial-r" + archiveInfo["revision"] + ".zip");
-				archiveController.downloadArchive(archiveInfo["url"], archiveInfo["hostname"], archive);
+				archive = File.applicationStorageDirectory.resolvePath("aerial-" + archiveInfo["version"] + ".zip");
+				archiveController.downloadArchive("file:///C:/UniServer/www/aerial/1.0alpha/1.0alpha.zip", archiveInfo["hostname"], archive);
 			}
 			
 			private function browseForLocation(event:Event=null):void
@@ -141,7 +151,7 @@
 			private function onDownloadProgress(event:ProgressEvent):void
 			{
 				downloadProgressBar.setProgress(event.bytesLoaded, event.bytesTotal);
-				downloadProgressBar.label = "Downloading revision " + archiveInfo["revision"] + "...";
+				downloadProgressBar.label = "Downloading version " + archiveInfo["version"] + "...";
 			}
 			
 			private function onLocationSelect(event:Event):void
@@ -161,14 +171,23 @@
 			{
 				var file:File = archiveController.currentFile;
 				
-				totalFiles = archiveController.files.length;
+				totalFiles = archiveController.numFiles;
 				fileIndex = archiveController.fileIndex;
 				
 				if(fileIndex != totalFiles - 1)
 				{
-					currentFile = file.name + " (" + Math.ceil(file.size / 1024) + "Kb)";
-					fileLog.text += currentFile + "\n";
-					fileLog.verticalScrollPosition = fileLog.maxVerticalScrollPosition
+					try
+					{
+						currentFile = file.name;
+						fileLog.text += currentFile + "\n";
+						fileLog.verticalScrollPosition = fileLog.maxVerticalScrollPosition;
+					}
+					catch(e:Error)
+					{
+						currentFile = "";
+						fileLog.text += currentFile + "\n";
+						fileLog.verticalScrollPosition = fileLog.maxVerticalScrollPosition;
+					}
 				}
 				else
 					currentState = "extractDone";

@@ -343,11 +343,11 @@
 			
 			private function backupSelectionHandler(event:CloseEvent):void
 			{
-				var configFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/config/config.xml");
+				var configFile:File = ApplicationController.instance.configFile;
 				
 				if(event.detail == Alert.YES)
 				{
-					var backupFile:File = ApplicationController.instance.projectDirectory.resolvePath("src_php/config/config.backup.zip");
+					var backupFile:File = ApplicationController.instance.configDirectory.resolvePath("config.backup.zip");
 					
 					FileController.instance.backup(configFile, backupFile);
 				}

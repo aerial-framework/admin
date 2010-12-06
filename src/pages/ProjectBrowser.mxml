@@ -267,7 +267,7 @@
 				appControl.projectDirectory = this.projectFile.parent;
 				
 				// find config path
-				var projectXML:File = new File(path.text);
+				var projectXML:File = new File(path.text + "/project.xml");
 				var contents:XML = XML(FileController.instance.read(projectXML));
 				var configPath:String = contents["config-path"].text().toString();
 				var configFile:File = appControl.projectDirectory.resolvePath(configPath + "/config.xml");

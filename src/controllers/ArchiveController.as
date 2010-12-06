@@ -41,6 +41,8 @@ package controllers
 		private var _currentFile:File;
 		
 		public var files:Array = [];
+		public var numFiles:uint;
+		
 		private var archiveLoader:URLLoader;
 		
 		public function ArchiveController()
@@ -99,6 +101,13 @@ package controllers
 			
 			this.zipFile = new ZipFile(data);
 			this.files = this.zipFile.entries;
+			
+			numFiles = 0;
+			for each(var entry:ZipEntry in this.files)
+			{
+				if(!entry.isDirectory())
+					numFiles++;
+			}
 			
 			dispatchEvent(new ArchiveControlEvent(ArchiveControlEvent.ARCHIVE_READ));
 		}
