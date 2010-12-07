@@ -7,15 +7,20 @@
 			<mx:AddChild position="lastChild">
 				<mx:List id="projectList" width="400" height="200" dataProvider="{projects}"/>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{projectList}" position="before">
-				<mx:Label text="Select a project" width="400" styleName="title" fontSize="15" fontWeight="bold"/>
-			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:HBox width="400" verticalAlign="middle">
-					<mx:Button label="Select project" width="75%" height="35" enabled="{projectList.selectedItem}"
+					<mx:Button label="Select project" width="75%" height="25" enabled="{projectList.selectedItem}"
 							   click="selectProject()"/>
-					<mx:Button label="Back" width="25%" styleName="buttonOfficial" height="35"
+					<mx:Button label="Back" width="25%" styleName="buttonOfficial" height="25"
 							   click="appControl.showPage.dispatch(ApplicationController.HOME)"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{projectList}" position="before">
+				<mx:HBox width="400" verticalAlign="middle">
+					<mx:Label text="Select a project" styleName="title" fontSize="13" fontWeight="bold"/>
+					<mx:Spacer width="100%"/>
+					<mx:Button label="Clear all" icon="@Embed(source='../assets/icons/dusseldorf/cross.png')"
+							   click="clearProjects()"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -46,6 +51,7 @@
 			import interfaces.IRefreshable;
 			
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
 			
@@ -77,6 +83,20 @@
 					currentState = null;
 					optionsBox.visible = optionsBox.includeInLayout = true;
 				}
+			}
+			
+			private function clearProjects():void
+			{
+				Alert.show("Are you sure that you would like to clear all your projects from this application's local cache? This list " +
+					"is not recoverable!\nNote: " +
+					"Your source-code will not be affected.", "Confirmation", Alert.YES|Alert.NO|Alert.CANCEL, null, function(event:CloseEvent)
+					{
+						if(event.detail == Alert.YES)
+						{
+							ProjectController.instance.clearProjects();
+							init();
+						}
+					});
 			}
 			
 			private function selectProject():void

@@ -54,6 +54,7 @@
 			<pages:ConfigEditor id="configEditor" width="100%" height="100%" showEffect="{fadeEffect}"/>
 			<pages:CodeGeneration id="codeGeneration" width="100%" height="100%" showEffect="{fadeEffect}"/>
 			<pages:BackupAndRestore id="backAndRestore" width="100%" height="100%" showEffect="{fadeEffect}"/>
+			<pages:Credits id="credits" width="100%" height="100%" showEffect="{fadeEffect}"/>
 		</mx:ViewStack>
 	</mx:Panel>
 	
@@ -66,7 +67,8 @@
 					   buttonMode="true" color="#DDDDDD" paddingLeft="-8" width="150"/>
 		<mx:Label width="100%" id="versionStr" textAlign="center" color="#DDDDDD" fontSize="9"/>
 		<mx:Spacer width="116"/>
-		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/consulting-16.png')" height="25" width="28"/>
+		<mx:Button icon="@Embed(source='assets/icons/dusseldorf/consulting-16.png')" height="25" width="28"
+				   click="showAttributions()"/>
 	</mx:HBox>
 	
 	
@@ -149,7 +151,15 @@
 					case ApplicationController.BACKUP_AND_RESTORE:
 						pagesVS.selectedChild = backAndRestore;
 						break;
+					case ApplicationController.CREDITS:
+						pagesVS.selectedChild = credits;
+						break;
 				}
+			}
+			
+			private function showAttributions():void
+			{
+				appControl.showPage.dispatch(ApplicationController.CREDITS);
 			}
 			
 			private function setApplicationVersion():void

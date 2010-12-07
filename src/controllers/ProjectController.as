@@ -144,28 +144,6 @@ package controllers
 			return bootstrapValues;
 		}
 		
-		/*public function xmlToObjectFlat(xml:XML, chain:Object=null, string:String=null):Object
-		{
-			if(!chain)
-				chain = {};
-			
-			if(!string)
-				string = "";
-			
-			for each(var child:XML in xml.children())
-			{
-				if(child.nodeKind() == "comment")
-					continue;
-				
-				
-				(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
-				?	chain[string + "/" + child.name().toString()] = xmlToObjectFlat(child, chain[child.name().toString()], string + "/" + child.name().toString())
-				:	chain[string + "/" + child.name().toString()] = child.text().toString();
-			}
-			
-			return chain;
-		}*/
-		
 		public function getProjects():Array
 		{
 			initFiles();
@@ -190,6 +168,11 @@ package controllers
 				
 				return projects.source;
 			}
+		}
+		
+		public function clearProjects():void
+		{
+			FileUtil.write(preferencesFile, XMLSerializer.serialize([]).toXMLString());
 		}
 	}
 }

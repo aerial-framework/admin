@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" styleName="dark"
+		 paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10" verticalGap="0">
+	<mx:Text text="A special thanks from the Aerial team for the use of the following resources in the making of this software:" width="100%"/>
+	<mx:Label text="Skins" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Undefined" styleName="darkLink" click="link('http://www.scalenine.com/themes/undefined/Undefined.html')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Fonts" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Droid Sans Mono" styleName="darkLink" click="link('http://code.google.com/webfonts/family?family=Droid+Sans+Mono')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Icons" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Dusseldorf" styleName="darkLink" click="link('http://pc.de/icons/')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Runtime" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Adobe AIR 2.5" styleName="darkLink" click="link('http://get.adobe.com/air/')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Backend" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="PHP" styleName="darkLink" click="link('http://php.net/')"/>
+	<mx:LinkButton label="Doctrine ORM" styleName="darkLink" click="link('doctrine-project.org')"/>
+	<mx:LinkButton label="AMFPHP" styleName="darkLink" click="link('sourceforge.net/projects/amfphp/')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Frontend" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Flex 3.5" styleName="darkLink" click="link('http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3')"/>
+	<mx:LinkButton label="as3signals" styleName="darkLink" click="link('https://github.com/robertpenner/as3-signals')"/>
+	<mx:LinkButton label="as3commons" styleName="darkLink" click="link('http://www.as3commons.org/')"/>
+	<mx:LinkButton label="as3corelib" styleName="darkLink" click="link('https://github.com/mikechambers/as3corelib')"/>
+	<mx:LinkButton label="efflex" styleName="darkLink" click="link('http://www.efflex.org/')"/>
+	<mx:LinkButton label="flexlib" styleName="darkLink" click="link('http://code.google.com/p/flexlib/')"/>
+	<mx:LinkButton label="XMLSerializer" styleName="darkLink" click="link('http://www.libspark.org/svn/as3/XMLSerializer/dev/src/org/libspark/serialization/')"/>
+	<mx:LinkButton label="nochump zip" styleName="darkLink" click="link('http://nochump.com/blog/archives/15')"/>
+	<mx:Spacer height="5"/>
+	<mx:Label text="Source-Control" styleName="title" fontSize="14"/>
+	<mx:LinkButton label="Git" styleName="darkLink" click="link('http://git-scm.com/')"/>
+	<mx:LinkButton label="GitHub" styleName="darkLink" click="link('http://github.com')"/>
+	<mx:LinkButton label="CodeBaseHQ" styleName="darkLink" click="link('http://codebasehq.com')"/>
+	
+	<mx:Spacer height="10"/>
+	<mx:Text text="A special thanks from the Aerial team to the following people for their contributions and support:" width="100%"/>
+	<mx:Text text="Andre Venter&#xa;Omar Gonzales&#xa;Jerome Erasmus&#xa;Geirr Winnem&#xa;Ariel Sommeria" width="100%"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import flash.net.navigateToURL;
+			
+			private function link(url:String):void
+			{
+				navigateToURL(new URLRequest(url));
+			}
+		]]>
+	</mx:Script>
+</mx:VBox>

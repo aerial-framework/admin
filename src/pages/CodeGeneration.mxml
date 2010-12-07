@@ -117,6 +117,8 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import org.aerial.rpc.message.AerialErrorMessage;
+			
 			[Bindable]
 			private var definitions:Object;
 			
@@ -273,8 +275,24 @@
 							4, null, function(){currentState = "noModels"});
 						break;
 					default:
-						Alert.show("An unexpected error occured. Please report this to danny@aerial-project.org:\n" + 
+						switch(event.fault.faultString)
+						{
+							case "Error connecting to database":
+								if(event.message is AerialErrorMessage)
+								{
+									var error:AerialErrorMessage = event.message as AerialErrorMessage;
+									Alert.show("Could not connect to database: " + error.debug.username + ":" + error.debug.password, "Notification");
+								}
+								else
+								{
+									Alert.show("Could not connect to database.", "Notification");
+								}
+								break;
+							default:
+								Alert.show("An unexpected error occured. Please report this to danny@aerial-project.org:\n\n" + 
 									event.fault.faultString + "\n" + event.fault.faultDetail + "\n" + event.fault.faultCode, "Notification");
+								break;
+						}
 						break;
 				}
 			}

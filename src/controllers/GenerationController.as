@@ -68,6 +68,11 @@ package controllers
 			timerStart.add(timerStartHandler);
 			timerEnd.add(timerEndHandler);
 			
+			initConfig();
+		}
+		
+		private function initConfig():void
+		{
 			config = ProjectController.instance.getConfiguration();
 			
 			voSuffix = config["code-generation"].vo.value;
@@ -105,6 +110,9 @@ package controllers
 		{
 			if(!phpServices && !as3Models && !as3Services && !bootstrap)
 				return;
+			
+			// refresh config
+			initConfig();
 			
 			log.dispatch("<b>Code Generation initialized</b><br/>", "process");
 			

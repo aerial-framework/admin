@@ -24,6 +24,7 @@ package controllers
 		public static const CODE_GENERATION:String = "codeGeneration";
 		public static const CONFIG_EDITOR:String = "configEditor";
 		public static const BACKUP_AND_RESTORE:String = "backupAndRestore";
+		public static const CREDITS:String = "credits";
 		
 		private var _configMode:String;
 		
