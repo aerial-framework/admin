@@ -5,7 +5,8 @@
 		<mx:State name="projectSelector">
 			<mx:RemoveChild target="{optionsBox}"/>
 			<mx:AddChild position="lastChild">
-				<mx:List id="projectList" width="400" height="200" dataProvider="{projects}"/>
+				<mx:List id="projectList" width="400" height="200" dataProvider="{projects}"
+						 doubleClickEnabled="true" itemDoubleClick="selectProject()"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:HBox width="400" verticalAlign="middle">
