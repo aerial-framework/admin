@@ -47,7 +47,7 @@ package controllers
 		
 		private var packageString:String;
 		
-		private var primitive:Array = ["int", "Number", "uint", "Boolean", "Object", "Array", "String", "Date"];
+		private var primitive:Array = ["int", "Number", "uint", "Boolean", "Object", "Array", "String", "Date", "ByteArray"];
 		
 		{
 			_instance = new GenerationController();
@@ -194,6 +194,8 @@ package controllers
 			
 			var accessorStub:String = getPart("all.xml", "as3AccessorStub");
 			
+			var byteArrayFlag = false;
+			
 			for(var prop:String in model.definition)
 			{
 				var name:String = model.definition[prop].name;
@@ -212,6 +214,9 @@ package controllers
 						type += voSuffix;
 				}
 				
+				if(type == "ByteArray")
+					byteArrayFlag = true;
+				
 				properties.push("\t\tprivate var _" + name + ":*\n");
 				
 				var accessor:String = accessorStub.replace(new RegExp("{{field}}", "gi"), name);
@@ -219,6 +224,9 @@ package controllers
 				
 				accessors.push(accessor);
 			}
+			
+			if(byteArrayFlag)
+				replacementTokens["collectionImport"] += ";\n\timport flash.utils.ByteArray";
 			
 			replacementTokens["privateVars"] = 			properties.join("");
 			replacementTokens["accessors"] = 			accessors.join("\n");
