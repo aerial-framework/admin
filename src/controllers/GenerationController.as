@@ -48,6 +48,7 @@ package controllers
 		private var packageString:String;
 		
 		private var primitive:Array = ["int", "Number", "uint", "Boolean", "Object", "Array", "String", "Date", "ByteArray"];
+		private var imports:Object = {};
 		
 		{
 			_instance = new GenerationController();
@@ -99,6 +100,9 @@ package controllers
 			bootstrapBase = as3Base.resolvePath(bootstrapStructure);
 			if(!bootstrapBase.exists)
 				bootstrapBase.createDirectory();
+			
+			imports["ByteArray"] = "flash.utils.ByteArray";
+			imports["ArrayCollection"] = "mx.collections.ArrayCollection";
 		}
 		
 		public static function get instance():GenerationController
@@ -185,7 +189,7 @@ package controllers
 			var replacementTokens:Object = {};
 			
 			replacementTokens["package"] = 				packageString + "." + config["code-generation"]["as3-models-folder"].value;
-			replacementTokens["collectionImport"] = 	"import mx.collections.ArrayCollection";
+			replacementTokens["collectionImport"] = 	"";
 			replacementTokens["class"] = 				model.name + voSuffix;
 			replacementTokens["remoteClass"] = 			model.name;
 			
@@ -196,6 +200,7 @@ package controllers
 			
 			var byteArrayFlag = false;
 			
+			var toImport:Array = [];
 			for(var prop:String in model.definition)
 			{
 				var name:String = model.definition[prop].name;
@@ -214,8 +219,11 @@ package controllers
 						type += voSuffix;
 				}
 				
-				if(type == "ByteArray")
-					byteArrayFlag = true;
+				if(imports[type])			// if this type has a specific import string
+				{
+					if(toImport.indexOf(imports[type]) == -1)
+						toImport.push("import " + imports[type] + ";");
+				}
 				
 				properties.push("\t\tprivate var _" + name + ":*\n");
 				
@@ -225,8 +233,8 @@ package controllers
 				accessors.push(accessor);
 			}
 			
-			if(byteArrayFlag)
-				replacementTokens["collectionImport"] += ";\n\timport flash.utils.ByteArray";
+			for each(var importString:String in toImport)
+				replacementTokens["collectionImport"] += toImport.join("\n");
 			
 			replacementTokens["privateVars"] = 			properties.join("");
 			replacementTokens["accessors"] = 			accessors.join("\n");
