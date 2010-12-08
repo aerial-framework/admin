@@ -198,8 +198,6 @@ package controllers
 			
 			var accessorStub:String = getPart("all.xml", "as3AccessorStub");
 			
-			var byteArrayFlag = false;
-			
 			var toImport:Array = [];
 			for(var prop:String in model.definition)
 			{
@@ -221,8 +219,9 @@ package controllers
 				
 				if(imports[type])			// if this type has a specific import string
 				{
-					if(toImport.indexOf(imports[type]) == -1)
-						toImport.push("import " + imports[type] + ";");
+					var str:String = "import " + imports[type] + ";";
+					if(toImport.indexOf(str) == -1)
+						toImport.push(str);
 				}
 				
 				properties.push("\t\tprivate var _" + name + ":*\n");
@@ -233,8 +232,7 @@ package controllers
 				accessors.push(accessor);
 			}
 			
-			for each(var importString:String in toImport)
-				replacementTokens["collectionImport"] += toImport.join("\n");
+			replacementTokens["collectionImport"] += toImport.join("\n\t");
 			
 			replacementTokens["privateVars"] = 			properties.join("");
 			replacementTokens["accessors"] = 			accessors.join("\n");
