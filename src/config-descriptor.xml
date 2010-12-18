@@ -102,6 +102,10 @@
         <use-authentication type="boolean" category="advanced" label="Use ACL Authentication?" default="false">
 			<![CDATA[Turn on this setting to enable ACL (Access-Control-List) authentication.]]>
 		</use-authentication>
+		
+    	<timezone type="string" category="advanced" label="PHP Timezone" default="UTC">
+			<![CDATA[The timezone setting for PHP]]>
+    	</timezone>
 	</options>
 	
 	<database type="container" multiple="true" nodeNameRelevance="false" label="Database Settings">
