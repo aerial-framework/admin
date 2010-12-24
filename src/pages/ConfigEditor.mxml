@@ -316,27 +316,27 @@
 								+ (child as IConfigItem).getValue() + "\n-----------------------"); */
 						}
 						
-						trace(newXML.toXMLString() + "\n\n\n\n" + newAltXML.toXMLString());
-						
-				Alert.show("Would you like to make a backup of the original config.xml " +
-								"file before it is overwritten with new values?", "Confirmation", Alert.YES|Alert.NO|Alert.CANCEL, null,
+				Alert.show("Would you like to make a backup of the original configuration files " +
+								"before they are overwritten with new values?", "Confirmation", Alert.YES|Alert.NO|Alert.CANCEL, null,
 								backupSelectionHandler);
 			}
 			
 			private function backupSelectionHandler(event:CloseEvent):void
 			{
 				var configFile:File = ApplicationController.instance.configFile;
+				var configAltFile:File = ApplicationController.instance.configAltFile;
 				
 				if(event.detail == Alert.YES)
 				{
 					var backupFile:File = ApplicationController.instance.configDirectory.resolvePath("config.backup.zip");
 					
-					FileController.instance.backup(configFile, backupFile);
+					FileController.instance.backupMulti([configFile, configAltFile], backupFile);
 				}
 				
 				if(event.detail != Alert.CANCEL)
 				{
 					FileController.instance.write(configFile, newXML.toXMLString());
+					FileController.instance.write(configAltFile, newAltXML.toXMLString());
 					Alert.show("Configuration file saved!", "Notification");
 				}
 			}

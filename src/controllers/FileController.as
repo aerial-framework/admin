@@ -91,5 +91,27 @@ package controllers
 			
 			this.write(backup, output.byteArray, ByteArray);
 		}
+		
+		public function backupMulti(originals:Array, backup:File):void
+		{
+			var output:ZipOutput = new ZipOutput();
+			
+			for each(var original:File in originals)
+			{
+				var originalContents:String = this.read(original);
+				
+				var backupBytes:ByteArray = new ByteArray();
+				backupBytes.writeUTFBytes(originalContents);
+				
+				var entry:ZipEntry = new ZipEntry(original.name);
+				output.putNextEntry(entry);
+				output.write(backupBytes);
+				output.closeEntry();
+			}
+			
+			output.finish();
+			
+			this.write(backup, output.byteArray, ByteArray);
+		}
 	}
 }
