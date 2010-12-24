@@ -16,6 +16,11 @@ package utils
 		public var description:String;
 		public var nodeName:String;
 		
+		/**
+		 * Is this config item representing a value from config-alt.xml
+		 */
+		public var isAlt:Boolean;
+		
 		public var raw:XML;
 		public var parentRaw:XML;
 		

@@ -33,8 +33,9 @@ package utils
 			return _instance;
 		}
 		
-		public function getRegularNode(parentNodeName:String, parentNodeLabel:String):Object
+		public function getRegularNode(parentNodeName:String, parentNodeLabel:String, useAlt:Boolean=true):Object
 		{
+			var aNode:XML = XML(altConfigXML[parentNodeName][0]);
 			var cNode:XML = XML(configXML[parentNodeName][0]);
 			var dNode:XML = XML(descriptorXML[parentNodeName][0]);
 			
@@ -72,6 +73,7 @@ package utils
 			// now check what's actually in the config file
 			for each(var nodeName:String in idealChildren)
 			{
+				var altTestNode:XML = XML(aNode.child(nodeName)[0]);
 				var testNode:XML = XML(cNode.child(nodeName)[0]);
 				var descriptorNode:XML = XML(dNode.child(nodeName)[0]);
 				
@@ -89,9 +91,12 @@ package utils
 				node.label = descriptorNode.@label.toString();
 				node.category = descriptorNode.@category.toString();
 				node.defaultValue = descriptorNode.@['default'].toString();
-				node.value = testNode.text().toString();
-				node.raw = testNode;
+				node.value = useAlt && altTestNode.text() != undefined ? altTestNode.text().toString() : testNode.text().toString();
+				node.raw = useAlt && altTestNode.text() != undefined ? altTestNode : testNode;
 				node.parentRaw = cNode;
+				
+				if(useAlt && altTestNode.text() != undefined)
+					node.isAlt = true;
 
 				if(node.type == "boolean")
 					node.value = node.value == "true";
@@ -110,8 +115,9 @@ package utils
 			return parentNode;
 		}
 		
-		public function getDatabaseNodes():Object
+		public function getDatabaseNodes(useAlt:Boolean=true):Object
 		{
+			var aNode:XML = XML(altConfigXML["database"][0]);
 			var cNode:XML = XML(configXML["database"][0]);
 			var dNode:XML = XML(descriptorXML["database"][0]);
 			
@@ -153,6 +159,7 @@ package utils
 				for each(var subNode:XML in element.children())
 				{
 					var descriptorNode:XML = dNode.structure.child(subNode.name().toString())[0];
+					var altNode:XML = XML(aNode.child(element.name().toString()).child(subNode.name().toString())[0]);
 					
 					var node:ConfigurationNode = new ConfigurationNode();
 					node.name = descriptorNode.name().toString();
@@ -160,11 +167,14 @@ package utils
 					node.label = descriptorNode.@label.toString();
 					node.category = descriptorNode.@category.toString();
 					node.defaultValue = descriptorNode.@['default'].toString();
-					node.value = subNode.text().toString();
+					node.value = useAlt && altNode.text() != undefined ? altNode.text().toString() : subNode.text().toString();
 					node.description = descriptorNode.text().toString();
 					node.nodeName = element.name().toString();
-					node.raw = subNode;
+					node.raw = useAlt && altNode.text() != undefined ? altNode : subNode;
 					node.parentRaw = cNode;
+					
+					if(useAlt && altNode.text() != undefined)
+						node.isAlt = true;
 					
 					if(descriptorNode.attribute("options")[0] != null)
 					{
