@@ -52,6 +52,8 @@ package components.config
 			this.label = node.label;
 			this.setStyle("indicatorSkin", iconX);
 			this.toolTip = node.description;
+			
+			this.required = (node && node.isAlt);
 		}
 		
 		private function modeChangeHandler(mode:String):void
@@ -62,9 +64,6 @@ package components.config
 		
 		private function viewChangeHandler(mode:String, enabled:Boolean):void
 		{
-			if(mode == ConfigurationUtil.HYBRID)
-				this.required = true;
-			
 			this.editable = enabled;
 		}
 		

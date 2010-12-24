@@ -39,7 +39,9 @@
 			use namespace mx_internal;
 			
 			private var panels:Array = [];
-			private var newXML:XML = new XML();
+			
+			private var newXML:XML = new XML();			
+			private var newAltXML:XML = new XML();
 			
 			public function init():void
 			{
@@ -269,6 +271,7 @@
 			private function saveConfig():void
 			{
 				newXML = ConfigurationUtil.instance.configXML;
+				newAltXML = ConfigurationUtil.instance.altConfigXML;
 				
 				for each(var item:Object in panels)
 					for each(var child:UIComponent in Panel(item.panel).getChildren())
@@ -284,9 +287,11 @@
 								
 								var isDatabaseNode:Boolean = config.node.nodeName != null;
 								
+								var nodeToChange:XML = config.node.isAlt ? newAltXML : newXML;
+								
 								if(isDatabaseNode)
 								{
-									var node:XML = XML(newXML["database"][config.node.nodeName][0]);
+									var node:XML = XML(nodeToChange["database"][config.node.nodeName][0]);
 									
 									//XML(config.node.raw.parent()).setName(config
 									config.node.raw.setChildren(config.getValue());
@@ -294,7 +299,7 @@
 								}
 								else
 								{
-									var node:XML = XML(newXML[config.node.parentRaw.name().toString()][0]);
+									var node:XML = XML(nodeToChange[config.node.parentRaw.name().toString()][0]);
 									config.node.raw.setChildren(config.getValue());
 									node.replace(config.node.name, config.node.raw);
 								}
@@ -310,6 +315,8 @@
 							/* trace("[" + item.section + "]\n" + child + "\n"
 								+ (child as IConfigItem).getValue() + "\n-----------------------"); */
 						}
+						
+						trace(newXML.toXMLString() + "\n\n\n\n" + newAltXML.toXMLString());
 						
 				Alert.show("Would you like to make a backup of the original config.xml " +
 								"file before it is overwritten with new values?", "Confirmation", Alert.YES|Alert.NO|Alert.CANCEL, null,
