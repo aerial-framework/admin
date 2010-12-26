@@ -104,8 +104,7 @@
 				appUpdater.addEventListener(ErrorEvent.ERROR, onError);				
 				
 				appUpdater.isCheckForUpdateVisible = false;
-				appUpdater.isFileUpdateVisible = false;
-				appUpdater.isInstallUpdateVisible = false;
+				appUpdater.isDownloadProgressVisible = true;
 				
 				appUpdater.initialize();
 				

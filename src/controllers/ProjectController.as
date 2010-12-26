@@ -105,9 +105,74 @@ package controllers
 			}
 			
 			var data:String = FileController.instance.read(ApplicationController.instance.configFile);
+			var altData:String = FileController.instance.read(ApplicationController.instance.configAltFile);
+			
 			var parsed:Object = xmlToObject(XML(data));
+			var parsedAlt:Object = xmlToObject(XML(altData));
+			
+			for(var key:String in parsed)
+				compareAndOverwrite(parsed, [key], parsedAlt);
 			
 			return parsed;
+		}
+		
+		/**
+		 * Compare one object to another recursively and replace properties of the parent object with values of
+		 * the comparison object where the values exist & differ from the parent object
+		 */
+		private function compareAndOverwrite(obj:Object, chain:Array=null, comparison:Object=null):void
+		{
+			var newObj:Object = ObjectUtil.copy(obj);
+			
+			for each(var link:String in chain)
+				newObj = newObj[link];
+			
+			if(newObj.hasOwnProperty("value"))			// is child
+			{
+				var introspectedComparison:Object = ObjectUtil.copy(comparison);
+				for each(var link:String in chain)
+				{
+					if(introspectedComparison.hasOwnProperty(link))
+						introspectedComparison = introspectedComparison[link];
+					else
+					{
+						// do nothing to the object
+						return;
+					}
+					
+					if(introspectedComparison.hasOwnProperty("value"))
+					{
+						if(introspectedComparison.value && introspectedComparison.value != "")
+						{
+							var introspected:Object = obj;
+							for each(var link:String in chain)
+								introspected = introspected[link];
+									
+							// override the value with the comparison's value
+							introspected.value = introspectedComparison.value;
+							return;
+						}
+						else
+						{
+							// do nothing to the object
+							return;
+						}
+					}
+				}
+				
+				//trace(chain.join(".") + " > " + newObj.value);
+			}
+			else									// is parent
+			{
+				for(var key:String in newObj)
+				{
+					var newChain:Array = [];
+					newChain = newChain.concat(chain);
+					
+					newChain.push(key);
+					compareAndOverwrite(obj, newChain, comparison);
+				}
+			}
 		}
 		
 		private function xmlToObject(xml:XML, chain:Object=null):Object

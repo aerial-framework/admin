@@ -355,6 +355,7 @@
 		
 		<mx:CheckBox id="useAltCheck" label="Show overriden values in config-alt.xml" selected="true"
 					 change="init()"/>
+		<mx:Image source="@Embed(source='../assets/icons/dusseldorf/hire-me-16.png')" toolTip="Overriden value indicator"/>
 		
 		<mx:Spacer width="100%"/>
 		
