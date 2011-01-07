@@ -215,6 +215,11 @@ package controllers
 					// if the type is not primitive, add the VO suffix
 					if(primitive.indexOf(type) == -1)
 						type += voSuffix;
+
+					// Convert int to Number.  This fixes a bug where Flash won't hit the setter if you're trying to 
+					// set a zero value because * type retruns zero from the getter.  
+					if(type == "int" || type == "uint")
+						type = "Number";
 				}
 				
 				if(imports[type])			// if this type has a specific import string
