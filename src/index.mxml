@@ -33,7 +33,7 @@
 					  itemClick="projectSelected(event)" tabClose="projectCloseHandler(event)"/>
 	<mx:Panel width="100%" height="100%" headerHeight="0" paddingTop="12">		
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
-			<mx:VBox horizontalAlign="center" verticalAlign="middle" showEffect="{fadeEffect}">
+			<mx:VBox horizontalAlign="center" verticalAlign="middle">
 				<mx:HBox horizontalGap="20" verticalAlign="middle">
 					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/plus.png')" height="75"
 							   labelPlacement="bottom" label="New Project" width="135"
@@ -48,13 +48,13 @@
 							   click="appControl.showPage.dispatch(ApplicationController.BROWSE_FOR_PROJECT)"/>
 				</mx:HBox>
 			</mx:VBox>
-			<pages:ArchiveView id="newProject" width="100%" height="100%" label="Start a new Project" showEffect="{fadeEffect}"/>
-			<pages:ProjectBrowser id="projectBrowser" width="100%" height="100%" label="Manage Installation" showEffect="{fadeEffect}"/>
-			<pages:ProjectView id="projectView" width="100%" height="100%" label="Manage Installation" showEffect="{fadeEffect}"/>
-			<pages:ConfigEditor id="configEditor" width="100%" height="100%" showEffect="{fadeEffect}"/>
-			<pages:CodeGeneration id="codeGeneration" width="100%" height="100%" showEffect="{fadeEffect}"/>
-			<pages:BackupAndRestore id="backAndRestore" width="100%" height="100%" showEffect="{fadeEffect}"/>
-			<pages:Credits id="credits" width="100%" height="100%" showEffect="{fadeEffect}"/>
+			<pages:ArchiveView id="newProject" width="100%" height="100%" label="Start a new Project"/>
+			<pages:ProjectBrowser id="projectBrowser" width="100%" height="100%" label="Manage Installation"/>
+			<pages:ProjectView id="projectView" width="100%" height="100%" label="Manage Installation"/>
+			<pages:ConfigEditor id="configEditor" width="100%" height="100%"/>
+			<pages:CodeGeneration id="codeGeneration" width="100%" height="100%"/>
+			<pages:BackupAndRestore id="backAndRestore" width="100%" height="100%"/>
+			<pages:Credits id="credits" width="100%" height="100%"/>
 		</mx:ViewStack>
 	</mx:Panel>
 	
