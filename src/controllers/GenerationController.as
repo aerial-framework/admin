@@ -266,8 +266,9 @@ package controllers
 			
 			replacementTokens["package"] = 				config["code-generation"]["bootstrap-package"].value;
 			replacementTokens["class"] = 				config["code-generation"]["bootstrap-filename"].value;
-			
+
 			var bootstrapConsts:Array = ProjectController.instance.getBootstrapValues();
+
 			replacementTokens["configValues"] = [];
 			for each(var item:Object in bootstrapConsts)
 			{

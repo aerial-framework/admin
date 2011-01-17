@@ -32,6 +32,9 @@ package controllers
 		{
 			if(!type)
 				type = String;
+
+            if(!file.exists)
+                return null;
 			
 			var stream:FileStream = new FileStream();
 			stream.open(file, FileMode.READ);

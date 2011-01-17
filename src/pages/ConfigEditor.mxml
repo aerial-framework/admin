@@ -54,6 +54,11 @@
 						});
 					return;
 				}
+
+				useAltCheck.enabled = (ApplicationController.instance.configAltFile.exists)
+				useAltCheck.toolTip = (ApplicationController.instance.configAltFile.exists)
+										?	""
+										:	"You must create a config-alt.xml file to enable this option."
 				
 				panels.push({section:"options", panel:optionsPanel});
 				panels.push({section:"paths", panel:pathsPanel});
