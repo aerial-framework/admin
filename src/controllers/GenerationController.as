@@ -89,12 +89,12 @@ package controllers
 			phpServiceFolder = packageName + config["code-generation"]["php-services-folder"].value;
 			
 			as3Base = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["as3"].value);
-			if(!as3Base.exists)
-				as3Base.createDirectory();
+			//if(!as3Base.exists)
+			//	as3Base.createDirectory();
 			
 			phpBase = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["php"].value);
-			if(!phpBase.exists)
-				phpBase.createDirectory();
+			//if(!phpBase.exists)
+			//	phpBase.createDirectory();
 			
 			var bootstrapStructure:String = config["code-generation"]["bootstrap-package"].value.replace(/\./gi, "/");
 			bootstrapBase = as3Base.resolvePath(bootstrapStructure);
@@ -109,6 +109,42 @@ package controllers
 		{
 			return _instance;
 		}
+
+        public function getAS3ModelsPath():File
+        {
+            var dir:File = as3Base.resolvePath(as3VOFolder);
+            if(!dir.exists)
+                dir.createDirectory();
+
+            return dir;
+        }
+
+        public function getPHPModelsPath():File
+        {
+            var dir:File = phpBase.resolvePath(phpVOFolder);
+            if(!dir.exists)
+                dir.createDirectory();
+
+            return dir;
+        }
+
+        public function getAS3ServicesPath():File
+        {
+            var dir:File = as3Base.resolvePath(as3ServiceFolder);
+            if(!dir.exists)
+                dir.createDirectory();
+
+            return dir;
+        }
+
+        public function getPHPServicesPath():File
+        {
+            var dir:File = phpBase.resolvePath(phpServiceFolder);
+            if(!dir.exists)
+                dir.createDirectory();
+
+            return dir;
+        }
 		
 		public function generate(models:Array, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
 		{

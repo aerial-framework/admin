@@ -139,6 +139,13 @@
 				else
 				{
 					service.endpoint = config.options["server-url"].value;
+
+                    // before loading the model definitions, check to see if the models/services directories exist
+                    // and, if not, create them
+                    GenerationController.instance.getAS3ModelsPath()
+                    GenerationController.instance.getPHPModelsPath();
+                    GenerationController.instance.getAS3ServicesPath();
+                    GenerationController.instance.getPHPServicesPath();
 					
 					service.getModelDefinitions();
 					GenerationController.instance.log.add(logHandler);
