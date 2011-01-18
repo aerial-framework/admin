@@ -39,7 +39,7 @@
 			<![CDATA[The name of the base folder in which Aerial will generate code for ActionScript models and services.]]>
 		</as3>
 
-        <package type="package" category="advanced" label="Package String" default="org.aerial">
+        <package type="package" category="simple" label="Package String" default="org.aerial">
 			<![CDATA[The package string for Aerial to use in code generation which will be converted to a directory structure.]]>
 		</package>
 

@@ -103,6 +103,7 @@
 	
 	<mx:Script>
 		<![CDATA[			
+			import controllers.ApplicationController;
 			import controllers.GenerationController;
 			import controllers.ProjectController;
 			
@@ -127,11 +128,22 @@
 			public function init():void
 			{
 				var config:Object = ProjectController.instance.getConfiguration();
-				service.endpoint = config.options["server-url"].value;
 				
-				service.getModelDefinitions();
-				GenerationController.instance.log.add(logHandler);
-				currentState = null;
+				if(!config.options["server-url"].value || config.options["server-url"].value == "")
+				{
+					Alert.show("The server-url value must be set to a valid value in the Configuration Editor before you can begin " +
+									"to use the Code Generation functionality.", "Error");
+					
+					ApplicationController.instance.showPage.dispatch(ApplicationController.CONFIG_EDITOR);
+				}
+				else
+				{
+					service.endpoint = config.options["server-url"].value;
+					
+					service.getModelDefinitions();
+					GenerationController.instance.log.add(logHandler);
+					currentState = null;
+				}
 			}
 			
 			private function generate():void
