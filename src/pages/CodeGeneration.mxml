@@ -117,8 +117,10 @@
 			import mx.messaging.messages.RemotingMessage;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
-			import org.aerial.rpc.message.AerialErrorMessage;
+
+            import mx.utils.ObjectUtil;
+
+            import org.aerial.rpc.message.AerialErrorMessage;
 			
 			[Bindable]
 			private var definitions:Object;
@@ -273,6 +275,9 @@
 						modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
 						break;
 					case "generate":
+                        GenerationController.instance.writePHPModelsFromDoctrine(event.result as ArrayCollection);
+					    //trace(ObjectUtil.toString(event.result));
+
 						Alert.show("Models generated successfully.", "Notification");
 						phpModels.selected = false;
 						init();

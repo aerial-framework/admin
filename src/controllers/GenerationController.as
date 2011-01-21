@@ -283,6 +283,26 @@ package controllers
 			
 			writeGenerated(template, model.name + voSuffix + ".as", AS3_MODELS);
 		}
+
+        public function writePHPModelsFromDoctrine(definitions:ArrayCollection):void
+        {
+            for each(var definition:Object in definitions.source)
+            {
+                var baseClass:File = new File(definition.baseClass.path);
+                var topLevelClass:File = new File(definition.topLevelClass.path);
+
+                // if the file data is null, skip it
+                if(!definition.baseClass.file || definition.baseClass.file == "")
+                    continue;
+                else
+                    FileController.instance.write(baseClass, definition.baseClass.file, String);
+
+                if(!definition.topLevelClass.file || definition.topLevelClass.file == "")
+                    continue;
+                else
+                    FileController.instance.write(topLevelClass, definition.topLevelClass.file, String);
+            }
+        }
 		
 		private function sanitizeConstName(name:String):String
 		{
