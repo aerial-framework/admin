@@ -73,134 +73,121 @@
 	
 	
 	<mx:Script>
-		<![CDATA[	
-			import air.update.ApplicationUpdaterUI;
-			import air.update.events.UpdateEvent;
-			
-			import controllers.ApplicationController;
-			
-			import flexlib.events.SuperTabEvent;
-			
-			import interfaces.IRefreshable;
-			
-			import org.aerial.rpc.message.AerialErrorMessage;			AerialErrorMessage;
-			
-			import mx.controls.Alert;
-			import mx.events.CloseEvent;
-			import mx.events.ItemClickEvent;
-			import mx.utils.ObjectUtil;
-			
-			private var appControl:ApplicationController = ApplicationController.instance;
-			
-			private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
-			private var showingDialog:Boolean = false;
-			
-			private function init():void
-			{
-				setApplicationVersion();
+		<![CDATA[
+        import air.update.ApplicationUpdaterUI;
+        import air.update.events.UpdateEvent;
 
-				appUpdater.updateURL = "http://aerial-project.org/app-version.xml";
-				appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate);
-				appUpdater.addEventListener(ErrorEvent.ERROR, onError);				
-				
-				appUpdater.isCheckForUpdateVisible = false;
-				appUpdater.isDownloadProgressVisible = true;
-				
-				appUpdater.initialize();
-				
-				appControl.showPage.add(showPageHandler);
-				appControl.projectSelected.add(projectSelectionHandler);
-				
-				nativeApplication.addEventListener(KeyboardEvent.KEY_UP, keyHandler);
-			}
+        import controllers.ApplicationController;
 
-			private function keyHandler(event:KeyboardEvent):void
-			{
-				if((event.ctrlKey && event.keyCode == Keyboard.R) || event.keyCode == Keyboard.F5)
-					refreshPage();
-			}
-			
-			private function projectSelectionHandler(projects:Array):void
-			{
-				projectBar.dataProvider = projects.length > 0 ? projects : null;
-			}
-			
-			private function showPageHandler(page:String):void
-			{
-				switch(page)
-				{
-					case ApplicationController.HOME:
-						pagesVS.selectedIndex = 0;
-						break;
-					case ApplicationController.NEW_PROJECT:
-						pagesVS.selectedChild = newProject;
-						break;
-					case ApplicationController.BROWSE_FOR_PROJECT:
-						pagesVS.selectedChild = projectBrowser;
-						break;
-					case ApplicationController.OPEN_PROJECT:
-						pagesVS.selectedChild = projectView;
-						break;
-					case ApplicationController.CODE_GENERATION:
-						pagesVS.selectedChild = codeGeneration;
-						break;
-					case ApplicationController.CONFIG_EDITOR:
-						pagesVS.selectedChild = configEditor;
-						break;
-					case ApplicationController.BACKUP_AND_RESTORE:
-						pagesVS.selectedChild = backAndRestore;
-						break;
-					case ApplicationController.CREDITS:
-						pagesVS.selectedChild = credits;
-						break;
-				}
-			}
-			
-			private function showAttributions():void
-			{
-				appControl.showPage.dispatch(ApplicationController.CREDITS);
-			}
-			
-			private function setApplicationVersion():void
-			{
-				var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
-				var ns:Namespace = appXML.namespace();
-				versionStr.text = "Aerial Admin " + appXML.ns::versionNumber +
-					" using AIR" + NativeApplication.nativeApplication.runtimeVersion;
-			}
-			
-			private function onUpdate(event:UpdateEvent):void
-			{
-				appUpdater.checkNow();
-			}
-			
-			private function onError(event:ErrorEvent):void
-			{
-				Alert.show(event.toString());
-			}
+        import flexlib.events.SuperTabEvent;
 
-			protected function projectSelected(event:ItemClickEvent):void
-			{
-				appControl.projectDirectory = event.item.data as File;
-				appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT);
-			}
+        import interfaces.IRefreshable;
 
-			protected function projectCloseHandler(event:SuperTabEvent):void
-			{
-				var directory:File = projectBar.dataProvider.getItemAt(event.tabIndex).data as File;
-				if(directory)
-					appControl.closeProject(directory);
-				
-				appControl.showPage.dispatch(ApplicationController.HOME);
-			}
+        import org.aerial.rpc.message.AerialErrorMessage;           AerialErrorMessage;
 
-			protected function refreshPage():void
-			{
-				if(appControl.projectDirectory && pagesVS.selectedChild is IRefreshable)
-					IRefreshable(pagesVS.selectedChild).init();
-			}
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+        import mx.events.ItemClickEvent;
+        import mx.utils.ObjectUtil;
 
-		]]>
+        private var appControl:ApplicationController = ApplicationController.instance;
+
+        private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+        private var showingDialog:Boolean = false;
+
+        private function init():void {
+            setApplicationVersion();
+
+            appUpdater.updateURL = "http://aerial-project.org/app-version.xml";
+            appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate);
+            appUpdater.addEventListener(ErrorEvent.ERROR, onError);
+
+            appUpdater.isCheckForUpdateVisible = false;
+            appUpdater.isDownloadProgressVisible = true;
+
+            appUpdater.initialize();
+
+            appControl.showPage.add(showPageHandler);
+            appControl.projectSelected.add(projectSelectionHandler);
+
+            nativeApplication.addEventListener(KeyboardEvent.KEY_UP, keyHandler);
+        }
+
+        private function keyHandler(event:KeyboardEvent):void {
+            if ((event.ctrlKey && event.keyCode == Keyboard.R) || event.keyCode == Keyboard.F5)
+                refreshPage();
+        }
+
+        private function projectSelectionHandler(projects:Array):void {
+            projectBar.dataProvider = projects.length > 0 ? projects : null;
+        }
+
+        private function showPageHandler(page:String):void {
+            switch (page) {
+                case ApplicationController.HOME:
+                    pagesVS.selectedIndex = 0;
+                    break;
+                case ApplicationController.NEW_PROJECT:
+                    pagesVS.selectedChild = newProject;
+                    break;
+                case ApplicationController.BROWSE_FOR_PROJECT:
+                    pagesVS.selectedChild = projectBrowser;
+                    break;
+                case ApplicationController.OPEN_PROJECT:
+                    pagesVS.selectedChild = projectView;
+                    break;
+                case ApplicationController.CODE_GENERATION:
+                    pagesVS.selectedChild = codeGeneration;
+                    break;
+                case ApplicationController.CONFIG_EDITOR:
+                    pagesVS.selectedChild = configEditor;
+                    break;
+                case ApplicationController.BACKUP_AND_RESTORE:
+                    pagesVS.selectedChild = backAndRestore;
+                    break;
+                case ApplicationController.CREDITS:
+                    pagesVS.selectedChild = credits;
+                    break;
+            }
+        }
+
+        private function showAttributions():void {
+            appControl.showPage.dispatch(ApplicationController.CREDITS);
+        }
+
+        private function setApplicationVersion():void {
+            var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
+            var ns:Namespace = appXML.namespace();
+            versionStr.text = "Aerial Admin " + appXML.ns::versionNumber +
+                    " using AIR" + NativeApplication.nativeApplication.runtimeVersion;
+        }
+
+        private function onUpdate(event:UpdateEvent):void {
+            appUpdater.checkNow();
+        }
+
+        private function onError(event:ErrorEvent):void {
+            Alert.show(event.toString());
+        }
+
+        protected function projectSelected(event:ItemClickEvent):void {
+            appControl.projectDirectory = event.item.data as File;
+            appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+        }
+
+        protected function projectCloseHandler(event:SuperTabEvent):void {
+            var directory:File = projectBar.dataProvider.getItemAt(event.tabIndex).data as File;
+            if (directory)
+                appControl.closeProject(directory);
+
+            appControl.showPage.dispatch(ApplicationController.HOME);
+        }
+
+        protected function refreshPage():void {
+            if (appControl.projectDirectory && pagesVS.selectedChild is IRefreshable)
+                IRefreshable(pagesVS.selectedChild).init();
+        }
+        ]]>
 	</mx:Script>
 	
 	<mx:Style source="assets/styles/undefined/style.css"/>

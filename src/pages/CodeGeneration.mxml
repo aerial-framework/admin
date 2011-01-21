@@ -68,6 +68,8 @@
 					<mx:CheckBox id="bootstrap" label="Bootstrap Class" selected="true" width="100%" enabled="{!phpModels.selected}"
 						toolTip="The 'Bootstrap Class' is a class that contains some of your configuration values as static constants"/>
 				</mx:HBox>
+                <mx:Button width="100%" label="Regenerate database tables" click="regenerateTables(true)" id="regenBtn"
+                        enabled="{!phpModels.selected}"/>
 			</mx:VBox>
 			<mx:VBox id="regenBox" width="100%" verticalGap="0" visible="{phpModels.selected}" includeInLayout="{phpModels.selected}"
 					 showEffect="Resize">
@@ -170,6 +172,11 @@
 			{
 				service.generate(fromYAML, regenDB);
 			}
+
+            private function regenerateTables(regenDB:Boolean=false):void
+            {
+                service.regenerateFromModels(regenDB);
+            }
 			
 			private function generateRegular():void
 			{
@@ -280,8 +287,22 @@
 
 						Alert.show("Models generated successfully.", "Notification");
 						phpModels.selected = false;
-						init();
+
+                        // if the "regenerate database" checkbox was selected, regenerate the tables once the
+                        // models have been generated (since the tables are based on the models)
+                        if(regenDB.selected)
+                        {
+                            regenerateTables();
+                        }
+                        else
+                            init();
 						break;
+                    case "regenerateFromModels":
+                        Alert.show(event.result.toString() + " tables regenerated successfully.", "Notification");
+                        regenDB.selected = false;
+
+                        init();
+                        break;
 				}
 			}
 			
@@ -298,6 +319,9 @@
 							"You can close this dialog and generate your PHP models using the options provided.", "Notification",
 							4, null, function(){currentState = "noModels"});
 						break;
+                    case "regenerateFromModels":
+                        Alert.show("Database tables could not be generated successfully.", "Notification");
+                        break;
 					default:
 						switch(event.fault.faultString)
 						{
