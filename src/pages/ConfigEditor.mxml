@@ -156,6 +156,12 @@
 				var descriptorFile:File = File.applicationDirectory.resolvePath('config-descriptor.xml');
 				var configFile:File = ApplicationController.instance.configFile;
 				var altConfigFile:File = ApplicationController.instance.configAltFile;
+
+                if(!configFile.exists || configFile.size == 0)
+                {
+                    ApplicationController.instance.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+                    Alert.show("Could not find configuration file or the file is empty at\n" + configFile.nativePath, "Error");
+                }
 				
 				XML.ignoreComments = false;
 				
