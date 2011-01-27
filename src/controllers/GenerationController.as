@@ -1,6 +1,7 @@
 package controllers
 {
-	import flash.filesystem.File;
+    import flash.events.SecurityErrorEvent;
+    import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.utils.ByteArray;
@@ -8,7 +9,8 @@ package controllers
 	import flash.utils.getTimer;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.Application;
+    import mx.controls.Alert;
+    import mx.core.Application;
 	import mx.utils.ObjectUtil;
 	
 	import org.osflash.signals.Signal;
@@ -49,6 +51,8 @@ package controllers
 		
 		private var primitive:Array = ["int", "Number", "uint", "Boolean", "Object", "Array", "String", "Date", "ByteArray"];
 		private var imports:Object = {};
+
+        public var allDirectoriesCreated:Boolean;
 		
 		{
 			_instance = new GenerationController();
@@ -114,7 +118,7 @@ package controllers
         {
             var dir:File = as3Base.resolvePath(as3VOFolder);
             if(!dir.exists)
-                dir.createDirectory();
+                tryCreateFolder(dir);
 
             return dir;
         }
@@ -123,7 +127,7 @@ package controllers
         {
             var dir:File = phpBase.resolvePath(phpVOFolder);
             if(!dir.exists)
-                dir.createDirectory();
+                tryCreateFolder(dir);
 
             return dir;
         }
@@ -132,7 +136,7 @@ package controllers
         {
             var dir:File = as3Base.resolvePath(as3ServiceFolder);
             if(!dir.exists)
-                dir.createDirectory();
+                tryCreateFolder(dir);
 
             return dir;
         }
@@ -141,9 +145,28 @@ package controllers
         {
             var dir:File = phpBase.resolvePath(phpServiceFolder);
             if(!dir.exists)
-                dir.createDirectory();
+                tryCreateFolder(dir);
 
             return dir;
+        }
+
+        private function tryCreateFolder(folder:File):void
+        {
+            try
+            {
+                folder.createDirectory();
+            }
+            catch(e:Error)
+            {
+                Alert.show("Could not create folder " + folder.nativePath + "\n" +
+                        "Please check the directory permissions of the parent folder.");
+                allDirectoriesCreated = false;
+            }
+        }
+
+        private function permissionErrorHandler(event:SecurityErrorEvent):void
+        {
+            Alert.show(event.text + " > " + event.currentTarget);
         }
 		
 		public function generate(models:Array, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
