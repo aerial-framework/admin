@@ -112,7 +112,7 @@
 				}
 					
 				var contents:XML = XML(FileController.instance.read(projectFile));
-				var configPath:String = contents["config-path"].text().toString();
+				var configPath:String = "src_php/config";
 				var configFile:File = appControl.projectDirectory.resolvePath(configPath + "/config.xml");
 				var configAltFile:File = appControl.projectDirectory.resolvePath(configPath + "/config-alt.xml");
 				

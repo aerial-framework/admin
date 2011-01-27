@@ -57,7 +57,7 @@
 					<mx:Label text="{totalFiles} files written."/>
 					<mx:Spacer width="100%"/>
 					<mx:Button label="Continue"
-							   click="currentState = null; ApplicationController.instance.showPage.dispatch(ApplicationController.HOME)"/>
+							   click="currentState = null; addProjectAndOpen()"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -87,8 +87,10 @@
 			import controllers.ApplicationController;
 			import controllers.ArchiveController;
 			import controllers.CoreVersionController;
-			
-			import events.ArchiveControlEvent;
+
+            import controllers.ProjectController;
+
+            import events.ArchiveControlEvent;
 			
 			import interfaces.IRefreshable;
 			
@@ -220,6 +222,21 @@
 				Alert.show("An error occured while trying to check the version information. Please try again.", "Error");
 				currentState = null;
 			}
+
+            private function addProjectAndOpen():void
+            {
+                var appControl:ApplicationController = ApplicationController.instance;
+                var configPath:File = destination.resolvePath("src_php/config");
+                var configFile:File = configPath.resolvePath("config.xml");
+                var configAltFile:File = configPath.resolvePath("config-alt.xml");
+
+                appControl.configDirectory = configPath;
+                appControl.configFile = configFile;
+                appControl.configAltFile = configAltFile;
+
+                appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT);
+                ProjectController.instance.savePath.dispatch(destination);
+            }
 		]]>
 	</mx:Script>
 </mx:VBox>
