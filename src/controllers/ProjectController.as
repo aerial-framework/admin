@@ -182,7 +182,7 @@ package controllers
 			
 			for each(var child:XML in xml.children())
 			{
-				if(child.nodeKind() == "comment")
+				if(child.nodeKind() == "comment" || !child.name())
 					continue;
 				
 				if(child.attribute("include-in-bootstrap").toString() == "true")
