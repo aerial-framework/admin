@@ -329,7 +329,7 @@ package controllers
 		
 		private function sanitizeConstName(name:String):String
 		{
-			return name.replace("-", "_").toUpperCase();
+			return name.replace(/-/gi, "_").toUpperCase();
 		}
 		
 		private function getConstType(value:String):String
