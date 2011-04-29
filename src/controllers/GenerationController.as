@@ -97,6 +97,7 @@ package controllers
 			//	as3Base.createDirectory();
 			
 			phpBase = ApplicationController.instance.projectDirectory.resolvePath(config["code-generation"]["php"].value);
+
 			//if(!phpBase.exists)
 			//	phpBase.createDirectory();
 			
@@ -307,24 +308,37 @@ package controllers
 			writeGenerated(template, model.name + voSuffix + ".as", AS3_MODELS);
 		}
 
-        public function writePHPModelsFromDoctrine(definitions:ArrayCollection):void
+        public function writePHPModelsFromDoctrine(definitions:ArrayCollection):Boolean
         {
+            var writeOK:Boolean = true;
+
             for each(var definition:Object in definitions.source)
             {
+                if(!writeOK)
+                    continue;
+
                 var baseClass:File = new File(definition.baseClass.path);
                 var topLevelClass:File = new File(definition.topLevelClass.path);
+
+                trace(baseClass.nativePath + "\n" + topLevelClass.nativePath);
 
                 // if the file data is null, skip it
                 if(!definition.baseClass.file || definition.baseClass.file == "")
                     continue;
                 else
-                    FileController.instance.write(baseClass, definition.baseClass.file, String);
+                {
+                    writeOK = FileController.instance.write(baseClass, definition.baseClass.file, String);
+                }
 
                 if(!definition.topLevelClass.file || definition.topLevelClass.file == "")
                     continue;
                 else
-                    FileController.instance.write(topLevelClass, definition.topLevelClass.file, String);
+                {
+                    writeOK = FileController.instance.write(topLevelClass, definition.topLevelClass.file, String);
+                }
             }
+
+            return writeOK;
         }
 		
 		private function sanitizeConstName(name:String):String

@@ -298,10 +298,20 @@
 						modelsList.dispatchEvent(new ListEvent(ListEvent.CHANGE));
 						break;
 					case "generate":
-                        GenerationController.instance.writePHPModelsFromDoctrine(event.result as ArrayCollection);
+                        var writeOK:Boolean = GenerationController.instance.writePHPModelsFromDoctrine(event.result as ArrayCollection);
 					    //trace(ObjectUtil.toString(event.result));
 
-						Alert.show("Models generated successfully.", "Notification");
+                        if(writeOK)
+                        {
+                            Alert.show("Models generated successfully.", "Notification");
+                        }
+                        else
+                        {
+                            Alert.show("Errors occurred while generating the PHP models.", "Error");
+                            return;
+                        }
+
+
 						phpModels.selected = false;
 
                         // if the "regenerate database" checkbox was selected, regenerate the tables once the
