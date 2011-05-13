@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="100%" height="100%" creationComplete="init()" paddingBottom="8" paddingLeft="8"
+		  paddingRight="8" paddingTop="8" xmlns:components="components.*">
+	
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="refreshing"/>
+	</s:states>
+	
+	<s:HGroup width="100%" horizontalAlign="right"
+			  verticalAlign.refreshing="middle"
+			  verticalAlign.State1="middle">
+		<s:SWFLoader includeIn="refreshing" width="32" height="32"
+				 source="@Embed('assets/loaders/green-spinner.swf')"/>
+		<mx:Button includeIn="State1" label="Refresh" chromeColor="#44A80E" click="refresh()"
+				   fontWeight="bold" icon="@Embed('assets/icons/reload_page.png')" paddingBottom="6"
+				   paddingLeft="12" paddingRight="12" paddingTop="6"/>
+		<s:Spacer width="100%"/>
+		<mx:Button label="Refresh" chromeColor="#44A80E" click="refresh()" fontWeight="bold"
+				   icon="@Embed('assets/icons/reload_page.png')" paddingBottom="6" paddingLeft="12"
+				   paddingRight="12" paddingTop="6"
+				   enabled.refreshing="false"/>
+	</s:HGroup>
+	
+	<s:HGroup includeIn="State1" width="100%" height="100%">
+		<s:Panel height="100%" dropShadowVisible="false" title="Existing PHP Models">
+			<s:layout>
+				<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+			</s:layout>
+			
+			<s:List id="modelsList" width="100%" height="100%" borderColor="#D9D9D9" labelField="name"
+					change="modelSelectionHandler(event)" allowMultipleSelection="true">
+			</s:List>
+			
+			<s:controlBarContent>
+				<s:HGroup width="100%" verticalAlign="middle">
+					
+					<mx:Button label="Refresh" chromeColor="#FFFFFF" click="refresh()" fontWeight="bold"
+							   icon="@Embed('assets/icons/reload_page.png')"/>
+				</s:HGroup>
+			</s:controlBarContent>
+		</s:Panel>
+		
+		<s:Panel width="100%" height="100%" dropShadowVisible="false" title="Information">
+			<s:layout>
+				<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+			</s:layout>
+			
+			<components:ModelDefinitionView id="modelDefinitionsView" width="100%" height="100%"/>
+		</s:Panel>
+	</s:HGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import models.ModelDefinition;
+			
+			import mx.collections.ArrayList;
+			import mx.rpc.Responder;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
+			import mx.utils.ObjectUtil;
+			
+			import org.aerialframework.rpc.message.AerialErrorMessage;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private var message:AerialErrorMessage;
+			
+			private function init():void
+			{
+				refresh();
+			}
+			
+			private function refresh():void
+			{
+				configurationService.getOperation("getModelDefinitions").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
+				clear();
+				
+				this.currentState = "refreshing";
+			}
+			
+			private function clear():void
+			{
+				modelsList.dataProvider = new ArrayList();
+				modelDefinitionsView.definitions = new ArrayList();
+			}
+			
+			private function getModelsHandler(event:ResultEvent):void
+			{
+				this.currentState = null;
+				
+				processModelDefinitions(event.result as Object);
+			}
+			
+			private function modelSelectionHandler(event:IndexChangeEvent):void
+			{
+				if(!modelsList.selectedItem && modelsList.selectedItems.length == 0)
+				{
+					modelDefinitionsView.definitions = new ArrayList();
+					return;
+				}
+				
+				if(modelsList.selectedItems.length > 1)
+				{
+					modelDefinitionsView.displayMode = ModelDefinitionView.MULTIPLE;
+					
+					// modelsList.selectedItems is a Vector, and ArrayList needs an Array
+					var selectedModels:Array = vectorToArray(modelsList.selectedItems);
+					
+					modelDefinitionsView.definitions = new ArrayList(selectedModels);
+				}
+				else
+				{
+					modelDefinitionsView.displayMode = ModelDefinitionView.SINGLE;
+					
+					modelDefinitionsView.definitions = new ArrayList(modelsList.selectedItem.definitions);
+				}
+			}
+			
+			/**
+			 * Thanks Jack!
+			 * @see http://jacksondunstan.com/articles/192
+			 */
+			private function vectorToArray(v:Object):Array
+			{
+				var len:int = v.length;
+				var ret:Array = new Array(len);
+				for (var i:int = 0; i < len; ++i)
+				{
+					ret[i] = v[i];
+				}
+				return ret;
+			}
+			
+			private function processModelDefinitions(definitions:Object):void
+			{
+				// sort the models
+				var modelNames:Array = [];
+				for(var modelName:String in definitions)
+					modelNames.push(modelName);
+				
+				var sortedModelNames:Array = modelNames.sort(Array.CASEINSENSITIVE);
+				
+				var modelDefinitions:ArrayList = new ArrayList();
+				for each(var model:String in sortedModelNames)
+					modelDefinitions.addItem({name:model, definitions:buildDefinitions(definitions[model])});
+					
+				modelsList.dataProvider = modelDefinitions;
+			}
+			
+			private function buildDefinitions(descriptors:Array):Array
+			{
+				var definitions:Array = [];
+				for each(var descriptor:Object in descriptors)
+				{
+					var definition:ModelDefinition = new ModelDefinition();
+					definition.name = descriptor.hasOwnProperty("name") ? descriptor.name : "";
+					definition.type = descriptor.hasOwnProperty("type") ? descriptor.type : "";
+					definition.length = descriptor.hasOwnProperty("length") ? descriptor.length : -1;
+					definition.isRelation = descriptor.hasOwnProperty("relation") ? descriptor.relation  : false;
+					definition.many = descriptor.hasOwnProperty("many") ? descriptor.many : false;
+					
+					definitions.push(definition);
+				}
+				
+				return definitions;
+			}
+			
+			protected function fault(event:FaultEvent):void
+			{
+				trace(">>");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RemoteObject id="configurationService" source="Configuration" destination="amfphp" endpoint="http://aerial-new-structure/server/server.php"
+						fault="fault(event)"/>
+	</fx:Declarations>
+</s:VGroup>

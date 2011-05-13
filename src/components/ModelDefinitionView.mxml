@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:models="models.*"
+		  creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import models.ModelDefinition;
+			
+			import mx.collections.ArrayList;
+			
+			import spark.components.gridClasses.GridColumn;
+			
+			public static const SINGLE:String = "single";
+			public static const MULTIPLE:String = "multiple";
+			
+			private var _definitions:ArrayList;
+			private var _displayMode:String = SINGLE;
+			
+			private function init():void
+			{
+				this.addEventListener(Event.CHANGE, changeHandler);
+			}
+			
+			private function changeHandler(event:Event):void
+			{
+				switch(this.displayMode)
+				{
+					case SINGLE:
+						this.currentState = null;
+						break;
+					case MULTIPLE:
+						this.currentState = "multiple";
+						break;
+				}
+				
+				definitionsTable.dataProvider = this.definitions;
+			}
+			
+			public function get definitions():ArrayList
+			{
+				return _definitions;
+			}
+
+			public function set definitions(value:ArrayList):void
+			{
+				_definitions = value;
+				
+				this.dispatchEvent(new Event(Event.CHANGE));
+			}
+			
+			public function get displayMode():String
+			{
+				return _displayMode;
+			}
+			
+			public function set displayMode(value:String):void
+			{
+				_displayMode = value;
+				
+				this.dispatchEvent(new Event(Event.CHANGE));
+			}
+
+			protected function getType(item:ModelDefinition, column:DataGridColumn):String
+			{
+				if(!item.isRelation)
+					return item.type;
+				else
+				{
+					if(item.many)
+						return "ArrayCollection";
+					else
+						return item.type;
+				}
+			}
+			
+			protected function getElementType(item:ModelDefinition, column:DataGridColumn):String
+			{
+				if(!item.isRelation)
+					return "";
+				else
+				{
+					if(item.many)
+						return item.type;
+					else
+						return "";
+				}
+			}
+			
+			protected function getNumFields(item:Object, column:DataGridColumn):String
+			{
+				if(!item || !item.hasOwnProperty("definitions"))
+					return "0";
+				
+				return item.definitions ? String(item.definitions.length) : "0";
+			}
+			
+		]]>
+	</fx:Script>	
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="multiple"/>
+	</s:states>
+	
+	<mx:DataGrid id="definitionsTable" width="100%" height="100%">
+		<mx:columns.State1>
+			<mx:DataGridColumn dataField="name" headerText="Field" sortable="true"></mx:DataGridColumn>
+			<mx:DataGridColumn labelFunction="getType" headerText="Type" sortable="true"></mx:DataGridColumn>
+			<mx:DataGridColumn labelFunction="getElementType" headerText="Element Type" sortable="true"></mx:DataGridColumn>
+		</mx:columns.State1>
+		<mx:columns.multiple>
+			<mx:DataGridColumn dataField="name" headerText="Model" sortable="true"></mx:DataGridColumn>
+			<mx:DataGridColumn labelFunction="getNumFields" headerText="Number of fields" sortable="true"></mx:DataGridColumn>
+		</mx:columns.multiple>
+	</mx:DataGrid>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+</s:VGroup>

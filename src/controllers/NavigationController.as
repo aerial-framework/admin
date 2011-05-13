@@ -7,7 +7,7 @@ package controllers
 		private static var _instance:NavigationController;
 		
 		public static const PROJECTS:String = "projects";
-		public static const ACTIONS:String = "actions";
+		public static const CODE_GEN:String = "codeGeneration";
 		
 		public var navigationChange:Signal;
 		

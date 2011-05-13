@@ -17,12 +17,15 @@ package controllers
 		
 		public var projectSelect:Signal = new Signal(Project);
 		
+		public var preferencesLoad:Signal;
+		
 		{
 			_instance = new ProjectController();
 		}
 		
 		public function ProjectController()
 		{
+			preferencesLoad = new Signal();
 		}
 		
 		public static function get instance():ProjectController
@@ -44,6 +47,7 @@ package controllers
 				throw new Error("Cannot create or open application preferences file");
 			
 			preferencesXML = FileIOController.read(preferencesFile, false, XML) as XML;
+			preferencesLoad.dispatch();
 		}
 		
 		public function getProjects():Array

@@ -28,9 +28,9 @@
 	
 	<s:states>
 		<s:State name="projects"/>
-		<s:State name="actions"/>
+		<s:State name="codeGeneration"/>
 	</s:states>
 	
 	<pages:ProjectPage width="100%" height="100%" includeIn="projects"/>
-	<pages:ActionsPage width="100%" height="100%" includeIn="actions"/>	
+	<pages:CodeGenerationPage width="100%" height="100%" includeIn="codeGeneration"/>	
 </s:WindowedApplication>
