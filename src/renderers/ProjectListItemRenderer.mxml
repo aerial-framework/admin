@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" buttonMode="true"
+				dataChange="dataChangeHandler(event)"
+				currentState="{invalid ? 'invalid' : 'State1'}">
+	
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="invalid"/>
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
+			
+			import models.Project;
+			
+			import mx.events.FlexEvent;
+			
+			import spark.utils.TextFlowUtil;
+			
+			protected function dataChangeHandler(event:FlexEvent):void
+			{
+				label = "";
+				
+				var project:Project = data as Project;
+				if(!project)
+				{
+					invalid = true;
+					return;
+				}
+				
+				if(project.name && project.name.length > 0)
+					label = "<b>" + project.name + "</b>: ";
+				
+				if(project.location)
+				{
+					if(project.location.exists)
+						label += project.location.nativePath;
+					else
+					{
+						label += project.location.nativePath;
+						invalid = true;
+					}
+				}
+				else
+					invalid = true;
+				
+				if(!project.location.resolvePath(".aerial").exists)
+					invalid = true;
+				
+				if(invalid)
+					this.toolTip = "[Invalid project]";
+				
+				if(project.lastAccessed)
+					this.toolTip += " Last accessed: " + project.lastAccessed.toUTCString();
+				
+				identifierTxt.textFlow = TextConverter.importToFlow(label, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Rect width="100%" height="100%" includeIn="invalid">
+		<s:fill>
+			<s:SolidColor color="#FF0000" alpha="0.7"/>
+		</s:fill>
+	</s:Rect>
+	
+	<s:HGroup paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" verticalAlign="middle">
+		<s:Image source="@Embed('assets/icons/gnome-fs-bookmark.png')"/>
+		
+		<s:RichText id="identifierTxt"/>
+	</s:HGroup>
+	
+	<fx:Declarations>
+		<fx:Boolean id="invalid"/>
+		<fx:String id="label"></fx:String>
+	</fx:Declarations>
+</s:ItemRenderer>

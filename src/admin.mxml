@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx">
-	<fx:Declarations>
-		
-	</fx:Declarations>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
+					   minWidth="800" minHeight="600" applicationComplete="init()"
+					   skinClass="skins.DarkApplicationStatusSkin">
 	
+	<fx:Script>
+		<![CDATA[
+			import controllers.NavigationController;
+			import controllers.ProjectController;
+			
+			private function init():void
+			{
+				ProjectController.instance.initialize();
+				
+				NavigationController.instance.navigationChange.add(navigationChangeHandler);
+			}			
+			
+			private function navigationChangeHandler(state:String):void
+			{
+				this.currentState = state;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="projects"/>
+		<s:State name="actions"/>
+	</s:states>
+	
+	<pages:ProjectPage width="100%" height="100%" includeIn="projects"/>
+	<pages:ActionsPage width="100%" height="100%" includeIn="actions"/>	
 </s:WindowedApplication>

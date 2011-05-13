@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" horizontalAlign="center" verticalAlign="middle"
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import controllers.ProjectController;
+			
+			import dialogs.RecentProjectsDialog;
+			
+			import models.Project;
+			
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			
+			protected function openProjectHandler(event:MouseEvent):void
+			{
+			}
+			
+			protected function openRecentProjectHandler(event:MouseEvent):void
+			{
+				var recentProjectsDialog:RecentProjectsDialog = new RecentProjectsDialog();
+				
+				PopUpManager.addPopUp(recentProjectsDialog, Sprite(FlexGlobals.topLevelApplication), true);
+				PopUpManager.centerPopUp(recentProjectsDialog);
+				
+				ProjectController.instance.projectSelect.add(projectSelectionHandler);
+			}
+			
+			private function projectSelectionHandler(project:Project):void
+			{
+			}
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer width="500" minWidth="1" minHeight="1" backgroundAlpha="0.8"
+					   borderVisible="false">
+		<s:layout>
+			<s:HorizontalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+		</s:layout>
+		
+		<s:filters>
+			<s:GlowFilter color="#222222" blurX="2" blurY="2" alpha="1" strength="2" quality="3" inner="true"/>
+		</s:filters>
+		
+		<s:backgroundFill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#EFEFEF"/>
+				<s:GradientEntry color="#EEEEEE"/>
+			</s:LinearGradient>
+		</s:backgroundFill>
+		<s:Image source="@Embed('assets/icons/application-x-gnome-saved-search.png')"/>
+		
+		<mx:VRule height="50" minHeight="1" strokeColor="#FFFFFF"/>
+		<s:VGroup width="100%">
+			<s:Label fontSize="13" text="Open a new project"/>
+			<s:HGroup width="100%">
+				<s:TextInput width="100%" prompt="Navigate to project path or enter it here"/>
+				<mx:Button label="Browse" icon="@Embed('assets/icons/filefind.png')"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:BorderContainer>
+	
+	<s:Spacer height="20"/>
+	
+	<s:BorderContainer width="500" minWidth="1" minHeight="1" backgroundAlpha="0.8"
+					   borderVisible="false">
+		<s:layout>
+			<s:HorizontalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+		</s:layout>
+		
+		<s:filters>
+			<s:GlowFilter color="#222222" blurX="2" blurY="2" alpha="1" strength="2" quality="3" inner="true"/>
+		</s:filters>
+		
+		<s:backgroundFill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#EFEFEF"/>
+				<s:GradientEntry color="#EEEEEE"/>
+			</s:LinearGradient>
+		</s:backgroundFill>
+		<s:Image source="@Embed('assets/icons/stock_bookmark.png')"/>
+		<mx:VRule height="100%" minHeight="1" strokeColor="#FFFFFF"/>
+		
+		<s:VGroup width="100%" contentBackgroundAlpha="0.0">
+			<s:Label fontSize="13" text="Open an existing project"/>
+			
+			<s:List id="projectsList" width="100%" height="100%" borderColor="#EFEFEF"
+					borderVisible="true" contentBackgroundAlpha="0.8"
+					itemRenderer="renderers.ProjectListItemRenderer"/>
+		</s:VGroup>
+	</s:BorderContainer>
+	
+	<s:HGroup horizontalCenter="0" verticalCenter="0" visible="false" includeInLayout="false">
+		<s:VGroup>
+			<s:Image source="assets/icons/projects.png" buttonMode="true" click="openProjectHandler(event)"/>
+			
+			<s:Label width="100%" textAlign="center" text="Open a Project"/>
+		</s:VGroup>
+		<s:VGroup>
+			<s:Image source="assets/icons/recent-projects.png" buttonMode="true" click="openRecentProjectHandler(event)"/>
+			
+			<s:Label width="100%" textAlign="center" text="Recent Projects"/>
+		</s:VGroup>
+	</s:HGroup>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+</s:VGroup>
