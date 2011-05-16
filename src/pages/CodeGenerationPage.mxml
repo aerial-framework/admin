@@ -2,8 +2,10 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
 		  xmlns:s="library://ns.adobe.com/flex/spark"
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:components="components.*"
+		  xmlns:layouts="org.flexlayouts.layouts.*"
 		  width="100%" height="100%" creationComplete="init()" paddingBottom="8" paddingLeft="8"
-		  paddingRight="8" paddingTop="8" xmlns:components="components.*">
+		  paddingRight="8" paddingTop="8">
 	
 	<s:states>
 		<s:State name="State1"/>
@@ -14,50 +16,148 @@
 			  verticalAlign.refreshing="middle"
 			  verticalAlign.State1="middle">
 		<s:SWFLoader includeIn="refreshing" width="32" height="32"
-				 source="@Embed('assets/loaders/green-spinner.swf')"/>
-		<mx:Button includeIn="State1" label="Refresh" chromeColor="#44A80E" click="refresh()"
-				   fontWeight="bold" icon="@Embed('assets/icons/reload_page.png')" paddingBottom="6"
-				   paddingLeft="12" paddingRight="12" paddingTop="6"/>
+					 source="@Embed('assets/loaders/green-spinner.swf')"/>
 		<s:Spacer width="100%"/>
-		<mx:Button label="Refresh" chromeColor="#44A80E" click="refresh()" fontWeight="bold"
+		<mx:Button label="Refresh" click="refresh()" fontWeight="bold"
 				   icon="@Embed('assets/icons/reload_page.png')" paddingBottom="6" paddingLeft="12"
 				   paddingRight="12" paddingTop="6"
 				   enabled.refreshing="false"/>
 	</s:HGroup>
 	
-	<s:HGroup includeIn="State1" width="100%" height="100%">
-		<s:Panel height="100%" dropShadowVisible="false" title="Existing PHP Models">
-			<s:layout>
-				<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
-			</s:layout>
+	<mx:HDividedBox includeIn="State1" width="100%" height="100%">
+		<s:VGroup height="100%">
+			<s:Panel width="100%" height="100%" dropShadowVisible="false" title="Existing PHP Models">
+				<s:layout>
+					<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+				</s:layout>
+				
+				<s:List id="modelsList" width="100%" height="100%" allowMultipleSelection="true"
+						borderColor="#D9D9D9" change="modelSelectionHandler(event)"
+						itemRenderer="renderers.QuickDiffListItemRenderer" labelField="name">
+				</s:List>
+			</s:Panel>
 			
-			<s:List id="modelsList" width="100%" height="100%" borderColor="#D9D9D9" labelField="name"
-					change="modelSelectionHandler(event)" allowMultipleSelection="true">
-			</s:List>
-			
-			<s:controlBarContent>
-				<s:HGroup width="100%" verticalAlign="middle">
-					
-					<mx:Button label="Refresh" chromeColor="#FFFFFF" click="refresh()" fontWeight="bold"
-							   icon="@Embed('assets/icons/reload_page.png')"/>
+			<s:Panel width="100%" dropShadowVisible="false" title="Code Generation">
+				<s:layout>
+					<s:VerticalLayout gap="4" paddingBottom="8" paddingLeft="8" paddingRight="8"
+									  paddingTop="8"/>
+				</s:layout>
+				
+				<s:HGroup width="100%" gap="15">
+					<s:Image source="@Embed('assets/icons/application-x-php.png')"/>
+					<s:CheckBox width="90" label="PHP Models" selected="true"/>
+					<s:CheckBox label="PHP Services"/>
 				</s:HGroup>
-			</s:controlBarContent>
-		</s:Panel>
+				
+				<s:HGroup width="100%" verticalAlign="middle" gap="0">
+					<s:Line width="100%">
+						<s:stroke>
+							<s:SolidColorStroke color="#BBBBBB" alpha="0.3"/>
+						</s:stroke>
+					</s:Line>
+				</s:HGroup>
+				
+				<s:HGroup width="100%" gap="15">
+					<s:Image source="@Embed('assets/icons/flash.png')"/>
+					<s:CheckBox width="90" label="AS3 Models"/>
+					<s:CheckBox label="AS3 Services" selected="true"/>
+				</s:HGroup>
+				
+				<s:HGroup width="100%" verticalAlign="middle" gap="0">
+					<s:Line width="100%">
+						<s:stroke>
+							<s:SolidColorStroke color="#BBBBBB" alpha="0.3"/>
+						</s:stroke>
+					</s:Line>
+				</s:HGroup>
+				
+				<s:HGroup width="100%" gap="15">
+					<s:Image source="@Embed('assets/icons/file_new.png')"/>
+					<s:CheckBox width="90" label="Bootstrap"/>
+				</s:HGroup>
+				
+				<s:Spacer height="5"/>
+				
+				<mx:Button width="100%" label="Generate" chromeColor="#0E65A8" click="refresh()"
+						   fontWeight="bold" icon="@Embed('assets/icons/visualization.png')"
+						   paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
+				<mx:Button includeIn="State1" width="100%" label="Regenerate database tables"
+						   chromeColor="#44A80E" click="refresh()" fontWeight="bold"
+						   icon="@Embed('assets/icons/revert.png')" paddingBottom="6"
+						   paddingLeft="12" paddingRight="12" paddingTop="6"/>
+			</s:Panel>
+		</s:VGroup>
 		
-		<s:Panel width="100%" height="100%" dropShadowVisible="false" title="Information">
-			<s:layout>
-				<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
-			</s:layout>
+		<s:VGroup width="100%" height="100%">
+			<s:Panel width="100%" height="100%" dropShadowVisible="false" title="Information">
+				<s:layout>
+					<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
+				</s:layout>
+				
+				<components:ModelDefinitionView id="modelDefinitionsView" width="100%" height="100%"/>
+			</s:Panel>
 			
-			<components:ModelDefinitionView id="modelDefinitionsView" width="100%" height="100%"/>
-		</s:Panel>
-	</s:HGroup>
+			<s:Panel width="100%" dropShadowVisible="false" title="ActionScript Code Generation Options"
+					 height.refreshing="240">
+				<s:layout>
+					<s:HorizontalLayout gap="0"/>
+				</s:layout>
+				
+				<s:VGroup width="100%" height="100%" paddingBottom="8" paddingLeft="8"
+						  paddingRight="8" paddingTop="8">
+					<s:Form width="100%" height="100%">
+						<s:layout>
+							<s:FormLayout gap="0" paddingLeft="-16" paddingRight="-16" paddingBottom="-16" paddingTop="-16"/>
+						</s:layout>
+						
+						<components:ExtendedFormItem width="100%" label=" Package">
+							<s:TextArea id="packageTxt" width="100%" prompt="org.aerialframework"
+										change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]" heightInLines="2"/>
+						</components:ExtendedFormItem>
+						<components:ExtendedFormItem width="100%" label="Bootstrap Filename">
+							<s:TextArea id="bootstrapTxt" width="100%" prompt="org.aerialframework.bootstrap.Aerial"
+										change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]" heightInLines="2"/>
+						</components:ExtendedFormItem>
+					</s:Form>
+					
+					<s:Spacer height="100%"/>
+					
+					<mx:Button width="100%" label="Save Options" chromeColor="#0E65A8"
+							   fontWeight="bold" icon="@Embed('assets/icons/visualization.png')"
+							   paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
+				</s:VGroup>
+				
+				<s:Form width="100%" height="100%">
+					<s:layout>
+						<s:FormLayout gap="0" paddingLeft="-8" paddingRight="-8" paddingBottom="-8" paddingTop="-8"/>
+					</s:layout>
+					
+					<components:ExtendedFormItem width="100%" label="Models Folder">
+						<s:TextArea id="modelsTxt" width="100%" change="refreshConfigOptions()" heightInLines="2"/>
+					</components:ExtendedFormItem>
+					<components:ExtendedFormItem width="100%" label="Services Folder">
+						<s:TextArea id="servicesTxt" width="100%" change="refreshConfigOptions()" heightInLines="2"/>
+					</components:ExtendedFormItem>
+					<components:ExtendedFormItem width="100%" label="Models Suffix">
+						<s:TextInput id="modelSuffixTxt" width="100%" prompt="VO" change="refreshConfigOptions()"/>
+					</components:ExtendedFormItem>
+					<components:ExtendedFormItem width="100%" label="Services Suffix">
+						<s:TextInput id="serviceSuffixTxt" width="100%" prompt="Service" change="refreshConfigOptions()"/>
+					</components:ExtendedFormItem>
+				</s:Form>
+			</s:Panel>
+		</s:VGroup>
+	</mx:HDividedBox>
 	
 	<fx:Script>
 		<![CDATA[
+			import models.AerialPreferences;
+			import models.FieldDefinition;
+			import models.GeneratedFile;
 			import models.ModelDefinition;
 			
 			import mx.collections.ArrayList;
+			import mx.controls.Alert;
 			import mx.rpc.Responder;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -77,7 +177,7 @@
 			
 			private function refresh():void
 			{
-				configurationService.getOperation("getModelDefinitions").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
+				configurationService.getOperation("getDefinitionsFromYAML").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
 				clear();
 				
 				this.currentState = "refreshing";
@@ -87,6 +187,59 @@
 			{
 				modelsList.dataProvider = new ArrayList();
 				modelDefinitionsView.definitions = new ArrayList();
+				
+				setConfigOptionPrompts();
+			}
+			
+			private function setConfigOptionPrompts():void
+			{
+				var packageStr:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
+				var bootstrapFile:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
+				var modelsFolder:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
+				var servicesFolder:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
+				var voSuffix:String = AerialPreferences.getNode("code-generation/voSuffix", String, AerialPreferences.ADMIN);
+				var serviceSuffix:String = AerialPreferences.getNode("code-generation/serviceSuffix", String, AerialPreferences.ADMIN);
+				
+				modelsFolder = modelsFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+				servicesFolder = servicesFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+				
+				packageTxt.prompt = packageStr;
+				bootstrapTxt.prompt = bootstrapFile;
+				modelsTxt.prompt = modelsFolder;
+				servicesTxt.prompt = servicesFolder;
+				modelSuffixTxt.prompt = voSuffix;
+				serviceSuffixTxt.prompt = serviceSuffix;
+			}
+			
+			private function refreshConfigOptions():void
+			{
+				var packageStr:String = packageTxt.text;
+				var bootstrapFile:String = bootstrapTxt.text;
+				var modelsFolder:String = modelsTxt.text;
+				var servicesFolder:String = servicesTxt.text;
+				var voSuffix:String = modelSuffixTxt.text;
+				var serviceSuffix:String = serviceSuffixTxt.text;
+				
+				if(!packageStr || packageStr == "")		
+				{
+					packageStr = "org.aerialframework";														// default
+					packageTxt.prompt = packageStr;
+				}
+				
+				if(!bootstrapFile || bootstrapFile == "")
+					bootstrapTxt.prompt = packageStr + ".bootstrap.Aerial";									// default
+				
+				if(!modelsFolder || modelsFolder == "")
+					modelsTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/vo/";				// default
+				
+				if(!servicesFolder || servicesFolder == "")
+					servicesTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/services/";		// default
+				
+				if(!voSuffix || voSuffix == "")
+					modelSuffixTxt.prompt = "VO";															// default
+				
+				if(!serviceSuffix || serviceSuffix == "")
+					serviceSuffixTxt.prompt = "Service";													// default
 			}
 			
 			private function getModelsHandler(event:ResultEvent):void
@@ -117,7 +270,7 @@
 				{
 					modelDefinitionsView.displayMode = ModelDefinitionView.SINGLE;
 					
-					modelDefinitionsView.definitions = new ArrayList(modelsList.selectedItem.definitions);
+					modelDefinitionsView.definitions = new ArrayList(modelsList.selectedItem.fields);
 				}
 			}
 			
@@ -138,6 +291,12 @@
 			
 			private function processModelDefinitions(definitions:Object):void
 			{
+				if(!definitions)
+				{
+					Alert.show("Definitions could not be loaded", "Error");
+					return;
+				}
+				
 				// sort the models
 				var modelNames:Array = [];
 				for(var modelName:String in definitions)
@@ -147,8 +306,30 @@
 				
 				var modelDefinitions:ArrayList = new ArrayList();
 				for each(var model:String in sortedModelNames)
-					modelDefinitions.addItem({name:model, definitions:buildDefinitions(definitions[model])});
-					
+				{
+					if(!definitions[model].hasOwnProperty("fields") || !definitions[model].hasOwnProperty("files"))
+					{
+						Alert.show("Definitions could not be loaded", "Error");
+						return;
+					}
+					else
+					{
+						var definition:ModelDefinition = new ModelDefinition();
+						definition.modelName = model;
+						definition.fields = buildDefinitions(definitions[model].fields);
+						
+						var files:Object = definitions[model].files;
+						
+						definition.phpBaseModel.path = new File(files["baseClass"].path);
+						definition.phpBaseModel.content = files["baseClass"].file.toString();
+						
+						definition.phpModel.path = new File(files["topLevelClass"].path);
+						definition.phpModel.content = files["topLevelClass"].file.toString();
+						
+						modelDefinitions.addItem(definition);
+					}
+				}
+				
 				modelsList.dataProvider = modelDefinitions;
 			}
 			
@@ -157,7 +338,7 @@
 				var definitions:Array = [];
 				for each(var descriptor:Object in descriptors)
 				{
-					var definition:ModelDefinition = new ModelDefinition();
+					var definition:FieldDefinition = new FieldDefinition();
 					definition.name = descriptor.hasOwnProperty("name") ? descriptor.name : "";
 					definition.type = descriptor.hasOwnProperty("type") ? descriptor.type : "";
 					definition.length = descriptor.hasOwnProperty("length") ? descriptor.length : -1;
@@ -178,7 +359,7 @@
 		]]>
 	</fx:Script>
 	
-	<fx:Declarations>
+	<fx:Declarations>		
 		<s:RemoteObject id="configurationService" source="Configuration" destination="amfphp" endpoint="http://aerial-new-structure/server/server.php"
 						fault="fault(event)"/>
 	</fx:Declarations>

@@ -1,0 +1,29 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+s|Button.present
+{
+	cornerRadius: 0;
+	
+	fontWeight: bold;
+	fontSize: 10;
+}
+
+s|Button.missing
+{	
+	cornerRadius: 0;
+	chromeColor: #CCCC00;
+	
+	fontWeight: bold;
+	fontSize: 10;
+}
+
+s|TextInput
+{
+	skinClass: ClassReference("skins.DarkerPromptTextInput");
+}
+
+s|TextArea
+{
+	skinClass: ClassReference("skins.DarkerPromptTextArea");
+}

@@ -1,0 +1,21 @@
+package {{package}}
+{
+	import org.aerial.rpc.AbstractVO;
+	import {{package}}.*;
+	{{collectionImport}}
+	import flash.net.registerClassAlias;
+	
+	[Bindable]
+	[RemoteClass(alias="{{package}}.{{remoteClass}}")]	
+	public class {{class}} extends AbstractVO
+	{
+		public function {{class}}()
+		{
+			super("{{package}}.{{remoteClass}}",
+							function(field:String):*{return this[field]},
+							function(field:String, value:*):void{this[field] = value});
+		}
+		
+{{privateVars}}{{accessors}}		
+	}
+}

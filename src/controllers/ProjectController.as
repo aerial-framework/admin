@@ -2,8 +2,10 @@ package controllers
 {
 	import flash.filesystem.File;
 	
+	import models.AerialPreferences;
 	import models.Project;
 	
+	import mx.controls.Alert;
 	import mx.utils.ObjectUtil;
 	
 	import org.osflash.signals.Signal;
@@ -15,8 +17,13 @@ package controllers
 		private var preferencesFile:File;
 		private var preferencesXML:XML;
 		
-		public var projectSelect:Signal = new Signal(Project);
+		private var projectPreferencesFile:File;
+		private var projectPreferencesXML:XML;
+
+		private var configFile:File;
+		private var configXML:XML;
 		
+		public var projectSelect:Signal;		
 		public var preferencesLoad:Signal;
 		
 		{
@@ -26,6 +33,39 @@ package controllers
 		public function ProjectController()
 		{
 			preferencesLoad = new Signal();
+			
+			projectSelect = new Signal(Project);
+			projectSelect.add(projectSelectHandler);
+		}
+		
+		private function projectSelectHandler(project:Project):void
+		{
+			// load admin preferences file
+			
+			projectPreferencesFile = project.location.resolvePath(".aerial");
+			if(!projectPreferencesFile.exists)
+			{
+				NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);
+				Alert.show("Cannot load project preferences:\nCannot find \".aerial\" file in project root", "Error opening project");
+				return;
+			}
+			
+			projectPreferencesXML = FileIOController.read(projectPreferencesFile, false, XML) as XML;			
+			AerialPreferences.adminConfig = projectPreferencesXML;
+			AerialPreferences.adminConfigFile = projectPreferencesFile;
+			
+			// load Aerial project config file
+			configFile = project.location.resolvePath("config/config.xml");
+			if(!configFile.exists)
+			{
+				NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);
+				Alert.show("Cannot load Aerial config file:\nPlease ensure that you have a \"config\" folder in your project root with a \"config.xml\" file in it.", "Error opening project configuration");
+				return;
+			}
+			
+			configXML = FileIOController.read(configFile, false, XML) as XML;			
+			AerialPreferences.serverConfig = configXML;
+			AerialPreferences.serverConfigFile = configFile;
 		}
 		
 		public static function get instance():ProjectController
@@ -68,6 +108,14 @@ package controllers
 			}
 			
 			return projects;
+		}
+		
+		public function getProjectPreferences():XML
+		{
+			if(!projectPreferencesFile || !projectPreferencesFile.exists || !projectPreferencesXML)
+				return null;
+			
+			return projectPreferencesXML;	
 		}
 	}
 }

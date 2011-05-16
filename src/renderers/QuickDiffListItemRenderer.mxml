@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" dataChange="dataChangeHandler(event)">
+	
+	<s:HGroup width="100%" gap="-1" verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<s:Label id="modelNameTxt" width="100%"/>
+		
+		<s:Spacer width="10"/>
+		
+		<s:Button width="25" label="PM" creationComplete="fixButton(event)"
+				  styleName="{pmExists ? 'missing' : 'present'}"
+				  toolTip="{pmExists ? phpModels + ' ' + missingToolTip : ''}"/>
+		<s:Button width="25" label="PS" creationComplete="fixButton(event)"
+				  toolTip="{psExists ? phpServices + ' ' + missingToolTip : ''}"
+				  styleName="{psExists ? 'missing' : 'present'}"/>
+		<s:Button width="25" label="AM" creationComplete="fixButton(event)"
+				  toolTip="{amExists ? as3Models + ' ' + missingToolTip : ''}"
+				  styleName="{amExists ? 'missing' : 'present'}"/>
+		<s:Button width="25" label="AS" creationComplete="fixButton(event)"
+				  toolTip="{asExists ? as3Services + ' ' + missingToolTip : ''}"
+				  styleName="{asExists ? 'missing' : 'present'}"/>
+	</s:HGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import models.ModelDefinition;
+			
+			import mx.events.FlexEvent;
+			
+			private function dataChangeHandler(event:FlexEvent):void
+			{
+				var definition:ModelDefinition = data as ModelDefinition;
+				if(!definition)
+					return;
+				
+				modelNameTxt.text = definition.modelName;
+				
+				
+			}
+			
+			protected function fixButton(event:FlexEvent):void
+			{
+				// fix padding
+				event.currentTarget.labelDisplay.left = event.currentTarget.labelDisplay.right = 2;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<fx:String id="phpModels">PHP models</fx:String>
+		<fx:String id="as3Models">ActionScript models</fx:String>
+		<fx:String id="phpServices">PHP services</fx:String>
+		<fx:String id="as3Services">ActionScript services</fx:String>
+		
+		<fx:Boolean id="pmExists"/>
+		<fx:Boolean id="psExists"/>
+		<fx:Boolean id="amExists"/>
+		<fx:Boolean id="asExists"/>
+		
+		<fx:String id="missingToolTip">are missing from your project.</fx:String>
+	</fx:Declarations>
+</s:ItemRenderer>

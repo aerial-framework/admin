@@ -36,9 +36,9 @@
 			{
 				if(!projectsList.selectedItem as Project)
 					return;
-				
-				ProjectController.instance.projectSelect.dispatch(projectsList.selectedItem as Project);				
+							
 				NavigationController.instance.navigationChange.dispatch(NavigationController.CODE_GEN);
+				ProjectController.instance.projectSelect.dispatch(projectsList.selectedItem as Project);	
 			}			
 		]]>
 	</fx:Script>

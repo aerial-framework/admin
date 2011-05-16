@@ -3,7 +3,7 @@
 					   xmlns:s="library://ns.adobe.com/flex/spark"
 					   xmlns:mx="library://ns.adobe.com/flex/mx"
 					   xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
-					   minWidth="800" minHeight="600" applicationComplete="init()"
+					   minWidth="1024" minHeight="768" applicationComplete="init()"
 					   skinClass="skins.DarkApplicationStatusSkin">
 	
 	<fx:Script>
@@ -25,6 +25,8 @@
 			
 		]]>
 	</fx:Script>
+	
+	<fx:Style source="assets/styles/style.css"/>
 	
 	<s:states>
 		<s:State name="projects"/>

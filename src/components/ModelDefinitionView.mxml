@@ -6,6 +6,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import models.FieldDefinition;
 			import models.ModelDefinition;
 			
 			import mx.collections.ArrayList;
@@ -62,7 +63,7 @@
 				this.dispatchEvent(new Event(Event.CHANGE));
 			}
 
-			protected function getType(item:ModelDefinition, column:DataGridColumn):String
+			protected function getType(item:FieldDefinition, column:DataGridColumn):String
 			{
 				if(!item.isRelation)
 					return item.type;
@@ -75,7 +76,7 @@
 				}
 			}
 			
-			protected function getElementType(item:ModelDefinition, column:DataGridColumn):String
+			protected function getElementType(item:FieldDefinition, column:DataGridColumn):String
 			{
 				if(!item.isRelation)
 					return "";
@@ -88,12 +89,17 @@
 				}
 			}
 			
-			protected function getNumFields(item:Object, column:DataGridColumn):String
+			protected function getModelName(item:ModelDefinition, column:DataGridColumn):String
 			{
-				if(!item || !item.hasOwnProperty("definitions"))
+				return item ? item.modelName : "";
+			}
+			
+			protected function getNumFields(item:ModelDefinition, column:DataGridColumn):String
+			{
+				if(!item || !item.hasOwnProperty("fields"))
 					return "0";
 				
-				return item.definitions ? String(item.definitions.length) : "0";
+				return item.fields ? String(item.fields.length) : "0";
 			}
 			
 		]]>
@@ -103,14 +109,16 @@
 		<s:State name="multiple"/>
 	</s:states>
 	
-	<mx:DataGrid id="definitionsTable" width="100%" height="100%">
+	<mx:DataGrid id="definitionsTable" width="100%" height="100%"
+				 alternatingItemColors.State1="[#EEEEEE, #FFFFFF]" focusColor.State1="#DADADA"
+				 rollOverColor.State1="#A9A9A9" selectionColor.State1="#D2D2D2">
 		<mx:columns.State1>
 			<mx:DataGridColumn dataField="name" headerText="Field" sortable="true"></mx:DataGridColumn>
 			<mx:DataGridColumn labelFunction="getType" headerText="Type" sortable="true"></mx:DataGridColumn>
 			<mx:DataGridColumn labelFunction="getElementType" headerText="Element Type" sortable="true"></mx:DataGridColumn>
 		</mx:columns.State1>
 		<mx:columns.multiple>
-			<mx:DataGridColumn dataField="name" headerText="Model" sortable="true"></mx:DataGridColumn>
+			<mx:DataGridColumn labelFunction="getModelName" headerText="Model" sortable="true"></mx:DataGridColumn>
 			<mx:DataGridColumn labelFunction="getNumFields" headerText="Number of fields" sortable="true"></mx:DataGridColumn>
 		</mx:columns.multiple>
 	</mx:DataGrid>
