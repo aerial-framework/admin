@@ -59,14 +59,14 @@
 				<s:GradientEntry color="#EEEEEE"/>
 			</s:LinearGradient>
 		</s:backgroundFill>
-		<s:Image source="@Embed('assets/icons/application-x-gnome-saved-search.png')"/>
+		<s:Image source="@Embed('../assets/icons/application-x-gnome-saved-search.png')"/>
 		
 		<mx:VRule height="50" minHeight="1" strokeColor="#FFFFFF"/>
 		<s:VGroup width="100%">
 			<s:Label fontSize="13" text="Open a new project"/>
 			<s:HGroup width="100%">
 				<s:TextInput width="100%" prompt="Browse to project path or enter it here"/>
-				<mx:Button label="Browse" icon="@Embed('assets/icons/filefind.png')"/>
+				<mx:Button label="Browse" icon="@Embed('../assets/icons/filefind.png')"/>
 			</s:HGroup>
 		</s:VGroup>
 	</s:BorderContainer>
@@ -98,7 +98,7 @@
 			</s:LinearGradient>
 		</s:backgroundFill>
 		
-		<s:Image source="@Embed('assets/icons/stock_bookmark.png')"/>
+		<s:Image source="@Embed('../assets/icons/stock_bookmark.png')"/>
 		
 		<mx:VRule height="100%" minHeight="1" strokeColor="#FFFFFF"/>
 		
@@ -110,7 +110,7 @@
 					itemRenderer="renderers.ProjectListItemRenderer"/>
 			
 			<mx:Button label="Select" enabled="{projectsList.selectedItem}" fontWeight="normal"
-					   icon="@Embed('assets/icons/next.png')" labelPlacement="left"
+					   icon="@Embed('../assets/icons/next.png')" labelPlacement="left"
 					   click="projectSelected(event)"/>
 		</s:VGroup>
 	</s:BorderContainer>

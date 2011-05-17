@@ -78,8 +78,36 @@ package models
 			node = node.setChildren(data);
 			
 			var content:String = '<?xml version="1.0" encoding="UTF-8"?>\n' + config.toXMLString();
-			trace(">>>" + configFile.nativePath);
-			trace(content);
+			FileIOController.write(configFile, content, false, String);
+		}
+		
+		public static function setNodes(hierarchies:Array, data:Array, file:String=SERVER):void
+		{
+			for(var i:uint = 0; i < hierarchies.length; i++)
+			{
+				var hierarchySplit:Array = hierarchies[i].split("/");
+				var configFile:File = file == SERVER ? serverConfigFile : adminConfigFile;
+				var config:XML = file == SERVER ? serverConfig : adminConfig;
+				
+				if(!config || config.children().length() == 0)
+				{
+					Alert.show("Could not save " + hierarchies[i] + " to " + (SERVER ? "Aerial" : "Aerial Admin") + " configuration file", "Error");
+					return;
+				}
+				
+				var node:XML = config;
+				for each(var element:String in hierarchySplit)
+				{
+					if(!element || element.length == 0)
+						continue;
+					
+					node = XML(node.child(element));
+				}
+				
+				node = node.setChildren(data[i]);
+			}
+			
+			var content:String = '<?xml version="1.0" encoding="UTF-8"?>\n' + config.toXMLString();
 			FileIOController.write(configFile, content, false, String);
 		}
 	}

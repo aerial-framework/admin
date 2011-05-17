@@ -85,7 +85,7 @@
 						 fontSize="10" color="0xEEEEEE" width="100%" maxDisplayedLines="1" />
 				<s:Spacer width="100%"/>
 				<s:Image width="75" height="25" smooth="true" smoothingQuality="high"
-						 source="@Embed('assets/images/aerial-logo.png')"/>
+						 source="@Embed('../assets/images/aerial-logo.png')"/>
 			</s:HGroup>
         </s:Group> 
     </s:Group>

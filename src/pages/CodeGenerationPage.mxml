@@ -16,10 +16,10 @@
 			  verticalAlign.refreshing="middle"
 			  verticalAlign.State1="middle">
 		<s:SWFLoader includeIn="refreshing" width="32" height="32"
-					 source="@Embed('assets/loaders/green-spinner.swf')"/>
+					 source="@Embed('../assets/loaders/green-spinner.swf')"/>
 		<s:Spacer width="100%"/>
 		<mx:Button label="Refresh" click="refresh()" fontWeight="bold"
-				   icon="@Embed('assets/icons/reload_page.png')" paddingBottom="6" paddingLeft="12"
+				   icon="@Embed('../assets/icons/reload_page.png')" paddingBottom="6" paddingLeft="12"
 				   paddingRight="12" paddingTop="6"
 				   enabled.refreshing="false"/>
 	</s:HGroup>
@@ -37,16 +37,16 @@
 				</s:List>
 			</s:Panel>
 			
-			<s:Panel width="100%" dropShadowVisible="false" title="Code Generation">
+			<s:Panel width="100%" dropShadowVisible="false" title="Code Generation" height="{optionsPanel.height}">
 				<s:layout>
 					<s:VerticalLayout gap="4" paddingBottom="8" paddingLeft="8" paddingRight="8"
 									  paddingTop="8"/>
 				</s:layout>
 				
 				<s:HGroup width="100%" gap="15">
-					<s:Image source="@Embed('assets/icons/application-x-php.png')"/>
-					<s:CheckBox width="90" label="PHP Models" selected="true"/>
-					<s:CheckBox label="PHP Services"/>
+					<s:Image source="@Embed('../assets/icons/application-x-php.png')"/>
+					<s:CheckBox id="phpModelsCheck" width="90" label="PHP Models"/>
+					<s:CheckBox id="phpServicesCheck" label="PHP Services"/>
 				</s:HGroup>
 				
 				<s:HGroup width="100%" verticalAlign="middle" gap="0">
@@ -58,9 +58,9 @@
 				</s:HGroup>
 				
 				<s:HGroup width="100%" gap="15">
-					<s:Image source="@Embed('assets/icons/flash.png')"/>
-					<s:CheckBox width="90" label="AS3 Models"/>
-					<s:CheckBox label="AS3 Services" selected="true"/>
+					<s:Image source="@Embed('../assets/icons/flash.png')"/>
+					<s:CheckBox id="as3ModelsCheck" width="90" label="AS3 Models"/>
+					<s:CheckBox id="as3ServicesCheck" label="AS3 Services"/>
 				</s:HGroup>
 				
 				<s:HGroup width="100%" verticalAlign="middle" gap="0">
@@ -72,18 +72,20 @@
 				</s:HGroup>
 				
 				<s:HGroup width="100%" gap="15">
-					<s:Image source="@Embed('assets/icons/file_new.png')"/>
-					<s:CheckBox width="90" label="Bootstrap"/>
+					<s:Image source="@Embed('../assets/icons/file_new.png')"/>
+					<s:CheckBox id="bootstrapCheck" width="90" label="Bootstrap"/>
 				</s:HGroup>
 				
-				<s:Spacer height="5"/>
+				<s:Spacer height="100%"/>
 				
-				<mx:Button width="100%" label="Generate" chromeColor="#0E65A8" click="refresh()"
-						   fontWeight="bold" icon="@Embed('assets/icons/visualization.png')"
+				<mx:Button width="100%" label="Generate" chromeColor="#0E65A8"
+                           click="generate(phpModelsCheck.selected, phpServicesCheck.selected, as3ModelsCheck.selected,
+                                            as3ServicesCheck.selected, bootstrapCheck.selected)"
+						   fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
 						   paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
 				<mx:Button includeIn="State1" width="100%" label="Regenerate database tables"
 						   chromeColor="#44A80E" click="refresh()" fontWeight="bold"
-						   icon="@Embed('assets/icons/revert.png')" paddingBottom="6"
+						   icon="@Embed('../assets/icons/revert.png')" paddingBottom="6"
 						   paddingLeft="12" paddingRight="12" paddingTop="6"/>
 			</s:Panel>
 		</s:VGroup>
@@ -97,7 +99,7 @@
 				<components:ModelDefinitionView id="modelDefinitionsView" width="100%" height="100%"/>
 			</s:Panel>
 			
-			<s:Panel width="100%" dropShadowVisible="false" title="ActionScript Code Generation Options"
+			<s:Panel id="optionsPanel" width="100%" dropShadowVisible="false" title="ActionScript Code Generation Options"
 					 height.refreshing="240">
 				<s:layout>
 					<s:HorizontalLayout gap="0"/>
@@ -111,19 +113,22 @@
 						</s:layout>
 						
 						<components:ExtendedFormItem width="100%" label=" Package">
-							<s:TextArea id="packageTxt" width="100%" prompt="org.aerialframework"
+							<s:VGroup width="100%" verticalAlign="middle" horizontalAlign="right">
+                                <s:TextArea id="packageTxt" width="100%" prompt="org.aerialframework"
 										change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]" heightInLines="2"/>
+                                <s:CheckBox id="bindPackage" label="Bind" selected="true"/>
+							</s:VGroup>
 						</components:ExtendedFormItem>
-						<components:ExtendedFormItem width="100%" label="Bootstrap Filename">
-							<s:TextArea id="bootstrapTxt" width="100%" prompt="org.aerialframework.bootstrap.Aerial"
+						<components:ExtendedFormItem width="100%" label="Bootstrap Folder">
+							<s:TextArea id="bootstrapTxt" width="100%"
 										change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]" heightInLines="2"/>
 						</components:ExtendedFormItem>
 					</s:Form>
 					
 					<s:Spacer height="100%"/>
 					
-					<mx:Button width="100%" label="Save Options" chromeColor="#0E65A8"
-							   fontWeight="bold" icon="@Embed('assets/icons/visualization.png')"
+					<mx:Button width="100%" label="Save Options" chromeColor="#0E65A8" click="saveConfigOptions()"
+							   fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
 							   paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
 				</s:VGroup>
 				
@@ -139,7 +144,7 @@
 						<s:TextArea id="servicesTxt" width="100%" change="refreshConfigOptions()" heightInLines="2"/>
 					</components:ExtendedFormItem>
 					<components:ExtendedFormItem width="100%" label="Models Suffix">
-						<s:TextInput id="modelSuffixTxt" width="100%" prompt="VO" change="refreshConfigOptions()"/>
+						<s:TextInput id="voSuffixTxt" width="100%" prompt="VO" change="refreshConfigOptions()"/>
 					</components:ExtendedFormItem>
 					<components:ExtendedFormItem width="100%" label="Services Suffix">
 						<s:TextInput id="serviceSuffixTxt" width="100%" prompt="Service" change="refreshConfigOptions()"/>
@@ -151,212 +156,352 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import models.AerialPreferences;
-			import models.FieldDefinition;
-			import models.GeneratedFile;
-			import models.ModelDefinition;
-			
-			import mx.collections.ArrayList;
-			import mx.controls.Alert;
-			import mx.rpc.Responder;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			import mx.utils.ArrayUtil;
-			import mx.utils.ObjectUtil;
-			
-			import org.aerialframework.rpc.message.AerialErrorMessage;
-			
-			import spark.events.IndexChangeEvent;
-			
-			private var message:AerialErrorMessage;
-			
-			private function init():void
-			{
-				refresh();
-			}
-			
-			private function refresh():void
-			{
-				configurationService.getOperation("getDefinitionsFromYAML").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
-				clear();
-				
-				this.currentState = "refreshing";
-			}
-			
-			private function clear():void
-			{
-				modelsList.dataProvider = new ArrayList();
-				modelDefinitionsView.definitions = new ArrayList();
-				
-				setConfigOptionPrompts();
-			}
-			
-			private function setConfigOptionPrompts():void
-			{
-				var packageStr:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
-				var bootstrapFile:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
-				var modelsFolder:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
-				var servicesFolder:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
-				var voSuffix:String = AerialPreferences.getNode("code-generation/voSuffix", String, AerialPreferences.ADMIN);
-				var serviceSuffix:String = AerialPreferences.getNode("code-generation/serviceSuffix", String, AerialPreferences.ADMIN);
-				
-				modelsFolder = modelsFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
-				servicesFolder = servicesFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
-				
-				packageTxt.prompt = packageStr;
-				bootstrapTxt.prompt = bootstrapFile;
-				modelsTxt.prompt = modelsFolder;
-				servicesTxt.prompt = servicesFolder;
-				modelSuffixTxt.prompt = voSuffix;
-				serviceSuffixTxt.prompt = serviceSuffix;
-			}
-			
-			private function refreshConfigOptions():void
-			{
-				var packageStr:String = packageTxt.text;
-				var bootstrapFile:String = bootstrapTxt.text;
-				var modelsFolder:String = modelsTxt.text;
-				var servicesFolder:String = servicesTxt.text;
-				var voSuffix:String = modelSuffixTxt.text;
-				var serviceSuffix:String = serviceSuffixTxt.text;
-				
-				if(!packageStr || packageStr == "")		
-				{
-					packageStr = "org.aerialframework";														// default
-					packageTxt.prompt = packageStr;
-				}
-				
-				if(!bootstrapFile || bootstrapFile == "")
-					bootstrapTxt.prompt = packageStr + ".bootstrap.Aerial";									// default
-				
-				if(!modelsFolder || modelsFolder == "")
-					modelsTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/vo/";				// default
-				
-				if(!servicesFolder || servicesFolder == "")
-					servicesTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/services/";		// default
-				
-				if(!voSuffix || voSuffix == "")
-					modelSuffixTxt.prompt = "VO";															// default
-				
-				if(!serviceSuffix || serviceSuffix == "")
-					serviceSuffixTxt.prompt = "Service";													// default
-			}
-			
-			private function getModelsHandler(event:ResultEvent):void
-			{
-				this.currentState = null;
-				
-				processModelDefinitions(event.result as Object);
-			}
-			
-			private function modelSelectionHandler(event:IndexChangeEvent):void
-			{
-				if(!modelsList.selectedItem && modelsList.selectedItems.length == 0)
-				{
-					modelDefinitionsView.definitions = new ArrayList();
-					return;
-				}
-				
-				if(modelsList.selectedItems.length > 1)
-				{
-					modelDefinitionsView.displayMode = ModelDefinitionView.MULTIPLE;
-					
-					// modelsList.selectedItems is a Vector, and ArrayList needs an Array
-					var selectedModels:Array = vectorToArray(modelsList.selectedItems);
-					
-					modelDefinitionsView.definitions = new ArrayList(selectedModels);
-				}
-				else
-				{
-					modelDefinitionsView.displayMode = ModelDefinitionView.SINGLE;
-					
-					modelDefinitionsView.definitions = new ArrayList(modelsList.selectedItem.fields);
-				}
-			}
-			
-			/**
-			 * Thanks Jack!
-			 * @see http://jacksondunstan.com/articles/192
-			 */
-			private function vectorToArray(v:Object):Array
-			{
-				var len:int = v.length;
-				var ret:Array = new Array(len);
-				for (var i:int = 0; i < len; ++i)
-				{
-					ret[i] = v[i];
-				}
-				return ret;
-			}
-			
-			private function processModelDefinitions(definitions:Object):void
-			{
-				if(!definitions)
-				{
-					Alert.show("Definitions could not be loaded", "Error");
-					return;
-				}
-				
-				// sort the models
-				var modelNames:Array = [];
-				for(var modelName:String in definitions)
-					modelNames.push(modelName);
-				
-				var sortedModelNames:Array = modelNames.sort(Array.CASEINSENSITIVE);
-				
-				var modelDefinitions:ArrayList = new ArrayList();
-				for each(var model:String in sortedModelNames)
-				{
-					if(!definitions[model].hasOwnProperty("fields") || !definitions[model].hasOwnProperty("files"))
-					{
-						Alert.show("Definitions could not be loaded", "Error");
-						return;
-					}
-					else
-					{
-						var definition:ModelDefinition = new ModelDefinition();
-						definition.modelName = model;
-						definition.fields = buildDefinitions(definitions[model].fields);
-						
-						var files:Object = definitions[model].files;
-						
-						definition.phpBaseModel.path = new File(files["baseClass"].path);
-						definition.phpBaseModel.content = files["baseClass"].file.toString();
-						
-						definition.phpModel.path = new File(files["topLevelClass"].path);
-						definition.phpModel.content = files["topLevelClass"].file.toString();
-						
-						modelDefinitions.addItem(definition);
-					}
-				}
-				
-				modelsList.dataProvider = modelDefinitions;
-			}
-			
-			private function buildDefinitions(descriptors:Array):Array
-			{
-				var definitions:Array = [];
-				for each(var descriptor:Object in descriptors)
-				{
-					var definition:FieldDefinition = new FieldDefinition();
-					definition.name = descriptor.hasOwnProperty("name") ? descriptor.name : "";
-					definition.type = descriptor.hasOwnProperty("type") ? descriptor.type : "";
-					definition.length = descriptor.hasOwnProperty("length") ? descriptor.length : -1;
-					definition.isRelation = descriptor.hasOwnProperty("relation") ? descriptor.relation  : false;
-					definition.many = descriptor.hasOwnProperty("many") ? descriptor.many : false;
-					
-					definitions.push(definition);
-				}
-				
-				return definitions;
-			}
-			
-			protected function fault(event:FaultEvent):void
-			{
-				trace(">>");
-			}
-			
-		]]>
+        import controllers.NavigationController;
+        import controllers.ProjectController;
+
+        import models.AerialPreferences;
+        import models.FieldDefinition;
+        import models.GenerationOptions;
+        import models.ModelDefinition;
+
+        import mx.collections.ArrayList;
+        import mx.controls.Alert;
+        import mx.rpc.Responder;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+
+        import org.aerialframework.rpc.message.AerialErrorMessage;
+
+        import spark.events.IndexChangeEvent;
+
+        private var message:AerialErrorMessage;
+
+        private function init():void
+        {
+            refresh();
+
+            setConfigOptionPrompts();
+        }
+
+        private function refresh():void
+        {
+            configurationService.getOperation("getDefinitionsFromYAML").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
+            clear();
+
+            this.currentState = "refreshing";
+        }
+
+        private function clear():void
+        {
+            modelsList.dataProvider = new ArrayList();
+            modelDefinitionsView.definitions = new ArrayList();
+        }
+
+        private function generate(phpModels:Boolean, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
+        {
+            var base:File = ProjectController.instance.projectBasePath;
+            var bootstrapPath:String = getBootstrapPath().substr(0, getBootstrapPath().lastIndexOf(".")).replace(/\./gi, File.separator);
+
+            var options:GenerationOptions = new GenerationOptions();
+            options.packageString = getPackage();
+
+            if(bootstrap)
+                options.bootstrapPath = validatePath(base.nativePath + File.separator + bootstrapPath);
+
+            if(as3Models)
+                options.as3ModelsPath = validatePath(base.nativePath + File.separator + getModelFolder());
+
+            if(as3Services)
+                options.as3ServicesPath = validatePath(base.nativePath + File.separator + getServiceFolder());
+
+            if(phpModels)
+                options.phpModelsPath = validatePath(AerialPreferences.getNode("paths/php-models", String));
+
+            if(phpServices)
+                options.phpServicesPath = validatePath(AerialPreferences.getNode("paths/php-services", String));
+
+            options.voSuffix = getVOSuffix();
+            options.serviceSuffix = getServiceSuffix();
+
+            if(bootstrap && (!options.bootstrapPath || !options.bootstrapPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getBootstrapPath() + "\nfor the Aerial bootstrapper", "Error");
+                return;
+            }
+
+            if(as3Models && (!options.as3ModelsPath || !options.as3ModelsPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript models", "Error");
+                return;
+            }
+
+            if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript services", "Error");
+                return;
+            }
+
+            if(phpModels && (!options.phpModelsPath || !options.phpModelsPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the PHP models", "Error");
+                return;
+            }
+
+            if(phpServices && (!options.phpServicesPath || !options.phpServicesPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the PHP services", "Error");
+                return;
+            }
+
+            trace(ObjectUtil.toString(options));
+        }
+
+        private function validatePath(path:String):File
+        {
+            try
+            {
+                var file:File = new File(path);
+                if(!file.exists)
+                {
+                    file.createDirectory();
+                    return file;
+                }
+                else
+                    return file;
+            }
+            catch(e:Error)
+            {
+                Alert.show("Cannot create path\n" + path, "Error");
+                return null;
+            }
+
+            return file;
+        }
+
+        private function setConfigOptionPrompts():void
+        {
+            packageTxt.text = "";
+            bootstrapTxt.text = "";
+            modelsTxt.text = "";
+            servicesTxt.text = "";
+            voSuffixTxt.text = "";
+            serviceSuffixTxt.text = "";
+            
+            var packageStr:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
+            var bootstrapFolder:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
+            var modelsFolder:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
+            var servicesFolder:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
+            var voSuffix:String = AerialPreferences.getNode("code-generation/vo-suffix", String, AerialPreferences.ADMIN);
+            var serviceSuffix:String = AerialPreferences.getNode("code-generation/service-suffix", String, AerialPreferences.ADMIN);
+
+            bootstrapFolder = bootstrapFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+            modelsFolder = modelsFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+            servicesFolder = servicesFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+
+            packageTxt.prompt = packageStr;
+            bootstrapTxt.prompt = bootstrapFolder;
+            modelsTxt.prompt = modelsFolder;
+            servicesTxt.prompt = servicesFolder;
+            voSuffixTxt.prompt = voSuffix;
+            serviceSuffixTxt.prompt = serviceSuffix;
+        }
+
+        private function refreshConfigOptions():void
+        {
+            var packageStr:String = packageTxt.text;
+            var bootstrapFolder:String = bootstrapTxt.text;
+            var modelsFolder:String = modelsTxt.text;
+            var servicesFolder:String = servicesTxt.text;
+            var voSuffix:String = voSuffixTxt.text;
+            var serviceSuffix:String = serviceSuffixTxt.text;
+
+            if(!packageStr || packageStr == "")
+            {
+                packageStr = "org.aerialframework";														// default
+                packageTxt.prompt = packageStr;
+            }
+
+            if(bindPackage.selected && (!bootstrapFolder || bootstrapFolder == ""))
+                bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
+
+            if(bindPackage.selected && (!modelsFolder || modelsFolder == ""))
+                modelsTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/vo/";				// default
+
+            if(bindPackage.selected && (!servicesFolder || servicesFolder == ""))
+                servicesTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/services/";		// default
+
+            if(!voSuffix || voSuffix == "")
+                voSuffixTxt.prompt = "VO";	    														// default
+
+            if(!serviceSuffix || serviceSuffix == "")
+                serviceSuffixTxt.prompt = "Service";													// default
+        }
+
+        private function getPackage():String
+        {
+            return packageTxt.text == null || packageTxt.text == "" ? packageTxt.prompt : packageTxt.text;
+        }
+
+        private function getBootstrapPath():String
+        {
+            return bootstrapTxt.text == null || bootstrapTxt.text == "" ? bootstrapTxt.prompt : bootstrapTxt.text;
+        }
+
+        private function getModelFolder():String
+        {
+            return modelsTxt.text == null || modelsTxt.text == "" ? modelsTxt.prompt : modelsTxt.text;
+        }
+
+        private function getServiceFolder():String
+        {
+            return servicesTxt.text == null || servicesTxt.text == "" ? servicesTxt.prompt : servicesTxt.text;
+        }
+
+        private function getVOSuffix():String
+        {
+            return voSuffixTxt.text == null || voSuffixTxt.text == "" ? voSuffixTxt.prompt : voSuffixTxt.text;
+        }
+
+        private function getServiceSuffix():String
+        {
+            return serviceSuffixTxt.text == null || serviceSuffixTxt.text == "" ? serviceSuffixTxt.prompt : serviceSuffixTxt.text;
+        }
+
+        private function saveConfigOptions():void
+        {
+            var packageStr:String = getPackage();
+            var bootstrapFile:String = getBootstrapPath();
+            var modelsFolder:String = getModelFolder();
+            var servicesFolder:String = getServiceFolder();
+            var voSuffix:String = getVOSuffix();
+            var serviceSuffix:String = getServiceSuffix();
+
+            var paths:Array = ["code-generation/package", "code-generation/bootstrap", "code-generation/as3-models",
+                "code-generation/as3-services", "code-generation/vo-suffix", "code-generation/service-suffix"];
+
+            var data:Array = [packageStr, bootstrapFile, modelsFolder, servicesFolder, voSuffix, serviceSuffix];
+
+            AerialPreferences.setNodes(paths, data, AerialPreferences.ADMIN);
+            Alert.show("Configuration options saved.", "Notice");
+            setConfigOptionPrompts();
+        }
+
+        private function getModelsHandler(event:ResultEvent):void
+        {
+            this.currentState = null;
+
+            processModelDefinitions(event.result as Object);
+        }
+
+        private function modelSelectionHandler(event:IndexChangeEvent):void
+        {
+            if(!modelsList.selectedItem && modelsList.selectedItems.length == 0)
+            {
+                modelDefinitionsView.definitions = new ArrayList();
+                return;
+            }
+
+            if(modelsList.selectedItems.length > 1)
+            {
+                modelDefinitionsView.displayMode = ModelDefinitionView.MULTIPLE;
+
+                // modelsList.selectedItems is a Vector, and ArrayList needs an Array
+                var selectedModels:Array = vectorToArray(modelsList.selectedItems);
+
+                modelDefinitionsView.definitions = new ArrayList(selectedModels);
+            }
+            else
+            {
+                modelDefinitionsView.displayMode = ModelDefinitionView.SINGLE;
+
+                modelDefinitionsView.definitions = new ArrayList(modelsList.selectedItem.fields);
+            }
+        }
+
+        /**
+         * Thanks Jack!
+         * @see http://jacksondunstan.com/articles/192
+         */
+        private function vectorToArray(v:Object):Array
+        {
+            var len:int = v.length;
+            var ret:Array = new Array(len);
+            for(var i:int = 0; i < len; ++i)
+            {
+                ret[i] = v[i];
+            }
+            return ret;
+        }
+
+        private function processModelDefinitions(definitions:Object):void
+        {
+            if(!definitions)
+            {
+                Alert.show("Definitions could not be loaded", "Error");
+                return;
+            }
+
+            // sort the models
+            var modelNames:Array = [];
+            for(var modelName:String in definitions)
+                modelNames.push(modelName);
+
+            var sortedModelNames:Array = modelNames.sort(Array.CASEINSENSITIVE);
+
+            var modelDefinitions:ArrayList = new ArrayList();
+            for each(var model:String in sortedModelNames)
+            {
+                if(!definitions[model].hasOwnProperty("fields") || !definitions[model].hasOwnProperty("files"))
+                {
+                    Alert.show("Definitions could not be loaded", "Error");
+                    return;
+                }
+                else
+                {
+                    var definition:ModelDefinition = new ModelDefinition();
+                    definition.modelName = model;
+                    definition.fields = buildDefinitions(definitions[model].fields);
+
+                    var files:Object = definitions[model].files;
+
+                    definition.phpBaseModel.path = new File(files["baseClass"].path);
+                    definition.phpBaseModel.content = files["baseClass"].file.toString();
+
+                    definition.phpModel.path = new File(files["topLevelClass"].path);
+                    definition.phpModel.content = files["topLevelClass"].file.toString();
+
+                    modelDefinitions.addItem(definition);
+                }
+            }
+
+            modelsList.dataProvider = modelDefinitions;
+        }
+
+        private function buildDefinitions(descriptors:Array):Array
+        {
+            var definitions:Array = [];
+            for each(var descriptor:Object in descriptors)
+            {
+                var definition:FieldDefinition = new FieldDefinition();
+                definition.name = descriptor.hasOwnProperty("name") ? descriptor.name : "";
+                definition.type = descriptor.hasOwnProperty("type") ? descriptor.type : "";
+                definition.length = descriptor.hasOwnProperty("length") ? descriptor.length : -1;
+                definition.isRelation = descriptor.hasOwnProperty("relation") ? descriptor.relation : false;
+                definition.many = descriptor.hasOwnProperty("many") ? descriptor.many : false;
+
+                definitions.push(definition);
+            }
+
+            return definitions;
+        }
+
+        protected function fault(event:FaultEvent):void
+        {
+            Alert.show("An error occurred while attempting to load model definitions. Please open server.php for more detailed error messages.", "Error");
+            NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);
+        }
+        ]]>
 	</fx:Script>
 	
 	<fx:Declarations>		

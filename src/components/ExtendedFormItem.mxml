@@ -7,7 +7,7 @@
 	</s:layout>
 	
 	<s:helpContent>
-		<s:Image buttonMode="true" source="@Embed('assets/icons/help-contents.png')"/>
+		<s:Image buttonMode="true" source="@Embed('../assets/icons/help-contents.png')"/>
 	</s:helpContent>
 	
 	<fx:Declarations>

@@ -26,6 +26,8 @@ package controllers
 		public var projectSelect:Signal;		
 		public var preferencesLoad:Signal;
 		
+		public var projectBasePath:File;
+		
 		{
 			_instance = new ProjectController();
 		}
@@ -49,6 +51,8 @@ package controllers
 				Alert.show("Cannot load project preferences:\nCannot find \".aerial\" file in project root", "Error opening project");
 				return;
 			}
+			
+			projectBasePath = project.location;
 			
 			projectPreferencesXML = FileIOController.read(projectPreferencesFile, false, XML) as XML;			
 			AerialPreferences.adminConfig = projectPreferencesXML;
@@ -79,6 +83,7 @@ package controllers
 		public function initialize():void
 		{
 			preferencesFile = File.applicationStorageDirectory.resolvePath("preferences.xml");
+			trace(preferencesFile.nativePath);
 			
 			if(!preferencesFile)
 				preferencesFile = FileIOController.createIfNotExists(preferencesFile.url);

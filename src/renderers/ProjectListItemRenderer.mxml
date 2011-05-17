@@ -71,7 +71,7 @@
 	</s:Rect>
 	
 	<s:HGroup paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" verticalAlign="middle">
-		<s:Image source="@Embed('assets/icons/gnome-fs-bookmark.png')"/>
+		<s:Image source="@Embed('../assets/icons/gnome-fs-bookmark.png')"/>
 		
 		<s:RichText id="identifierTxt"/>
 	</s:HGroup>
