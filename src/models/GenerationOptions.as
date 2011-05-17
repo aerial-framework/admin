@@ -18,8 +18,13 @@ package models
 		public var voSuffix:String;
 		public var serviceSuffix:String;
 
+        public var generateBootstrap:Boolean;
+        public var generateAS3Models:Boolean;
+        public var generateAS3Services:Boolean;
+        public var generatePHPModels:Boolean;
+        public var generatePHPServices:Boolean;
+
         // data
-        public var selectedModels:Vector.<Object>;
-        // ModelDefinition instances
+        public var selectedModels:Vector.<Object>;          // ModelDefinition instances
 	}
 }

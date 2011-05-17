@@ -26,12 +26,12 @@ package controllers
             
             var hasModelsSelected:Boolean = options.selectedModels.length > 0;
 
-            if(options.bootstrapPath)
+            if(options.generateBootstrap)
             {
                 generateBootstrapper();
             }
 
-            if(options.phpModelsPath)
+            if(options.generatePHPModels)
             {
                 if(hasModelsSelected)
                     generatePHPModels();
@@ -42,7 +42,7 @@ package controllers
                 }
             }
 
-            if(options.phpServicesPath)
+            if(options.generatePHPServices)
             {
                 if(hasModelsSelected)
                     generatePHPServices();
@@ -53,10 +53,21 @@ package controllers
                 }
             }
 
-            if(options.as3ModelsPath)
+            if(options.generateAS3Models)
             {
                 if(hasModelsSelected)
                     generateAS3Models();
+                else
+                {
+                    fireSelectionError();
+                    return;
+                }
+            }
+
+            if(options.generateAS3Services)
+            {
+                if(hasModelsSelected)
+                    generateAS3Services();
                 else
                 {
                     fireSelectionError();
@@ -77,15 +88,7 @@ package controllers
             var template:String = getTemplate("bootstrap.tmpl");
             var replacementTokens:Object = {};
 
-            var bootstrapPackage:String = options.basePath.getRelativePath(options.bootstrapPath);
-            var offset:int = bootstrapPackage.indexOf("src_flex");
-            if(offset != -1)
-                offset += ("src_flex").length + 1;
-            else
-                offset = 0;
-
-            bootstrapPackage = bootstrapPackage.substring(offset);
-            bootstrapPackage = bootstrapPackage.replace(new RegExp(File.separator, "gi"), ".");
+            var bootstrapPackage:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath), "src_flex");
 
             replacementTokens["package"] = bootstrapPackage;
             replacementTokens["class"] = "Aerial";
@@ -154,10 +157,11 @@ package controllers
                 replacementTokens["model"] = definition.modelName;
                 replacementTokens["class"] = className;
 
+                var data:String = template;
                 for(var property:String in replacementTokens)
-                    template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
+                    data = data.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 
-                if(FileIOController.write(options.phpServicesPath.resolvePath(className + ".php"), template))
+                if(FileIOController.write(options.phpServicesPath.resolvePath(className + ".php"), data))
                     writeOK = true;
             }
 
@@ -172,25 +176,8 @@ package controllers
             var template:String = getTemplate("as3.vo.tmpl");
             var replacementTokens:Object = {};
 
-            var packageString:String = options.basePath.getRelativePath(options.as3ModelsPath);
-            var offset:int = packageString.indexOf("src_flex");
-            if(offset != -1)
-                offset += ("src_flex").length + 1;
-            else
-                offset = 0;
-
-            packageString = packageString.substring(offset);
-            packageString = packageString.replace(new RegExp(File.separator, "gi"), ".");
-
-            var phpModelsPackageString:String = options.phpModelsPath.nativePath;
-            var offset:int = phpModelsPackageString.indexOf("src_php");
-            if(offset != -1)
-                offset += ("src_php").length + 1;
-            else
-                offset = 0;
-
-            phpModelsPackageString = phpModelsPackageString.substring(offset);
-            phpModelsPackageString = phpModelsPackageString.replace(new RegExp(File.separator, "gi"), ".");
+            var packageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath), "src_flex");
+            var phpModelsPackageString:String = getPackageString(options.phpModelsPath.nativePath, "src_php");
 
             for each(var definition:ModelDefinition in options.selectedModels)
             {
@@ -248,15 +235,64 @@ package controllers
                 replacementTokens["privateVars"] = properties.join("");
                 replacementTokens["accessors"] = accessors.join("\n");
 
+                var data:String = template;
                 for(var property:String in replacementTokens)
-                    template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
+                    data = data.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 
-                if(FileIOController.write(options.as3ModelsPath.resolvePath(definition.modelName + ".as"), template))
+                if(FileIOController.write(options.as3ModelsPath.resolvePath(definition.modelName + ".as"), data))
                     writeOK = true;
             }
 
             if(!writeOK)
                 firePermissionsError(options.as3ModelsPath, "ActionScript models");
+        }
+
+		private static function generateAS3Services():void
+		{
+            var writeOK:Boolean = false;
+
+			var template:String = getTemplate("as3.service.tmpl");
+			var replacementTokens:Object = {};
+
+            var modelPackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath), "src_flex");
+            var servicePackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ServicesPath), "src_flex");
+            var bootstrapPackageString:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath), "src_flex");
+
+            for each(var definition:ModelDefinition in options.selectedModels)
+            {
+                replacementTokens["model"] = 				definition.modelName + options.voSuffix;
+                replacementTokens["class"] = 				definition.modelName + options.serviceSuffix;
+                replacementTokens["package"] = 				servicePackageString;
+                replacementTokens["modelPackage"] = 		modelPackageString;
+                replacementTokens["bootstrapPackage"] = 	bootstrapPackageString;
+                replacementTokens["bootstrapClass"] = 		"Aerial";
+
+                trace(definition.modelName + " > " + replacementTokens["model"] + " > " + replacementTokens["class"]);
+
+                var data:String = template;
+                for(var property:String in replacementTokens)
+                    data = data.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
+
+                if(FileIOController.write(options.as3ServicesPath.resolvePath(definition.modelName + options.serviceSuffix + ".as"), data))
+                    writeOK = true;
+            }
+
+            if(!writeOK)
+                firePermissionsError(options.as3ServicesPath, "ActionScript services");
+		}
+
+        private static function getPackageString(path:String, keyElement:String):String
+        {
+            var offset:int = path.indexOf(keyElement);
+            if(offset != -1)
+                offset += (keyElement).length + 1;
+            else
+                offset = 0;
+
+            var toReturn:String = path.substring(offset);
+            toReturn = toReturn.replace(new RegExp(File.separator, "gi"), ".");
+
+            return toReturn;
         }
 
         private static function firePermissionsError(path:File, fileType:String):void

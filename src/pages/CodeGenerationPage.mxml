@@ -220,6 +220,12 @@
             var options:GenerationOptions = new GenerationOptions();
             options.basePath = base;
 
+            options.generateBootstrap = bootstrap;
+            options.generateAS3Models = as3Models;
+            options.generateAS3Services = as3Services;
+            options.generatePHPModels = phpModels;
+            options.generatePHPServices = phpServices;
+
             options.selectedModels = modelsList.selectedItems;
 
             options.packageString = getPackage();
@@ -228,16 +234,16 @@
             var phpBaseModelsPath:String = AerialPreferences.getNode("paths/php-models", String) + File.separator + "base";
             var phpServicesPath:String = AerialPreferences.getNode("paths/php-services", String);
 
-            if(bootstrap)
+            if(bootstrap || as3Services)
                 options.bootstrapPath = validatePath(getBootstrapPath(), base);
 
-            if(as3Models)
+            if(as3Models || as3Services)
                 options.as3ModelsPath = validatePath(getModelFolder(), base);
 
             if(as3Services)
                 options.as3ServicesPath = validatePath(getServiceFolder(), base);
 
-            if(phpModels || as3Models)
+            if(phpModels || as3Models || as3Services)
             {
                 options.phpModelsPath = validatePath(phpModelsPath, base);
                 options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
@@ -349,27 +355,29 @@
             var voSuffix:String = voSuffixTxt.text;
             var serviceSuffix:String = serviceSuffixTxt.text;
 
-            if(!packageStr || packageStr == "")
-            {
-                packageStr = "org.aerialframework";														// default
-                packageTxt.prompt = packageStr;
-            }
-            else
+            var packageDefault:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
+            var bootstrapDefault:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
+            var modelsFolderDefault:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
+            var servicesFolderDefault:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
+            var voSuffixDefault:String = AerialPreferences.getNode("code-generation/vo-suffix", String, AerialPreferences.ADMIN);
+            var serviceSuffixDefault:String = AerialPreferences.getNode("code-generation/service-suffix", String, AerialPreferences.ADMIN);
+
+            if(packageStr != packageDefault)
                 showWarning = true;
 
-            if(bindPackage.selected && (!bootstrapFolder || bootstrapFolder == ""))
+            if(bindPackage.selected && bootstrapFolder != bootstrapDefault && packageStr != "")
                 bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
 
-            if(bindPackage.selected && (!modelsFolder || modelsFolder == ""))
+            if(bindPackage.selected && modelsFolder != modelsFolderDefault && packageStr != "")
                 modelsTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/vo/";				// default
 
-            if(bindPackage.selected && (!servicesFolder || servicesFolder == ""))
+            if(bindPackage.selected && servicesFolder != servicesFolderDefault && packageStr != "")
                 servicesTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/services/";		// default
 
-            if(!voSuffix || voSuffix == "")
+            if(voSuffix != voSuffixDefault)
                 voSuffixTxt.prompt = "VO";	    														// default
 
-            if(!serviceSuffix || serviceSuffix == "")
+            if(serviceSuffix != serviceSuffixDefault)
                 serviceSuffixTxt.prompt = "Service";													// default
         }
 
