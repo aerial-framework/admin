@@ -16,22 +16,39 @@ package controllers
         public static function generate(options:GenerationOptions):void
         {
             GenerationController.options = options;
+            var hasModelsSelected:Boolean = options.phpModels.length > 0;
 
             if(options.bootstrapPath)
             {
                 generateBootstrapper();
             }
-            
+
             if(options.phpModelsPath)
             {
-                if(options.phpModels.length > 0)
+                if(hasModelsSelected)
                     generatePHPModels();
                 else
                 {
-                    Alert.show("Please select one or more PHP models to generate.", "Error");
+                    fireSelectionError();
                     return;
                 }
             }
+
+            if(options.phpServicesPath)
+            {
+                if(hasModelsSelected)
+                    generatePHPServices();
+                else
+                {
+                    fireSelectionError();
+                    return;
+                }
+            }
+        }
+
+        private static function fireSelectionError():void
+        {
+            Alert.show("Please select one or more models to generate.", "Error");
         }
 
         private static function generateBootstrapper():void
@@ -104,10 +121,42 @@ package controllers
                 firePermissionsError(options.phpModelsPath, "PHP models");
         }
 
+		private static function generatePHPServices():void
+		{
+			var template:String = getTemplate("php.service.tmpl");
+
+            var writeOK:Boolean = false;
+
+            for each(var definition:ModelDefinition in options.phpModels)
+            {
+                var replacementTokens:Object = {};
+                var className:String = definition.modelName + options.serviceSuffix;
+
+                replacementTokens["model"] = definition.modelName;
+                replacementTokens["class"] = className;
+
+                for(var property:String in replacementTokens)
+                    template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
+
+                if(FileIOController.write(options.phpServicesPath.resolvePath(className + ".php"), template))
+                    writeOK = true;
+            }
+
+            if(!writeOK)
+                firePermissionsError(options.phpServicesPath, "PHP services");
+		}
+
         private static function firePermissionsError(path:File, fileType:String):void
         {
-            Alert.show("Could not write " + fileType + " to " + path.nativePath + ". Please ensure that this " +
-                    "path exists and is owned by the correct user & group.", "Error");
+            if(path)
+            {
+                Alert.show("Could not write " + fileType + " to " + path.nativePath + ". Please ensure that this " +
+                        "path exists and is owned by the correct user & group.", "Error");
+            }
+            else
+            {Alert.show("Could not write " + fileType + ". Please ensure that the " + fileType + " " +
+                        "path exists and is owned by the correct user & group.", "Error");
+            }
         }
 
 		private static function sanitizeConstName(name:String):String
