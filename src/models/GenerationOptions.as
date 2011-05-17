@@ -19,7 +19,7 @@ package models
 		public var serviceSuffix:String;
 
         // data
-        public var phpModels:Vector.<Object>;
+        public var selectedModels:Vector.<Object>;
         // ModelDefinition instances
 	}
 }

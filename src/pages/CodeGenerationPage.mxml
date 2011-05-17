@@ -220,7 +220,7 @@
             var options:GenerationOptions = new GenerationOptions();
             options.basePath = base;
 
-            options.phpModels = modelsList.selectedItems;
+            options.selectedModels = modelsList.selectedItems;
 
             options.packageString = getPackage();
 
@@ -228,7 +228,7 @@
             var phpBaseModelsPath:String = AerialPreferences.getNode("paths/php-models", String) + File.separator + "base";
             var phpServicesPath:String = AerialPreferences.getNode("paths/php-services", String);
 
-             if(bootstrap)
+            if(bootstrap)
                 options.bootstrapPath = validatePath(getBootstrapPath(), base);
 
             if(as3Models)
@@ -237,7 +237,7 @@
             if(as3Services)
                 options.as3ServicesPath = validatePath(getServiceFolder(), base);
 
-            if(phpModels)
+            if(phpModels || as3Models)
             {
                 options.phpModelsPath = validatePath(phpModelsPath, base);
                 options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
@@ -268,7 +268,7 @@
             }
 
             if(phpModels && ((!options.phpModelsPath || !options.phpModelsPath.exists) ||
-                                (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
+                    (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
             {
                 Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");
                 return;
@@ -283,7 +283,7 @@
             GenerationController.generate(options);
         }
 
-        private function validatePath(path:String, base:File=null):File
+        private function validatePath(path:String, base:File = null):File
         {
             try
             {
@@ -320,7 +320,7 @@
             servicesTxt.text = "";
             voSuffixTxt.text = "";
             serviceSuffixTxt.text = "";
-            
+
             var packageStr:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
             var bootstrapFolder:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
             var modelsFolder:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);

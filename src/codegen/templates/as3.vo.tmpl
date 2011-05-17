@@ -6,12 +6,12 @@ package {{package}}
 	import flash.net.registerClassAlias;
 	
 	[Bindable]
-	[RemoteClass(alias="{{package}}.{{remoteClass}}")]	
+	[RemoteClass(alias="{{remoteClass}}")]
 	public class {{class}} extends AbstractVO
 	{
 		public function {{class}}()
 		{
-			super("{{package}}.{{remoteClass}}",
+			super("{{remoteClass}}",
 							function(field:String):*{return this[field]},
 							function(field:String, value:*):void{this[field] = value});
 		}

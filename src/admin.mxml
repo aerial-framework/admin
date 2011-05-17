@@ -13,6 +13,7 @@
 			
 			private function init():void
 			{
+                trace(Capabilities.version);
 				ProjectController.instance.initialize();
 				
 				NavigationController.instance.navigationChange.add(navigationChangeHandler);
