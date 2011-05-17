@@ -65,7 +65,7 @@ package controllers
 			return contents;
 		}
 		
-		public static function write(file:File, data:*, createIfNotExists:Boolean=true, dataFormat:Class=null):void
+		public static function write(file:File, data:*, createIfNotExists:Boolean=true, dataFormat:Class=null):Boolean
 		{
 			// can't use a Class as a parameter initializer...
 			if(!dataFormat)
@@ -74,17 +74,20 @@ package controllers
 			if(!file || !file.exists)
 			{
 				if(!createIfNotExists)
-					return;
+					return false;
 				
 				file = FileIOController.createIfNotExists(file.url);
 				if(!file || !file.exists)
-					return;
+					return false;
 				
 				FileIOController.write(file, data, false, dataFormat);
 			}
 			
 			if(file.isDirectory)
-				throw new Error("Cannot write data to directory " + file.nativePath);
+            {
+                throw new Error("Cannot write data to directory " + file.nativePath);
+                return false;
+            }
 			
 			try
 			{
@@ -111,7 +114,10 @@ package controllers
 			catch(e:Error)
 			{
 				throw new Error("An error occurred while attempting to write data to this file.\n\nStack Trace:" + e.getStackTrace());
+                return false;
 			}
+
+            return true;
 		}
 		
 		public static function createIfNotExists(path:String):File

@@ -77,8 +77,14 @@
 				</s:HGroup>
 				
 				<s:Spacer height="100%"/>
-				
-				<mx:Button width="100%" label="Generate" chromeColor="#0E65A8"
+
+                <s:HGroup width="100%" verticalAlign="middle" visible="{showWarning}" includeInLayout="{showWarning}"
+                        showEffect="Fade">
+                    <s:Image source="@Embed(source='../assets/icons/dialog-warning.png')"/>
+                    <s:Label text="Please click 'Refresh' to refresh the models." width="100%"/>
+                </s:HGroup>
+
+				<mx:Button id="generateBtn" width="100%" label="Generate" chromeColor="#0E65A8"
                            click="generate(phpModelsCheck.selected, phpServicesCheck.selected, as3ModelsCheck.selected,
                                             as3ServicesCheck.selected, bootstrapCheck.selected)"
 						   fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
@@ -180,14 +186,17 @@
 
         private function init():void
         {
-            refresh();
-
             setConfigOptionPrompts();
+
+            refresh();
         }
 
         private function refresh():void
         {
-            configurationService.getOperation("getDefinitionsFromYAML").send().addResponder(new mx.rpc.Responder(getModelsHandler, fault));
+            configurationService.getOperation("getDefinitionsFromYAML")
+                    .send(getPackage() + ".vo")
+                    .addResponder(new mx.rpc.Responder(getModelsHandler, fault));
+
             clear();
 
             this.currentState = "refreshing";
@@ -211,9 +220,12 @@
             var options:GenerationOptions = new GenerationOptions();
             options.basePath = base;
 
+            options.phpModels = modelsList.selectedItems;
+
             options.packageString = getPackage();
 
             var phpModelsPath:String = AerialPreferences.getNode("paths/php-models", String);
+            var phpBaseModelsPath:String = AerialPreferences.getNode("paths/php-models", String) + File.separator + "base";
             var phpServicesPath:String = AerialPreferences.getNode("paths/php-services", String);
 
              if(bootstrap)
@@ -226,7 +238,10 @@
                 options.as3ServicesPath = validatePath(getServiceFolder(), base);
 
             if(phpModels)
+            {
                 options.phpModelsPath = validatePath(phpModelsPath, base);
+                options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
+            }
 
             if(phpServices)
                 options.phpServicesPath = validatePath(phpServicesPath, base);
@@ -252,7 +267,8 @@
                 return;
             }
 
-            if(phpModels && (!options.phpModelsPath || !options.phpModelsPath.exists))
+            if(phpModels && ((!options.phpModelsPath || !options.phpModelsPath.exists) ||
+                                (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
             {
                 Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");
                 return;
@@ -296,6 +312,8 @@
 
         private function setConfigOptionPrompts():void
         {
+            showWarning = false;
+
             packageTxt.text = "";
             bootstrapTxt.text = "";
             modelsTxt.text = "";
@@ -336,6 +354,8 @@
                 packageStr = "org.aerialframework";														// default
                 packageTxt.prompt = packageStr;
             }
+            else
+                showWarning = true;
 
             if(bindPackage.selected && (!bootstrapFolder || bootstrapFolder == ""))
                 bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
@@ -399,7 +419,8 @@
 
             AerialPreferences.setNodes(paths, data, AerialPreferences.ADMIN);
             Alert.show("Configuration options saved.", "Notice");
-            setConfigOptionPrompts();
+
+            init();
         }
 
         private function getModelsHandler(event:ResultEvent):void
@@ -519,7 +540,9 @@
         ]]>
 	</fx:Script>
 	
-	<fx:Declarations>		
+	<fx:Declarations>
+        <fx:Boolean id="showWarning"/>
+
 		<s:RemoteObject id="configurationService" source="Configuration" destination="amfphp" endpoint="http://aerial-new-structure/server/server.php"
 						fault="fault(event)"/>
 	</fx:Declarations>

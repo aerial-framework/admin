@@ -5,6 +5,9 @@ package controllers
     import flash.filesystem.FileStream;
 
     import models.GenerationOptions;
+    import models.ModelDefinition;
+
+    import mx.controls.Alert;
 
     public class GenerationController
     {
@@ -17,6 +20,17 @@ package controllers
             if(options.bootstrapPath)
             {
                 generateBootstrapper();
+            }
+            
+            if(options.phpModelsPath)
+            {
+                if(options.phpModels.length > 0)
+                    generatePHPModels();
+                else
+                {
+                    Alert.show("Please select one or more PHP models to generate.", "Error");
+                    return;
+                }
             }
         }
 
@@ -60,8 +74,40 @@ package controllers
 			for(var property:String in replacementTokens)
 				template = template.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 
-            trace(options.bootstrapPath.resolvePath(replacementTokens["class"] + ".as").nativePath);
-            FileIOController.write(options.bootstrapPath.resolvePath(replacementTokens["class"] + ".as"), template);
+            if(!FileIOController.write(options.bootstrapPath.resolvePath(replacementTokens["class"] + ".as"), template))
+                firePermissionsError(options.phpModelsPath, "Bootstrap file");
+        }
+
+        /**
+         * Uses definitions from Doctrine
+         *
+         * @return
+         */
+        private static function generatePHPModels():void
+        {
+            var writeOK:Boolean = false;
+
+            for each(var definition:ModelDefinition in options.phpModels)
+            {
+                var className:String = definition.modelName;
+                var derivedFile:File = options.phpModelsPath.resolvePath(className + ".php");
+                var baseFile:File = options.phpModelsPath.resolvePath("base" + File.separator + "Base" + className + ".php");
+
+                var derived:Boolean = FileIOController.write(derivedFile, definition.phpModel.content);
+                var base:Boolean = FileIOController.write(baseFile, definition.phpBaseModel.content);
+
+                if(derived && base)
+                    writeOK = true;
+            }
+
+            if(!writeOK)
+                firePermissionsError(options.phpModelsPath, "PHP models");
+        }
+
+        private static function firePermissionsError(path:File, fileType:String):void
+        {
+            Alert.show("Could not write " + fileType + " to " + path.nativePath + ". Please ensure that this " +
+                    "path exists and is owned by the correct user & group.", "Error");
         }
 
 		private static function sanitizeConstName(name:String):String
