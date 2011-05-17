@@ -121,7 +121,7 @@
 						</components:ExtendedFormItem>
 						<components:ExtendedFormItem width="100%" label="Bootstrap Folder">
 							<s:TextArea id="bootstrapTxt" width="100%"
-										change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]" heightInLines="2"/>
+										change="refreshConfigOptions()" heightInLines="2"/>
 						</components:ExtendedFormItem>
 					</s:Form>
 					
@@ -156,6 +156,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+        import controllers.GenerationController;
         import controllers.NavigationController;
         import controllers.ProjectController;
 
@@ -201,25 +202,34 @@
         private function generate(phpModels:Boolean, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
         {
             var base:File = ProjectController.instance.projectBasePath;
-            var bootstrapPath:String = getBootstrapPath().substr(0, getBootstrapPath().lastIndexOf(".")).replace(/\./gi, File.separator);
+            if(!base)
+            {
+                Alert.show("Could not verify the project base path", "Error");
+                return;
+            }
 
             var options:GenerationOptions = new GenerationOptions();
+            options.basePath = base;
+
             options.packageString = getPackage();
 
-            if(bootstrap)
-                options.bootstrapPath = validatePath(base.nativePath + File.separator + bootstrapPath);
+            var phpModelsPath:String = AerialPreferences.getNode("paths/php-models", String);
+            var phpServicesPath:String = AerialPreferences.getNode("paths/php-services", String);
+
+             if(bootstrap)
+                options.bootstrapPath = validatePath(getBootstrapPath(), base);
 
             if(as3Models)
-                options.as3ModelsPath = validatePath(base.nativePath + File.separator + getModelFolder());
+                options.as3ModelsPath = validatePath(getModelFolder(), base);
 
             if(as3Services)
-                options.as3ServicesPath = validatePath(base.nativePath + File.separator + getServiceFolder());
+                options.as3ServicesPath = validatePath(getServiceFolder(), base);
 
             if(phpModels)
-                options.phpModelsPath = validatePath(AerialPreferences.getNode("paths/php-models", String));
+                options.phpModelsPath = validatePath(phpModelsPath, base);
 
             if(phpServices)
-                options.phpServicesPath = validatePath(AerialPreferences.getNode("paths/php-services", String));
+                options.phpServicesPath = validatePath(phpServicesPath, base);
 
             options.voSuffix = getVOSuffix();
             options.serviceSuffix = getServiceSuffix();
@@ -238,26 +248,26 @@
 
             if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
             {
-                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript services", "Error");
+                Alert.show("Cannot use the path\n" + getServiceFolder() + "\nfor the ActionScript services", "Error");
                 return;
             }
 
             if(phpModels && (!options.phpModelsPath || !options.phpModelsPath.exists))
             {
-                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the PHP models", "Error");
+                Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");
                 return;
             }
 
             if(phpServices && (!options.phpServicesPath || !options.phpServicesPath.exists))
             {
-                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the PHP services", "Error");
+                Alert.show("Cannot use the path\n" + phpServicesPath + "\nfor the PHP services", "Error");
                 return;
             }
 
-            trace(ObjectUtil.toString(options));
+            GenerationController.generate(options);
         }
 
-        private function validatePath(path:String):File
+        private function validatePath(path:String, base:File=null):File
         {
             try
             {
@@ -272,8 +282,13 @@
             }
             catch(e:Error)
             {
-                Alert.show("Cannot create path\n" + path, "Error");
-                return null;
+                if(!base)
+                {
+                    Alert.show("Cannot create path\n" + path, "Error");
+                    return null;
+                }
+                else
+                    return validatePath(base.nativePath + File.separator + path);
             }
 
             return file;

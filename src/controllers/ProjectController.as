@@ -4,7 +4,7 @@ package controllers
 	
 	import models.AerialPreferences;
 	import models.Project;
-	
+
 	import mx.controls.Alert;
 	import mx.utils.ObjectUtil;
 	
@@ -122,5 +122,56 @@ package controllers
 			
 			return projectPreferencesXML;	
 		}
-	}
+
+        public function getBootstrapValues():Array
+		{
+            if(!configXML || configXML.children().length() <= 0)
+                return [];
+
+            var data:XML = configXML;
+//			var altData:XML = XML(FileController.instance.read(ApplicationController.instance.configAltFile));
+
+			var merged:Array = [];
+
+            var configBootstrapValues:Object = this.findBoostrapValues(data);
+//            var configAltBootstrapValues:Object = this.findBoostrapValues(altData);
+
+            // overwrite regular config's bootstrap values if it exists in the config-alt
+//            for(var item:String in configAltBootstrapValues)
+//                configBootstrapValues[item] = configAltBootstrapValues[item];
+
+            // now, loop through all the config's bootstrap values and add them to the array
+            for(var item:String in configBootstrapValues)
+                merged.push({name:item, value:configBootstrapValues[item]});
+
+            return merged;
+		}
+
+        private function findBoostrapValues(xml:XML, values:Object=null):Object
+        {
+            if(!values)
+				values = {};
+
+			for each(var child:XML in xml.children())
+			{
+				if(child.nodeKind() == "comment")
+					continue;
+
+				if(child.attribute("expose").toString() == "true")
+				{
+					if(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+						findBoostrapValues(child, values);
+
+					values[child.name().toString()] = child.text().toString();
+				}
+				else
+				{
+					if(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
+						findBoostrapValues(child, values);
+				}
+			}
+
+			return values;
+        }
+    }
 }

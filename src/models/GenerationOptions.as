@@ -4,6 +4,7 @@ package models
 
 	public class GenerationOptions
 	{
+        public var basePath:File;
 		public var packageString:String;
 		public var bootstrapPath:File;
 		public var phpModelsPath:File;
