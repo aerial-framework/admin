@@ -130,6 +130,7 @@ package controllers
 			{
 				var stream:FileStream = new FileStream();
 				stream.open(newFile, FileMode.WRITE);
+                stream.writeUTFBytes("");               // empty file
 				stream.close();
 				
 				return newFile;

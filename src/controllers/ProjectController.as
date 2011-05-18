@@ -85,7 +85,7 @@ package controllers
 			preferencesFile = File.applicationStorageDirectory.resolvePath("preferences.xml");
 			trace(preferencesFile.nativePath);
 			
-			if(!preferencesFile)
+			if(!preferencesFile || !preferencesFile.exists)
 				preferencesFile = FileIOController.createIfNotExists(preferencesFile.url);
 			
 			if(!preferencesFile || !preferencesFile.exists)
