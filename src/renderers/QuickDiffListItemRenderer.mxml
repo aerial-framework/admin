@@ -25,7 +25,8 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import models.ModelDefinition;
+        import models.AerialPreferences;
+        import models.ModelDefinition;
 			
 			import mx.events.FlexEvent;
 			
@@ -45,6 +46,78 @@
 				// fix padding
 				event.currentTarget.labelDisplay.left = event.currentTarget.labelDisplay.right = 2;
 			}
+
+            [Bindable(event="dataChange")]
+            public function get pmExists():Boolean
+            {
+                var definition:ModelDefinition = data as ModelDefinition;
+                var exists:Boolean = false;
+
+                try
+                {
+                    exists = !definition.phpBaseModel.path.exists || !definition.phpModel.path.exists;
+                }
+                catch(e:Error)
+                {
+                    return false;
+                }
+
+                return exists;
+            }
+
+            [Bindable(event="dataChange")]
+            public function get psExists():Boolean
+            {
+                var definition:ModelDefinition = data as ModelDefinition;
+                var exists:Boolean = false;
+
+                try
+                {
+                    exists = !definition.phpService.path.exists;
+                }
+                catch(e:Error)
+                {
+                    return false;
+                }
+
+                return exists;
+            }
+
+            [Bindable(event="dataChange")]
+            public function get amExists():Boolean
+            {
+                var definition:ModelDefinition = data as ModelDefinition;
+                var exists:Boolean = false;
+
+                try
+                {
+                    exists = !definition.as3Model.path.exists;
+                }
+                catch(e:Error)
+                {
+                    return false;
+                }
+
+                return exists;
+            }
+
+            [Bindable(event="dataChange")]
+            public function get asExists():Boolean
+            {
+                var definition:ModelDefinition = data as ModelDefinition;
+                var exists:Boolean = false;
+
+                try
+                {
+                    exists = !definition.as3Service.path.exists;
+                }
+                catch(e:Error)
+                {
+                    return false;
+                }
+
+                return exists;
+            }
 			
 		]]>
 	</fx:Script>
@@ -54,11 +127,6 @@
 		<fx:String id="as3Models">ActionScript models</fx:String>
 		<fx:String id="phpServices">PHP services</fx:String>
 		<fx:String id="as3Services">ActionScript services</fx:String>
-		
-		<fx:Boolean id="pmExists"/>
-		<fx:Boolean id="psExists"/>
-		<fx:Boolean id="amExists"/>
-		<fx:Boolean id="asExists"/>
 		
 		<fx:String id="missingToolTip">are missing from your project.</fx:String>
 	</fx:Declarations>

@@ -289,7 +289,7 @@
             GenerationController.generate(options);
         }
 
-        private function validatePath(path:String, base:File = null):File
+        private function validatePath(path:String, base:File = null, showError:Boolean=true):File
         {
             try
             {
@@ -304,13 +304,13 @@
             }
             catch(e:Error)
             {
-                if(!base)
+                if(!base && showError)
                 {
                     Alert.show("Cannot create path\n" + path, "Error");
                     return null;
                 }
                 else
-                    return validatePath(base.nativePath + File.separator + path);
+                    return validatePath(base.nativePath + File.separator + path, null, showError);
             }
 
             return file;
@@ -493,6 +493,9 @@
 
             var sortedModelNames:Array = modelNames.sort(Array.CASEINSENSITIVE);
 
+            var voSuffix:String = getVOSuffix();
+            var serviceSuffix:String = getServiceSuffix();
+
             var modelDefinitions:ArrayList = new ArrayList();
             for each(var model:String in sortedModelNames)
             {
@@ -504,6 +507,8 @@
                 else
                 {
                     var definition:ModelDefinition = new ModelDefinition();
+                    var base:File = ProjectController.instance.projectBasePath;
+
                     definition.modelName = model;
                     definition.fields = buildDefinitions(definitions[model].fields);
 
@@ -515,11 +520,43 @@
                     definition.phpModel.path = new File(files["topLevelClass"].path);
                     definition.phpModel.content = files["topLevelClass"].file.toString();
 
+                    // load php services path from config
+                    var phpServicesFolder:String = AerialPreferences.getNode("paths/php-services", String);
+                    definition.phpService.path = getPath(phpServicesFolder + File.separator + definition.modelName + serviceSuffix + ".php", base);
+                    trace(definition.phpService.path.nativePath);
+
+                    definition.as3Model.path = getPath(getModelFolder() + File.separator + definition.modelName + voSuffix + ".as", base);
+                    definition.as3Service.path = getPath(getServiceFolder() + File.separator + definition.modelName + serviceSuffix + ".as", base);
+                    
                     modelDefinitions.addItem(definition);
                 }
             }
 
             modelsList.dataProvider = modelDefinitions;
+        }
+
+        /**
+         * Tries to resolve relative and absolute paths
+         *
+         * @param path
+         * @param base
+         * @return
+         */
+        private function getPath(path:String, base:File=null):File
+        {
+            try
+            {
+                var file:File = new File(path);
+                if(file.exists)
+                    return file;
+            }
+            catch(e:Error)
+            {
+                if(base)
+                    return getPath(base.nativePath + File.separator + path);
+            }
+
+            return file;
         }
 
         private function buildDefinitions(descriptors:Array):Array

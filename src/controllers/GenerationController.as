@@ -239,7 +239,7 @@ package controllers
                 for(var property:String in replacementTokens)
                     data = data.replace(new RegExp("{{" + property + "}}", "gi"), replacementTokens[property]);
 
-                if(FileIOController.write(options.as3ModelsPath.resolvePath(definition.modelName + ".as"), data))
+                if(FileIOController.write(options.as3ModelsPath.resolvePath(definition.modelName + options.voSuffix + ".as"), data))
                     writeOK = true;
             }
 
