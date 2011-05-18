@@ -6,13 +6,13 @@ s|Button.present
 	cornerRadius: 0;
 	
 	fontWeight: bold;
+	chromeColor: #0E65A8;
 	fontSize: 10;
 }
 
 s|Button.missing
 {	
 	cornerRadius: 0;
-	chromeColor: #CCCC00;
 	
 	fontWeight: bold;
 	fontSize: 10;
