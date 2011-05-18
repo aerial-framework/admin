@@ -83,7 +83,6 @@ package controllers
 		public function initialize():void
 		{
 			preferencesFile = File.applicationStorageDirectory.resolvePath("preferences.xml");
-			trace(preferencesFile.nativePath);
 			
 			if(!preferencesFile || !preferencesFile.exists)
 				preferencesFile = FileIOController.createIfNotExists(preferencesFile.url);
@@ -104,7 +103,6 @@ package controllers
 			for each(var projectXML:XML in preferencesXML.projects..project)
 			{
 				var project:Project = new Project();
-				project.name = projectXML.@name.toString();
 				project.location = new File(projectXML.@location.toString());
 				project.lastAccessed = new Date();
 				project.lastAccessed.setTime(projectXML.@lastAccessed.toString());
@@ -114,6 +112,20 @@ package controllers
 			
 			return projects;
 		}
+
+        public function setProjects(projects:Array):void
+        {
+            var preferences:XML = <preferences><projects/></preferences>;
+            for each(var project:Project in projects)
+            {
+                var projectXML:XML = new XML("<project location=\"" + project.location.nativePath + "\" " +
+                        "lastAccessed=\"" + project.lastAccessed.getTime() + "\"/>");
+                
+                preferences.projects.appendChild(projectXML);
+            }
+
+            FileIOController.write(preferencesFile, preferences.toXMLString());
+        }
 		
 		public function getProjectPreferences():XML
 		{

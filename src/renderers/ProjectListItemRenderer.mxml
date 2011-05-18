@@ -25,6 +25,7 @@
 			protected function dataChangeHandler(event:FlexEvent):void
 			{
 				label = "";
+                this.toolTip = "";
 				
 				var project:Project = data as Project;
 				if(!project)
@@ -32,9 +33,6 @@
 					invalid = true;
 					return;
 				}
-				
-				if(project.name && project.name.length > 0)
-					label = "<b>" + project.name + "</b>: ";
 				
 				if(project.location)
 				{

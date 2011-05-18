@@ -6,41 +6,123 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import controllers.NavigationController;
-			import controllers.ProjectController;
-			
-			import models.Project;
-			
-			import mx.collections.ArrayList;
-			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;
-			
-			private function init():void
-			{
-				ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
-			}
-			
-			private function preferencesLoadHandler():void
-			{
-				refreshProjects();
-			}
-			
-			private function refreshProjects():void
-			{
-				var projects:Array = ProjectController.instance.getProjects();
-				
-				projectsList.dataProvider = new ArrayList(projects);
-			}
-			
-			private function projectSelected(event:MouseEvent):void
-			{
-				if(!projectsList.selectedItem as Project)
-					return;
-							
-				NavigationController.instance.navigationChange.dispatch(NavigationController.CODE_GEN);
-				ProjectController.instance.projectSelect.dispatch(projectsList.selectedItem as Project);	
-			}			
-		]]>
+        import controllers.NavigationController;
+        import controllers.ProjectController;
+
+        import models.Project;
+
+        import mx.collections.ArrayList;
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+
+        private var selectedProject:Project;
+
+        private function init():void
+        {
+            ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
+        }
+
+        private function preferencesLoadHandler():void
+        {
+            refreshProjects();
+        }
+
+        private function refreshProjects():void
+        {
+            projectsList.dataProvider = new ArrayList();
+            projectsList.validateNow();
+
+            var projects:Array = ProjectController.instance.getProjects();
+
+            projectsList.dataProvider = new ArrayList(projects);
+        }
+
+        private function browseForProject():void
+        {
+            var f:File = new File();
+            f.addEventListener(Event.SELECT, projectBrowseSelectHandler);
+            f.browseForDirectory("Browse for an Aerial Project");
+        }
+
+        private function addProject(path:String):void
+        {
+            var projects:ArrayList = projectsList.dataProvider as ArrayList;
+            if(!projects)
+                projects = new ArrayList();
+
+            var newProject:Project = new Project();
+            newProject.location = new File(path);
+            newProject.lastAccessed = new Date();
+
+            projects.addItem(newProject);
+
+            ProjectController.instance.setProjects(projects.toArray());
+            ProjectController.instance.initialize();
+        }
+
+        private function projectBrowseSelectHandler(event:Event):void
+        {
+            addProject((event.currentTarget as File).nativePath);
+        }
+
+        private function projectSelected(event:MouseEvent):void
+        {
+            if(!projectsList.selectedItem as Project)
+                return;
+
+            selectedProject = projectsList.selectedItem as Project;
+
+            if(!selectedProject.isValid)
+            {
+                Alert.yesLabel = "Remove";
+                Alert.noLabel = "Edit";
+                Alert.show("This project's path is invalid. Do you want to remove it now?", "Notice",
+                        Alert.YES | Alert.NO | Alert.CANCEL, null, invalidProjectChangeHandler);
+            }
+            else
+            {
+                NavigationController.instance.navigationChange.dispatch(NavigationController.CODE_GEN);
+                ProjectController.instance.projectSelect.dispatch(projectsList.selectedItem as Project);
+            }
+        }
+
+        private function invalidProjectChangeHandler(event:CloseEvent):void
+        {
+            if(event.detail == Alert.YES)
+            {
+                var projects:ArrayList = projectsList.dataProvider as ArrayList;
+                projects.removeItem(selectedProject);
+
+                ProjectController.instance.setProjects(projects.toArray());
+                ProjectController.instance.initialize();
+            }
+            else if(event.detail == Alert.NO)
+            {
+                fixProjectPath();
+            }
+        }
+
+        private function fixProjectPath():void
+        {
+            var f:File = new File();
+            f.addEventListener(Event.SELECT, newProjectPathSelectHandler);
+            f.browseForDirectory("Browse for an Aerial Project");
+        }
+
+        private function newProjectPathSelectHandler(event:Event):void
+        {
+            if(!selectedProject)
+                return;
+
+            selectedProject.location = (event.currentTarget as File);
+            var projects:ArrayList = projectsList.dataProvider as ArrayList;
+
+            projectsList.dataProvider = new ArrayList();
+
+            ProjectController.instance.setProjects(projects.toArray());
+            ProjectController.instance.initialize();
+        }
+        ]]>
 	</fx:Script>
 	
 	<s:BorderContainer width="500" minWidth="1" minHeight="1" backgroundAlpha="0.8"
@@ -65,8 +147,10 @@
 		<s:VGroup width="100%">
 			<s:Label fontSize="13" text="Open a new project"/>
 			<s:HGroup width="100%">
-				<s:TextInput width="100%" prompt="Browse to project path or enter it here"/>
-				<mx:Button label="Browse" icon="@Embed('../assets/icons/filefind.png')"/>
+				<s:TextInput width="100%" prompt="Browse to project path or enter it here"
+                        enter="addProject(event.currentTarget.text)"/>
+				<mx:Button label="Browse" icon="@Embed('../assets/icons/filefind.png')"
+                                click="browseForProject()"/>
 			</s:HGroup>
 		</s:VGroup>
 	</s:BorderContainer>
@@ -106,7 +190,7 @@
 			<s:Label fontSize="13" text="Open an existing project" width="100%"/>
 			
 			<s:List id="projectsList" width="100%" height="100%" borderColor="#EFEFEF"
-					borderVisible="true" contentBackgroundAlpha="0.8"
+					borderVisible="true" contentBackgroundAlpha="0.8" useVirtualLayout="false"
 					itemRenderer="renderers.ProjectListItemRenderer"/>
 			
 			<mx:Button label="Select" enabled="{projectsList.selectedItem}" fontWeight="normal"
