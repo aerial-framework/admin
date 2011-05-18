@@ -24,6 +24,7 @@ package controllers
 		private var configXML:XML;
 		
 		public var projectSelect:Signal;		
+		public var projectDescriptorLoad:Signal;
 		public var preferencesLoad:Signal;
 		
 		public var projectBasePath:File;
@@ -34,7 +35,9 @@ package controllers
 		
 		public function ProjectController()
 		{
-			preferencesLoad = new Signal();
+			projectDescriptorLoad = new Signal();
+
+            preferencesLoad = new Signal();
 			
 			projectSelect = new Signal(Project);
 			projectSelect.add(projectSelectHandler);
@@ -70,6 +73,8 @@ package controllers
 			configXML = FileIOController.read(configFile, false, XML) as XML;			
 			AerialPreferences.serverConfig = configXML;
 			AerialPreferences.serverConfigFile = configFile;
+
+            preferencesLoad.dispatch();
 		}
 		
 		public static function get instance():ProjectController
@@ -91,7 +96,7 @@ package controllers
 				throw new Error("Cannot create or open application preferences file");
 			
 			preferencesXML = FileIOController.read(preferencesFile, false, XML) as XML;
-			preferencesLoad.dispatch();
+			projectDescriptorLoad.dispatch();
 		}
 		
 		public function getProjects():Array

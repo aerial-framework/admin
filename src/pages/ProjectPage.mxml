@@ -19,7 +19,7 @@
 
         private function init():void
         {
-            ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
+            ProjectController.instance.projectDescriptorLoad.add(preferencesLoadHandler);
         }
 
         private function preferencesLoadHandler():void
