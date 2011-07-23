@@ -29,21 +29,21 @@
 	</mx:Script>
 	
 	<mx:HBox verticalAlign="middle">
-		<mx:VBox horizontalAlign="center" verticalAlign="0">
+		<mx:VBox horizontalAlign="center" verticalAlign="middle">
 			<config:PermissionChooser id="user"/>
 			<mx:Canvas width="100%" backgroundColor="#222222">
 				<mx:Label text="User ({user.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>
 			</mx:Canvas>
 		</mx:VBox>
 		<mx:VRule height="50"/>
-		<mx:VBox horizontalAlign="center" verticalAlign="0">
+		<mx:VBox horizontalAlign="center" verticalAlign="middle">
 			<config:PermissionChooser id="group"/>
 			<mx:Canvas width="100%" backgroundColor="#222222">
 				<mx:Label text="Group ({group.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>
 			</mx:Canvas>
 		</mx:VBox>
 		<mx:VRule height="50"/>
-		<mx:VBox horizontalAlign="center" verticalAlign="0">
+		<mx:VBox horizontalAlign="center" verticalAlign="middle">
 			<config:PermissionChooser id="other"/>
 			<mx:Canvas width="100%" backgroundColor="#222222">
 				<mx:Label text="Other ({other.mode})" verticalCenter="0" color="#DDDDDD" horizontalCenter="0" fontWeight="bold"/>

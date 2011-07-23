@@ -107,7 +107,7 @@ package controllers
 				bootstrapBase.createDirectory();
 			
 			imports["ByteArray"] = "flash.utils.ByteArray";
-			imports["ArrayCollection"] = "mx.collections.ArrayCollection";
+			imports["IList"] = "mx.collections.IList";
 		}
 		
 		public static function get instance():GenerationController
@@ -267,7 +267,7 @@ package controllers
 				var type:String;
 				
 				if(many)
-					type = "ArrayCollection";
+					type = "IList";
 				else
 				{
 					type = model.definition[prop].type;
