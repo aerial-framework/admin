@@ -65,8 +65,6 @@ package controllers
 			archiveLoader = new URLLoader();
 			archiveLoader.dataFormat = URLLoaderDataFormat.BINARY;
 			var req:URLRequest = new URLRequest(url);
-			req.requestHeaders = [new URLRequestHeader("Host", hostname),		// fake the requestor host
-									new URLRequestHeader("Range", "bytes=0-")];						// start from 0 bytes to end of file
 			
 			archiveLoader.load(req);
 			dispatchEvent(new ArchiveControlEvent(ArchiveControlEvent.DOWNLOAD_START));

@@ -28,13 +28,13 @@
 
     <icon>
 
-        <image128x128>icons/appIcon_128.png</image128x128>
+        <image128x128>assets/icons/appIcon_128.png</image128x128>
 
-        <image48x48>icons/appIcon_48.png</image48x48>
+        <image48x48>assets/icons/appIcon_48.png</image48x48>
 
-        <image32x32>icons/appIcon_32.png</image32x32>
+        <image32x32>assets/icons/appIcon_32.png</image32x32>
 
-        <image16x16>icons/appIcon_16.png</image16x16>
+        <image16x16>assets/icons/appIcon_16.png</image16x16>
 
     </icon>
 

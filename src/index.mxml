@@ -35,10 +35,10 @@
 		<mx:ViewStack id="pagesVS" width="100%" height="100%">
 			<mx:VBox horizontalAlign="center" verticalAlign="middle">
 				<mx:HBox horizontalGap="20" verticalAlign="middle">
-					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/plus.png')" height="75"
+					<!--<mx:Button icon="@Embed(source='assets/icons/dusseldorf/plus.png')" height="75"
 							   labelPlacement="bottom" label="New Project" width="135"
 							   click="appControl.showPage.dispatch(ApplicationController.NEW_PROJECT)"/>
-					<mx:VRule height="100%"/>
+					<mx:VRule height="100%"/>-->
 					<mx:Button icon="@Embed(source='assets/icons/dusseldorf/current-work.png')" height="75"
 							   labelPlacement="bottom" label="Open Recent Project" width="135"
 							   click="appControl.projectDirectory = null; appControl.showPage.dispatch(ApplicationController.OPEN_PROJECT)"/>
