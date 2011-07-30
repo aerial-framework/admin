@@ -78,12 +78,6 @@
 
                 <s:Spacer height="100%"/>
 
-                <s:HGroup width="100%" verticalAlign="middle" visible="{showWarning}" includeInLayout="{showWarning}"
-                          showEffect="Fade">
-                    <s:Image source="@Embed(source='../assets/icons/dialog-warning.png')"/>
-                    <s:Label text="Please click 'Refresh' to refresh the models." width="100%"/>
-                </s:HGroup>
-
                 <mx:Button id="generateBtn" width="100%" label="Generate" chromeColor="#0E65A8"
                            click="generate(phpModelsCheck.selected, phpServicesCheck.selected, as3ModelsCheck.selected,
                                             as3ServicesCheck.selected, bootstrapCheck.selected)"
@@ -357,8 +351,6 @@
 
         private function setConfigOptionPrompts():void
         {
-            showWarning = false;
-
             packageTxt.text = "";
             bootstrapTxt.text = "";
             modelsTxt.text = "";
@@ -400,9 +392,6 @@
             var servicesFolderDefault:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
             var voSuffixDefault:String = AerialPreferences.getNode("code-generation/vo-suffix", String, AerialPreferences.ADMIN);
             var serviceSuffixDefault:String = AerialPreferences.getNode("code-generation/service-suffix", String, AerialPreferences.ADMIN);
-
-            if(packageStr != packageDefault)
-                showWarning = true;
 
             if(bindPackage.selected && bootstrapFolder != bootstrapDefault && packageStr != "")
                 bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
@@ -467,7 +456,7 @@
             AerialPreferences.setNodes(paths, data, AerialPreferences.ADMIN);
             Alert.show("Configuration options saved.", "Notice");
 
-            init();
+            if(serverOK) refresh();
         }
 
         private function getModelsHandler(event:ResultEvent):void
@@ -554,10 +543,10 @@
 
                     var files:Object = definitions[model].files;
 
-                    definition.phpBaseModel.path = new File(files["baseClass"].path);
+                    definition.phpBaseModel.path = getPath(files["baseClass"].path, base);
                     definition.phpBaseModel.content = files["baseClass"].file.toString();
 
-                    definition.phpModel.path = new File(files["topLevelClass"].path);
+                    definition.phpModel.path = getPath(files["topLevelClass"].path, base);
                     definition.phpModel.content = files["topLevelClass"].file.toString();
 
                     // load php services path from config
@@ -639,8 +628,6 @@
 	</fx:Script>
 
     <fx:Declarations>
-        <fx:Boolean id="showWarning"/>
-
         <s:RemoteObject id="configurationService" source="Configuration" destination="amfphp"
                         fault="fault(event)"/>
     </fx:Declarations>

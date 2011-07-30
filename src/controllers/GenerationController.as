@@ -181,7 +181,7 @@ package controllers
 
             for each(var definition:ModelDefinition in options.selectedModels)
             {
-                replacementTokens["package"] =              packageString;
+                replacementTokens["package"] =              packageString.replace(/[\/\\]/gi, ".");
                 replacementTokens["collectionImport"] =     "";
                 replacementTokens["class"] =                definition.modelName + options.voSuffix;
                 replacementTokens["remoteClass"] =          phpModelsPackageString + "." + definition.modelName;
@@ -200,7 +200,7 @@ package controllers
                     var type:String;
 
                     if(many)
-                        type = "ArrayCollection";
+                        type = "IList";
                     else
                     {
                         type = field.type;
@@ -262,9 +262,9 @@ package controllers
             {
                 replacementTokens["model"] = 				definition.modelName + options.voSuffix;
                 replacementTokens["class"] = 				definition.modelName + options.serviceSuffix;
-                replacementTokens["package"] = 				servicePackageString;
-                replacementTokens["modelPackage"] = 		modelPackageString;
-                replacementTokens["bootstrapPackage"] = 	bootstrapPackageString;
+                replacementTokens["package"] = 				servicePackageString.replace(/[\/\\]/gi, ".");
+                replacementTokens["modelPackage"] = 		modelPackageString.replace(/[\/\\]/gi, ".");
+                replacementTokens["bootstrapPackage"] = 	bootstrapPackageString.replace(/[\/\\]/gi, ".");
                 replacementTokens["bootstrapClass"] = 		"Aerial";
 
                 trace(definition.modelName + " > " + replacementTokens["model"] + " > " + replacementTokens["class"]);
@@ -290,7 +290,7 @@ package controllers
                 offset = 0;
 
             var toReturn:String = path.substring(offset);
-            toReturn = toReturn.replace(new RegExp(File.separator, "gi"), ".");
+            toReturn = toReturn.replace(/[\/\\]/gi, ".");
 
             return toReturn;
         }
