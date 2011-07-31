@@ -7,6 +7,23 @@ package {{package}}
     */
 	public class {{class}}
 	{
+	    private static var _instance:{{class}};
+
 {{configValues}}
+
+	    {
+	        // static initializer for Singleton
+	        _instance = new {{class}}();
+	    }
+
+	    public function {{class}}()
+	    {
+	        // constructor
+	    }
+
+	    public static function get instance():{{class}}
+	    {
+	        return _instance;
+	    }
 	}
 }
