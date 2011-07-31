@@ -221,7 +221,7 @@ package controllers
                             toImport.push(str);
                     }
 
-                    properties.push("\t\tprivate var _" + name + ":*\n");
+                    properties.push("\t\tprivate var _" + name + ":*;\n");
 
                     var accessor:String = accessorStub.replace(new RegExp("{{field}}", "gi"), name);
                     accessor = accessor.replace(new RegExp("{{type}}", "gi"), type);
