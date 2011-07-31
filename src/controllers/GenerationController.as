@@ -22,7 +22,6 @@ package controllers
             GenerationController.options = options;
 
 			imports["ByteArray"] = "flash.utils.ByteArray";
-			imports["ArrayCollection"] = "mx.collections.ArrayCollection";
             
             var hasModelsSelected:Boolean = options.selectedModels.length > 0;
 

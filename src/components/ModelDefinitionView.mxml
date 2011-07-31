@@ -70,7 +70,7 @@
 				else
 				{
 					if(item.many)
-						return "ArrayCollection";
+						return "IList";
 					else
 						return item.type;
 				}
