@@ -45,7 +45,7 @@ package com.mysql.workbench.model
 		
 		public function get yaml():String
 		{
-			var yaml:YamlWriter = YamlWriter.getInstance();
+			var yaml:YamlWriter = new YamlWriter(); //YamlWriter.getInstance();
 			yaml.addKeyValue("detect_relations", true);
 			yaml.addNode("options");
 			yaml.addKeyValue("collate", this.defaultCollationName);

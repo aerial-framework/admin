@@ -9,7 +9,7 @@ package com.mysql.workbench
 		private var _indentCount:int = 0;
 		private var _indent:int = 2;
 		
-		public function YamlWriter(enforcer:SingletonEnforcer)
+		public function YamlWriter() //enforcer:SingletonEnforcer   //Don't need to enforce singleton.
 		{
 			_stream += "---";
 			addLineBreak();
@@ -38,7 +38,7 @@ package com.mysql.workbench
 		public static function getInstance():YamlWriter
 		{
 			if(!_instance)
-				_instance = new YamlWriter(new SingletonEnforcer());
+				_instance = new YamlWriter();  //new SingletonEnforcer()
 			return _instance;
 		}
 		
