@@ -47,7 +47,7 @@
 				else
 					invalid = true;
 				
-				if(!project.location.resolvePath(".aerial").exists)
+				if(!project.location.resolvePath("project.aerial").exists)
 					invalid = true;
 				
 				if(invalid)

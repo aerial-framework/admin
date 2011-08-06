@@ -163,12 +163,12 @@
         import controllers.GenerationController;
         import controllers.NavigationController;
         import controllers.ProjectController;
-
+        
         import models.AerialPreferences;
         import models.FieldDefinition;
         import models.GenerationOptions;
         import models.ModelDefinition;
-
+        
         import mx.collections.ArrayList;
         import mx.controls.Alert;
         import mx.messaging.messages.RemotingMessage;
@@ -176,9 +176,9 @@
         import mx.rpc.events.FaultEvent;
         import mx.rpc.events.ResultEvent;
         import mx.utils.ObjectUtil;
-
+        
         import org.aerialframework.rpc.message.AerialErrorMessage;
-
+        
         import spark.events.IndexChangeEvent;
 
         private var message:AerialErrorMessage;
@@ -215,7 +215,9 @@
 
         private function fireInvalidServerURLError():void
         {
-            Alert.show("Please ensure that you have entered a valid value for 'server-url' in your config.xml file",
+            Alert.show("Please ensure that you have entered a valid value for 'server-url' in your config.xml file\n" +
+					ProjectController.instance.configFile.nativePath + "\n\nIf your config file is placed outside of the " +
+						"project root, please move the project.aerial file to the same directory as your config/ folder.",
                     "Error - Cannot retrieve data from server", 4, null, function():void
                     {
                         NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);

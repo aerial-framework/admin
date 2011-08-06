@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="initializeHandler(event)"
+          minWidth="300" minHeight="200">
+
+    <fx:Script>
+        <![CDATA[
+        import mx.events.FlexEvent;
+
+        private function initializeHandler(event:FlexEvent):void
+        {
+            this.alwaysInFront = true;
+
+            this.minimizable = false;
+            this.maximizable = false;
+
+            this.showStatusBar = false;
+
+            // "showStatusBar = false" still leaves some padding
+            this.statusBar.visible = this.statusBar.includeInLayout = false;
+        }
+        ]]>
+    </fx:Script>
+
+</s:Window>

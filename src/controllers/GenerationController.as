@@ -87,7 +87,7 @@ package controllers
             var template:String = getTemplate("bootstrap.tmpl");
             var replacementTokens:Object = {};
 
-            var bootstrapPackage:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath), "src_flex");
+            var bootstrapPackage:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath, true), "src_flex");
 
             replacementTokens["package"] = bootstrapPackage;
             replacementTokens["class"] = "Aerial";
@@ -175,7 +175,7 @@ package controllers
             var template:String = getTemplate("as3.vo.tmpl");
             var replacementTokens:Object = {};
 
-            var packageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath), "src_flex");
+            var packageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath, true), "src_flex");
             var phpModelsPackageString:String = getPackageString(options.phpModelsPath.nativePath, "src_php");
 
             for each(var definition:ModelDefinition in options.selectedModels)
@@ -253,9 +253,9 @@ package controllers
 			var template:String = getTemplate("as3.service.tmpl");
 			var replacementTokens:Object = {};
 
-            var modelPackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath), "src_flex");
-            var servicePackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ServicesPath), "src_flex");
-            var bootstrapPackageString:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath), "src_flex");
+            var modelPackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath, true), "src_flex");
+            var servicePackageString:String = getPackageString(options.basePath.getRelativePath(options.as3ServicesPath, true), "src_flex");
+            var bootstrapPackageString:String = getPackageString(options.basePath.getRelativePath(options.bootstrapPath, true), "src_flex");
 
             for each(var definition:ModelDefinition in options.selectedModels)
             {

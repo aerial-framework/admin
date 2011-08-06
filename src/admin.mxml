@@ -1,38 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
-					   xmlns:s="library://ns.adobe.com/flex/spark"
-					   xmlns:mx="library://ns.adobe.com/flex/mx"
-					   xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
-					   minWidth="1024" minHeight="768" applicationComplete="init()"
-					   skinClass="skins.DarkApplicationStatusSkin">
-	
-	<fx:Script>
+                       xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:mx="library://ns.adobe.com/flex/mx"
+                       xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
+                       minWidth="1024" minHeight="768" applicationComplete="init()"
+                       skinClass="skins.DarkApplicationStatusSkin" invoke="applicationInvokeHandler(event)"
+                       xmlns:nativemenu="com.jacwright.nativemenu.*" autoExit="false">
+
+    <fx:Script>
 		<![CDATA[
-			import controllers.NavigationController;
-			import controllers.ProjectController;
-			
-			private function init():void
-			{
-				ProjectController.instance.initialize();
-				
-				NavigationController.instance.navigationChange.add(navigationChangeHandler);
-			}			
-			
-			private function navigationChangeHandler(state:String):void
-			{
-				this.currentState = state;
-			}
-			
-		]]>
+        import com.jacwright.nativemenu.Menus;
+
+        import controllers.ApplicationController;
+        import controllers.NavigationController;
+        import controllers.ProjectController;
+
+        import models.Project;
+
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+        import mx.utils.ObjectUtil;
+
+        private function init():void
+        {
+            ApplicationController.instance.initialize();
+
+            Menus.initMainMenu(mainMenu, stage.nativeWindow);
+
+            this.nativeWindow.addEventListener(Event.CLOSING, closeApplication);
+
+            NavigationController.instance.navigationChange.add(navigationChangeHandler);
+
+            this.maximize();
+
+            getRecentProjects();
+        }
+
+        private function getRecentProjects():void
+        {
+            var projects:Array = ApplicationController.instance.getProjects();
+            var items:Array = [];
+
+            for each(var project:Project in projects)
+            {
+                var item:MenuItem = new MenuItem();
+                if(!project || !project.location)
+                    continue;
+
+                var projectName:String = project.location.nativePath;
+                if(!project.location.exists)
+                    projectName += " *";
+
+                item.label = projectName;
+
+                item.data = project;
+                item.addEventListener(Event.SELECT, recentProjectSelectHandler);
+
+                items.push(item);
+            }
+
+            recentMenuItem.items = items;
+        }
+
+        private function recentProjectSelectHandler(event:Event):void
+        {
+            var project:Project = event.currentTarget.data as Project;
+            if(!project)
+                return;
+
+            if(project.location && project.location.exists)
+                openProject(project.location);
+            else
+            {
+                if(project.location)
+                    Alert.show("The project path [" + project.location.nativePath + "] is invalid.", "Error");
+                else
+                    Alert.show("An error occurred while attempting to open your project.", "Error");
+            }
+        }
+
+        private function navigationChangeHandler(state:String):void
+        {
+            this.currentState = state;
+        }
+
+        /**
+         * Creates a new Aerial project
+         */
+        private function createNewProject():void
+        {
+
+        }
+
+        /**
+         * Application is invoked by command line or desktop by selecting a .aerial file
+         * @param event
+         */
+        private function applicationInvokeHandler(event:InvokeEvent):void
+        {
+            if(event.arguments.length > 0)
+            {
+                var file:File;
+
+                if((event.currentDirectory != null) && (event.arguments.length > 0))
+                {
+                    var invocationDirectory:File = event.currentDirectory;
+                    file = invocationDirectory.resolvePath(event.arguments[0]);
+                }
+
+                if(file && file.exists && file.extension)
+                {
+                    openProject(file);
+                }
+            }
+        }
+
+        private function openProject(file:File):void
+        {
+            ProjectController.instance.projectSelected.dispatch(file);
+            trace(">> Open " + file.nativePath);
+        }
+
+        /**
+         * Browse to an existing .aerial file
+         */
+        private function openExistingProject():void
+        {
+            var existingProject:File = new File();
+            existingProject.addEventListener(Event.SELECT, existingProjectSelectionHandler);
+
+            existingProject.browseForOpen("Open a .aerial project file", [new FileFilter("Aerial Project file", "*.aerial")]);
+        }
+
+        private function existingProjectSelectionHandler(event:Event):void
+        {
+            var existingProject:File = event.currentTarget as File;
+            if(!existingProject || !existingProject.exists)
+            {
+                Alert.show("An error occurred while attempting to open your project.", "Error");
+                return;
+            }
+
+            openProject(existingProject);
+        }
+
+        /**
+         * Closes the currently focused project
+         */
+        private function closeCurrentProject():void
+        {
+            // if there is only one project open, close the application
+            if(ProjectController.instance.getNumOpenedProjects() <= 1)
+            {
+                closeApplication();
+            }
+        }
+
+        private function closeApplication(event:Event = null):void
+        {
+            if(event)
+                event.preventDefault();
+
+            Alert.show("Are you sure you want to close the application?", "Close Application",
+                    Alert.YES | Alert.NO | Alert.CANCEL, null, function(event:CloseEvent):void
+                    {
+                        if(event.detail == Alert.YES)
+                            nativeApplication.exit();
+                    });
+        }
+        ]]>
 	</fx:Script>
-	
-	<fx:Style source="assets/styles/style.css"/>
-	
-	<s:states>
-		<s:State name="projects"/>
-		<s:State name="codeGeneration"/>
-	</s:states>
-	
-	<pages:ProjectPage width="100%" height="100%" includeIn="projects"/>
-	<pages:CodeGenerationPage width="100%" height="100%" includeIn="codeGeneration" itemCreationPolicy="immediate"/>
+
+    <fx:Style source="assets/styles/style.css"/>
+
+    <fx:Declarations>
+        <nativemenu:Menu id="mainMenu">
+            <nativemenu:MenuItem label="_File">
+                <nativemenu:MenuItem label="_New" shortcut="Cmd+N" select="createNewProject()"/>
+                <nativemenu:MenuItem label="_Open Project" shortcut="Cmd+O" select="openExistingProject()"/>
+                <nativemenu:MenuItem id="recentMenuItem" label="_Open Recent"/>
+                <nativemenu:MenuSeparator/>
+                <nativemenu:MenuItem label="_Close" shortcut="Cmd+W" select="closeCurrentProject()" os="mac"/>
+                <nativemenu:MenuItem label="_Close" shortcut="Ctrl+W" select="closeCurrentProject()" os="win"/>
+                <nativemenu:MenuItem label="E_xit" shortcut="Cmd+Q" select="closeApplication()" os="mac"/>
+                <nativemenu:MenuItem label="E_xit" shortcut="Alt+F4" select="closeApplication()" os="win"/>
+            </nativemenu:MenuItem>
+        </nativemenu:Menu>
+    </fx:Declarations>
+
+    <!--<pages:CodeGenerationPage width="100%" height="100%" includeIn="codeGeneration" itemCreationPolicy="immediate"/>-->
 </s:WindowedApplication>
