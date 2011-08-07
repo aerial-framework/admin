@@ -5,7 +5,13 @@
                        xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
                        minWidth="1024" minHeight="768" applicationComplete="init()"
                        skinClass="skins.DarkApplicationStatusSkin" invoke="applicationInvokeHandler(event)"
-                       xmlns:nativemenu="com.jacwright.nativemenu.*" autoExit="false">
+                       xmlns:nativemenu="com.jacwright.nativemenu.*" autoExit="false"
+                       currentState="start">
+
+    <s:states>
+        <s:State name="start"/>
+        <s:State name="codeGeneration"/>
+    </s:states>
 
     <fx:Script>
 		<![CDATA[
@@ -24,6 +30,7 @@
         private function init():void
         {
             ApplicationController.instance.initialize();
+            ProjectController.instance.projectOpened.add(projectOpenHandler);
 
             Menus.initMainMenu(mainMenu, stage.nativeWindow);
 
@@ -34,6 +41,12 @@
             this.maximize();
 
             getRecentProjects();
+        }
+
+        private function projectOpenHandler(config:XML):void
+        {
+            trace(">" + config.toXMLString());
+            this.currentState = "codeGeneration";
         }
 
         private function getRecentProjects():void
@@ -118,7 +131,6 @@
         private function openProject(file:File):void
         {
             ProjectController.instance.projectSelected.dispatch(file);
-            trace(">> Open " + file.nativePath);
         }
 
         /**
@@ -129,17 +141,13 @@
             var existingProject:File = new File();
             existingProject.addEventListener(Event.SELECT, existingProjectSelectionHandler);
 
-            existingProject.browseForOpen("Open a .aerial project file", [new FileFilter("Aerial Project file", "*.aerial")]);
+            existingProject.browseForOpen("Open a .aerial project file",
+                    [new FileFilter("Aerial Project file", "*." + ApplicationController.PROJECT_EXTENSION)]);
         }
 
         private function existingProjectSelectionHandler(event:Event):void
         {
             var existingProject:File = event.currentTarget as File;
-            if(!existingProject || !existingProject.exists)
-            {
-                Alert.show("An error occurred while attempting to open your project.", "Error");
-                return;
-            }
 
             openProject(existingProject);
         }
@@ -188,5 +196,5 @@
         </nativemenu:Menu>
     </fx:Declarations>
 
-    <!--<pages:CodeGenerationPage width="100%" height="100%" includeIn="codeGeneration" itemCreationPolicy="immediate"/>-->
+    <pages:CodeGenerationPage width="100%" height="100%" includeIn="codeGeneration"/>
 </s:WindowedApplication>

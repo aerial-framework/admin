@@ -9,6 +9,9 @@ package models
 	{
 		public var location:File;
 		public var lastAccessed:Date;
+
+        public var configFile:File;
+        public var configAltFile:File;
 		
 		public function Project()
 		{

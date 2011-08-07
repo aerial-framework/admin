@@ -188,7 +188,7 @@
         private function init():void
         {
             NavigationController.instance.navigationChange.add(navigationChangeHandler);
-            ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
+//            ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
         }
 
         private function preferencesLoadHandler():void
@@ -216,7 +216,7 @@
         private function fireInvalidServerURLError():void
         {
             Alert.show("Please ensure that you have entered a valid value for 'server-url' in your config.xml file\n" +
-					ProjectController.instance.configFile.nativePath + "\n\nIf your config file is placed outside of the " +
+					ProjectController.instance.selectedProject.configFile.nativePath + "\n\nIf your config file is placed outside of the " +
 						"project root, please move the project.aerial file to the same directory as your config/ folder.",
                     "Error - Cannot retrieve data from server", 4, null, function():void
                     {
@@ -243,7 +243,7 @@
 
         private function generate(phpModels:Boolean, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
         {
-            var base:File = ProjectController.instance.projectBasePath;
+            var base:File = null;
             if(!base)
             {
                 Alert.show("Could not verify the project base path", "Error");
@@ -538,7 +538,7 @@
                 else
                 {
                     var definition:ModelDefinition = new ModelDefinition();
-                    var base:File = ProjectController.instance.projectBasePath;
+                    var base:File = null;
 
                     definition.modelName = model;
                     definition.fields = buildDefinitions(definitions[model].fields);

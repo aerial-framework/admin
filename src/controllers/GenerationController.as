@@ -175,7 +175,7 @@ package controllers
             var template:String = getTemplate("as3.vo.tmpl");
             var replacementTokens:Object = {};
 
-            var packageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath, true), "src_flex");
+            var packageString:String = getPackageString(options.basePath.getRelativePath(options.as3ModelsPath), "src_flex");
             var phpModelsPackageString:String = getPackageString(options.phpModelsPath.nativePath, "src_php");
 
             for each(var definition:ModelDefinition in options.selectedModels)

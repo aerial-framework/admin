@@ -1,7 +1,3 @@
-/**
- * User: Danny Kopping
- * Date: 2011/08/06
- */
 package controllers
 {
     import flash.filesystem.File;
@@ -19,7 +15,7 @@ package controllers
 		private var preferencesFile:File;
 		private var preferencesXML:XML;
 
-		public var applicationDescriptorLoad:Signal;
+		public var applicationDescriptorLoaded:Signal;
 
         {
             _instance = new ApplicationController();
@@ -27,7 +23,7 @@ package controllers
 
         public function ApplicationController()
         {
-            applicationDescriptorLoad = new Signal();
+            applicationDescriptorLoaded = new Signal();
         }
 
         public static function get instance():ApplicationController
@@ -49,7 +45,7 @@ package controllers
 				throw new Error("Cannot create or open application preferences file");
 
 			preferencesXML = FileIOController.read(preferencesFile, false, XML) as XML;
-			applicationDescriptorLoad.dispatch();
+			applicationDescriptorLoaded.dispatch();
 		}
 
 		public function getProjects():Array

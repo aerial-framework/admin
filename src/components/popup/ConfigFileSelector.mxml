@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<popup:NativePopup xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:popup="components.popup.*"
+                   title="Configuration File Selector" width="500" height="200">
+
+    <popup:layout>
+        <s:VerticalLayout paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"/>
+    </popup:layout>
+
+    <s:Label text="The configuration file path has either not been defined or the path is invalid. Please browse to your config.xml file."
+            width="100%"/>
+
+    <s:Spacer height="100%"/>
+
+    <s:HGroup width="100%" verticalAlign="middle">
+        <s:Button label="Browse" click="browseForConfig()"/>
+
+        <s:Label width="100%" text="{_selectedConfigFile.nativePath}"/>
+
+        <s:Button label="Continue" chromeColor="#0066ff" enabled="{selectedFileExists()}" click="cancelled = false; close()"/>
+        <s:Button label="Cancel" click="cancelled = true; close()"/>
+    </s:HGroup>
+
+    <fx:Script>
+        <![CDATA[
+
+        [Bindable]
+        private var _selectedConfigFile:File;
+
+        public var cancelled:Boolean = true;
+
+        private function browseForConfig():void
+        {
+            _selectedConfigFile = null;
+
+            var configFile:File = new File();
+            configFile.addEventListener(Event.SELECT, configFileSelectionHandler);
+
+            configFile.browseForOpen("Browse for your config.xml file",
+                    [new FileFilter("XML Configuration files", "*.xml")]);
+        }
+
+        private function configFileSelectionHandler(event:Event):void
+        {
+            _selectedConfigFile = event.currentTarget as File;
+        }
+
+        [Bindable]
+        private function selectedFileExists():Boolean
+        {
+            if(!_selectedConfigFile)
+                return false;
+
+            return _selectedConfigFile && _selectedConfigFile.exists;
+        }
+
+        public function get selectedFile():File
+        {
+            return _selectedConfigFile;
+        }
+        ]]>
+    </fx:Script>
+</popup:NativePopup>
