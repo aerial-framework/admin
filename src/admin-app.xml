@@ -12,6 +12,10 @@
 	<initialWindow>
 		<content>admin.swf</content>
 		<title>Aerial Admin</title>
+        <visible>true</visible>
+        <minSize>1024 768</minSize>
+        <width>1024</width>
+        <height>768</height>
 	</initialWindow>
 
 	<installFolder>Aerial Framework</installFolder>

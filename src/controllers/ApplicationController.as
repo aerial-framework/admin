@@ -12,8 +12,8 @@ package controllers
 
         public static const PROJECT_EXTENSION:String = "aerial";
 
-		private var preferencesFile:File;
-		private var preferencesXML:XML;
+		private var _preferencesFile:File;
+		private var _preferencesXML:XML;
 
 		public var applicationDescriptorLoaded:Signal;
 
@@ -36,28 +36,33 @@ package controllers
 		 */
 		public function initialize():void
 		{
-			preferencesFile = File.applicationStorageDirectory.resolvePath("preferences.xml");
+			_preferencesFile = File.applicationStorageDirectory.resolvePath("preferences.xml");
 
-			if(!preferencesFile || !preferencesFile.exists)
-				preferencesFile = FileIOController.createIfNotExists(preferencesFile.url);
+			if(!_preferencesFile || !_preferencesFile.exists)
+				_preferencesFile = FileIOController.createIfNotExists(_preferencesFile.url);
 
-			if(!preferencesFile || !preferencesFile.exists)
+			if(!_preferencesFile || !_preferencesFile.exists)
 				throw new Error("Cannot create or open application preferences file");
 
-			preferencesXML = FileIOController.read(preferencesFile, false, XML) as XML;
+			_preferencesXML = FileIOController.read(_preferencesFile, false, XML) as XML;
 			applicationDescriptorLoaded.dispatch();
 		}
 
+        public function get preferences():XML
+        {
+            return _preferencesXML;
+        }
+
 		public function getProjects():Array
 		{
-			if(!preferencesXML)
+			if(!_preferencesXML)
 				return [];
 
 			var projects:Array = [];
-			for each(var projectXML:XML in preferencesXML.projects..project)
+			for each(var projectXML:XML in _preferencesXML.projects..project)
 			{
 				var project:Project = new Project();
-				project.location = new File(projectXML.@location.toString());
+				project.preferencesFile = new File(projectXML.@location.toString());
 				project.lastAccessed = new Date();
 				project.lastAccessed.setTime(projectXML.@lastAccessed.toString());
 
@@ -72,13 +77,13 @@ package controllers
             var preferences:XML = <preferences><projects/></preferences>;
             for each(var project:Project in projects)
             {
-                var projectXML:XML = new XML("<project location=\"" + project.location.nativePath + "\" " +
+                var projectXML:XML = new XML("<project location=\"" + project.preferencesFile.nativePath + "\" " +
                         "lastAccessed=\"" + project.lastAccessed.getTime() + "\"/>");
 
                 preferences.projects.appendChild(projectXML);
             }
 
-            FileIOController.write(preferencesFile, preferences.toXMLString());
+            FileIOController.write(_preferencesFile, preferences.toXMLString());
         }
     }
 }

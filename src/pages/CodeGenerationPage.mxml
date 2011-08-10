@@ -8,13 +8,13 @@
           paddingRight="8" paddingTop="8">
 
     <s:states>
-        <s:State name="State1"/>
+        <s:State name="start"/>
         <s:State name="refreshing"/>
     </s:states>
 
     <s:HGroup width="100%" horizontalAlign="right"
               verticalAlign.refreshing="middle"
-              verticalAlign.State1="middle">
+              verticalAlign.start="middle">
         <s:SWFLoader includeIn="refreshing" width="32" height="32"
                      source="@Embed('../assets/loaders/green-spinner.swf')"/>
         <s:Spacer width="100%"/>
@@ -83,7 +83,7 @@
                                             as3ServicesCheck.selected, bootstrapCheck.selected)"
                            fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
                            paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
-                <mx:Button includeIn="State1" width="100%" label="Regenerate database tables"
+                <mx:Button includeIn="start" width="100%" label="Regenerate database tables"
                            chromeColor="#44A80E" click="refresh()" fontWeight="bold"
                            icon="@Embed('../assets/icons/revert.png')" paddingBottom="6"
                            paddingLeft="12" paddingRight="12" paddingTop="6"/>
@@ -163,12 +163,11 @@
         import controllers.GenerationController;
         import controllers.NavigationController;
         import controllers.ProjectController;
-        
-        import models.AerialPreferences;
+
         import models.FieldDefinition;
         import models.GenerationOptions;
         import models.ModelDefinition;
-        
+
         import mx.collections.ArrayList;
         import mx.controls.Alert;
         import mx.messaging.messages.RemotingMessage;
@@ -176,24 +175,31 @@
         import mx.rpc.events.FaultEvent;
         import mx.rpc.events.ResultEvent;
         import mx.utils.ObjectUtil;
-        
+
         import org.aerialframework.rpc.message.AerialErrorMessage;
-        
+
         import spark.events.IndexChangeEvent;
 
         private var message:AerialErrorMessage;
 
         private var serverOK:Boolean;
 
+        private var projectController:ProjectController;
+        private var projectPreferences:Object;
+
         private function init():void
         {
+            projectController = ProjectController.instance;
+            projectPreferences = projectController.getPreferences();
+
             NavigationController.instance.navigationChange.add(navigationChangeHandler);
-//            ProjectController.instance.preferencesLoad.add(preferencesLoadHandler);
+
+            loadConfiguration();
         }
 
-        private function preferencesLoadHandler():void
+        private function loadConfiguration():void
         {
-            var serverURL:String = AerialPreferences.getNode("options/server-url", String, AerialPreferences.SERVER);
+            var serverURL:String = projectController.getConfigNode("options/server-url", projectController.getConfiguration());
             if(!serverURL)
             {
                 fireInvalidServerURLError();
@@ -216,8 +222,8 @@
         private function fireInvalidServerURLError():void
         {
             Alert.show("Please ensure that you have entered a valid value for 'server-url' in your config.xml file\n" +
-					ProjectController.instance.selectedProject.configFile.nativePath + "\n\nIf your config file is placed outside of the " +
-						"project root, please move the project.aerial file to the same directory as your config/ folder.",
+                    ProjectController.instance.selectedProject.configFile.nativePath + "\n\nIf your config file is placed outside of the " +
+                    "project root, please move the project.aerial file to the same directory as your config/ folder.",
                     "Error - Cannot retrieve data from server", 4, null, function():void
                     {
                         NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);
@@ -263,9 +269,9 @@
 
             options.packageString = getPackage();
 
-            var phpModelsPath:String = AerialPreferences.getNode("paths/php-models", String);
-            var phpBaseModelsPath:String = AerialPreferences.getNode("paths/php-models", String) + File.separator + "base";
-            var phpServicesPath:String = AerialPreferences.getNode("paths/php-services", String);
+            var phpModelsPath:String = projectController.getConfigNode("paths/php-models", projectPreferences);
+            var phpBaseModelsPath:String = projectController.getConfigNode("paths/php-models", projectPreferences) + File.separator + "base";
+            var phpServicesPath:String = projectController.getConfigNode("paths/php-services", projectPreferences);
 
             if(bootstrap || as3Services)
                 options.bootstrapPath = validatePath(getBootstrapPath(), base);
@@ -360,12 +366,12 @@
             voSuffixTxt.text = "";
             serviceSuffixTxt.text = "";
 
-            var packageStr:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
-            var bootstrapFolder:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
-            var modelsFolder:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
-            var servicesFolder:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
-            var voSuffix:String = AerialPreferences.getNode("code-generation/vo-suffix", String, AerialPreferences.ADMIN);
-            var serviceSuffix:String = AerialPreferences.getNode("code-generation/service-suffix", String, AerialPreferences.ADMIN);
+            var packageStr:String = projectController.getConfigNode("code-generation/package", projectPreferences);
+            var bootstrapFolder:String = projectController.getConfigNode("code-generation/bootstrap", projectPreferences);
+            var modelsFolder:String = projectController.getConfigNode("code-generation/as3-models", projectPreferences);
+            var servicesFolder:String = projectController.getConfigNode("code-generation/as3-services", projectPreferences);
+            var voSuffix:String = projectController.getConfigNode("code-generation/vo-suffix", projectPreferences);
+            var serviceSuffix:String = projectController.getConfigNode("code-generation/service-suffix", projectPreferences);
 
             bootstrapFolder = bootstrapFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
             modelsFolder = modelsFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
@@ -388,12 +394,12 @@
             var voSuffix:String = voSuffixTxt.text;
             var serviceSuffix:String = serviceSuffixTxt.text;
 
-            var packageDefault:String = AerialPreferences.getNode("code-generation/package", String, AerialPreferences.ADMIN);
-            var bootstrapDefault:String = AerialPreferences.getNode("code-generation/bootstrap", String, AerialPreferences.ADMIN);
-            var modelsFolderDefault:String = AerialPreferences.getNode("code-generation/as3-models", String, AerialPreferences.ADMIN);
-            var servicesFolderDefault:String = AerialPreferences.getNode("code-generation/as3-services", String, AerialPreferences.ADMIN);
-            var voSuffixDefault:String = AerialPreferences.getNode("code-generation/vo-suffix", String, AerialPreferences.ADMIN);
-            var serviceSuffixDefault:String = AerialPreferences.getNode("code-generation/service-suffix", String, AerialPreferences.ADMIN);
+            var packageDefault:String = projectController.getConfigNode("code-generation/package", projectPreferences);
+            var bootstrapDefault:String = projectController.getConfigNode("code-generation/bootstrap", projectPreferences);
+            var modelsFolderDefault:String = projectController.getConfigNode("code-generation/as3-models", projectPreferences);
+            var servicesFolderDefault:String = projectController.getConfigNode("code-generation/as3-services", projectPreferences);
+            var voSuffixDefault:String = projectController.getConfigNode("code-generation/vo-suffix", projectPreferences);
+            var serviceSuffixDefault:String = projectController.getConfigNode("code-generation/service-suffix", projectPreferences);
 
             if(bindPackage.selected && bootstrapFolder != bootstrapDefault && packageStr != "")
                 bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
@@ -455,7 +461,8 @@
 
             var data:Array = [packageStr, bootstrapFile, modelsFolder, servicesFolder, voSuffix, serviceSuffix];
 
-            AerialPreferences.setNodes(paths, data, AerialPreferences.ADMIN);
+            throw new Error("Implement saving!");
+            //AerialPreferences.setNodes(paths, data);
             Alert.show("Configuration options saved.", "Notice");
 
             if(serverOK) refresh();
@@ -552,7 +559,7 @@
                     definition.phpModel.content = files["topLevelClass"].file.toString();
 
                     // load php services path from config
-                    var phpServicesFolder:String = AerialPreferences.getNode("paths/php-services", String);
+                    var phpServicesFolder:String = projectController.getConfigNode("paths/php-services", projectPreferences);
                     definition.phpService.path = getPath(phpServicesFolder + File.separator + definition.modelName + serviceSuffix + ".php", base);
                     trace(definition.phpService.path.nativePath);
 
@@ -621,10 +628,9 @@
             {
                 Alert.show("An error occurred while attempting to load model definitions. Please open server.php for " +
                         "more detailed error messages.\n\nError:\n" + event.fault.faultString, "Error");
-                NavigationController.instance.navigationChange.dispatch(NavigationController.PROJECTS);
             }
 
-            this.currentState = "State1";
+            this.currentState = "start";
         }
         ]]>
 	</fx:Script>

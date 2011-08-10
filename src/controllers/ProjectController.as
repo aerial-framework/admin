@@ -2,6 +2,8 @@ package controllers
 {
     import components.popup.ConfigFileSelector;
 
+    import controllers.FileIOController;
+
     import flash.events.Event;
 
     import flash.filesystem.File;
@@ -45,7 +47,8 @@ package controllers
             }
 
             selectedProject = new Project();
-            selectedProject.location = file;
+            selectedProject.preferences = FileIOController.read(file, false, XML);
+            selectedProject.preferencesFile = file;
             selectedProject.lastAccessed = new Date();
 
             parseProjectFile(file);
@@ -75,6 +78,11 @@ package controllers
                     // config file successfully found... open the project
                     configFile = configFile.resolvePath(configPath);
 
+                    selectedProject.configFile = configFile;
+
+                    if(configFile.parent.resolvePath("config-alt.xml").exists)
+                        selectedProject.configAltFile = configFile.parent.resolvePath("config-alt.xml");
+
                     projectOpened.dispatch(FileIOController.read(configFile, false, XML));
                 }
             }
@@ -103,19 +111,19 @@ package controllers
 
             if(!configFile || !configFile.exists)
             {
-                parseProjectFile(selectedProject.location);
+                parseProjectFile(selectedProject.preferencesFile);
                 return;
             }
 
             try
             {
-                var contents:XML = FileIOController.read(selectedProject.location, false, XML);
+                var contents:XML = FileIOController.read(selectedProject.preferencesFile, false, XML);
                 contents.project["config-path"] = configFile.nativePath;
 
-                if(FileIOController.write(selectedProject.location, contents.toXMLString(), false))
+                if(FileIOController.write(selectedProject.preferencesFile, contents.toXMLString(), false))
                 {
                     // config path now successfully configured, carry on
-                    parseProjectFile(selectedProject.location);
+                    parseProjectFile(selectedProject.preferencesFile);
                 }
             }
             catch(e:Error)
@@ -146,17 +154,54 @@ package controllers
 				return null;
 			}
 
-			var data:String = FileIOController.read(selectedProject.configFile);
-			var altData:String = FileIOController.read(selectedProject.configAltFile);
+			var data:XML = FileIOController.read(selectedProject.configFile, false, XML);
+			var altData:XML = FileIOController.read(selectedProject.configAltFile, false, XML);
 
-			var parsed:Object = xmlToObject(XML(data));
-			var parsedAlt:Object = xmlToObject(XML(altData));
+			var parsed:Object = xmlToObject(data);
+			var parsedAlt:Object = xmlToObject(altData);
 
 			for(var key:String in parsed)
 				compareAndOverwrite(parsed, [key], parsedAlt);
 
 			return parsed;
 		}
+
+		public function getPreferences():Object
+		{
+			var parsed:Object = xmlToObject(this.selectedProject.preferences);
+			return parsed;
+		}
+
+        /**
+         * Uses simple xpath instructions to traverse an object representation of an XML file
+         *
+         * @param path
+         * @param config
+         * @param throwError
+         * @return
+         */
+        public function getConfigNode(path:String, config:Object, throwError:Boolean=false):String
+        {
+            var steps:Array = path.split(/\//g);
+
+            var configLookup:Object = config;
+            for each(var step:String in steps)
+            {
+                if(!configLookup.hasOwnProperty(step))
+                {
+                    if(!throwError)
+                        trace("Cannot find " + path + " in config");
+                    else
+                        throw new Error("Cannot find " + path + " in config");
+
+                    return null;
+                }
+
+                configLookup = configLookup[step];
+            }
+
+            return configLookup.hasOwnProperty("value") ? configLookup.value.toString() : null;
+        }
 
 		/**
 		 * Compare one object to another recursively and replace properties of the parent object with values of

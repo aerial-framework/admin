@@ -51,7 +51,7 @@
                 projects = new ArrayList();
 
             var newProject:Project = new Project();
-            newProject.location = new File(path);
+            newProject.preferencesFile = new File(path);
             newProject.lastAccessed = new Date();
 
             projects.addItem(newProject);
@@ -114,7 +114,7 @@
             if(!selectedProject)
                 return;
 
-            selectedProject.location = (event.currentTarget as File);
+            selectedProject.preferencesFile = (event.currentTarget as File);
             var projects:ArrayList = projectsList.dataProvider as ArrayList;
 
             projectsList.dataProvider = new ArrayList();

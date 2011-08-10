@@ -38,14 +38,11 @@
 
             NavigationController.instance.navigationChange.add(navigationChangeHandler);
 
-            this.maximize();
-
             getRecentProjects();
         }
 
         private function projectOpenHandler(config:XML):void
         {
-            trace(">" + config.toXMLString());
             this.currentState = "codeGeneration";
         }
 
@@ -57,11 +54,11 @@
             for each(var project:Project in projects)
             {
                 var item:MenuItem = new MenuItem();
-                if(!project || !project.location)
+                if(!project || !project.preferencesFile)
                     continue;
 
-                var projectName:String = project.location.nativePath;
-                if(!project.location.exists)
+                var projectName:String = project.preferencesFile.nativePath;
+                if(!project.preferencesFile.exists)
                     projectName += " *";
 
                 item.label = projectName;
@@ -81,12 +78,12 @@
             if(!project)
                 return;
 
-            if(project.location && project.location.exists)
-                openProject(project.location);
+            if(project.preferencesFile && project.preferencesFile.exists)
+                openProject(project.preferencesFile);
             else
             {
-                if(project.location)
-                    Alert.show("The project path [" + project.location.nativePath + "] is invalid.", "Error");
+                if(project.preferencesFile)
+                    Alert.show("The project path [" + project.preferencesFile.nativePath + "] is invalid.", "Error");
                 else
                     Alert.show("An error occurred while attempting to open your project.", "Error");
             }
@@ -157,8 +154,7 @@
          */
         private function closeCurrentProject():void
         {
-            // if there is only one project open, close the application
-            if(ProjectController.instance.getNumOpenedProjects() <= 1)
+            if(ProjectController.instance.getNumOpenedProjects() < 1)
             {
                 closeApplication();
             }

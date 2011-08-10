@@ -7,7 +7,8 @@ package models
 	[Bindable]
 	public class Project
 	{
-		public var location:File;
+		public var preferencesFile:File;
+        public var preferences:XML;
 		public var lastAccessed:Date;
 
         public var configFile:File;
