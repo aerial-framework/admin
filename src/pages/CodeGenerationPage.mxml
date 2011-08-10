@@ -25,19 +25,19 @@
     </s:HGroup>
 
     <mx:HDividedBox width="100%" height="100%">
-        <s:VGroup height="100%">
+        <mx:VDividedBox height="100%">
             <s:Panel width="100%" height="100%" dropShadowVisible="false" title="Existing PHP Models">
                 <s:layout>
                     <s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
                 </s:layout>
 
-                <s:List id="modelsList" width="100%" height="100%" allowMultipleSelection="true"
+                <s:List id="modelsList" width="100%" height="100%" allowMultipleSelection="true" minWidth="300"
                         borderColor="#D9D9D9" change="modelSelectionHandler(event)" useVirtualLayout="false"
                         itemRenderer="renderers.QuickDiffListItemRenderer" labelField="name">
                 </s:List>
             </s:Panel>
 
-            <s:Panel width="100%" dropShadowVisible="false" title="Code Generation" height="{optionsPanel.height}">
+            <s:Panel id="generationPanel" width="100%" dropShadowVisible="false" title="Code Generation">
                 <s:layout>
                     <s:VerticalLayout gap="4" paddingBottom="8" paddingLeft="8" paddingRight="8"
                                       paddingTop="8"/>
@@ -88,9 +88,9 @@
                            icon="@Embed('../assets/icons/revert.png')" paddingBottom="6"
                            paddingLeft="12" paddingRight="12" paddingTop="6"/>
             </s:Panel>
-        </s:VGroup>
+        </mx:VDividedBox>
 
-        <s:VGroup width="100%" height="100%">
+        <mx:VDividedBox width="100%" height="100%">
             <s:Panel width="100%" height="100%" dropShadowVisible="false" title="Information">
                 <s:layout>
                     <s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
@@ -99,63 +99,50 @@
                 <components:ModelDefinitionView id="modelDefinitionsView" width="100%" height="100%"/>
             </s:Panel>
 
-            <s:Panel id="optionsPanel" width="100%" dropShadowVisible="false"
-                     title="ActionScript Code Generation Options"
-                     height.refreshing="240">
+            <s:Panel id="optionsPanel" width="100%" dropShadowVisible="false" title="Code Generation Options">
                 <s:layout>
-                    <s:HorizontalLayout gap="0"/>
+                    <s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"/>
                 </s:layout>
 
-                <s:VGroup width="100%" height="100%" paddingBottom="8" paddingLeft="8"
-                          paddingRight="8" paddingTop="8">
-                    <s:Form width="100%" height="100%">
-                        <s:layout>
-                            <s:FormLayout gap="0" paddingLeft="-16" paddingRight="-16" paddingBottom="-16"
-                                          paddingTop="-16"/>
-                        </s:layout>
+                <s:HGroup width="100%">
+                    <mx:Form width="100%" height="100%">
+                        <mx:FormItem width="100%" label="ActionScript Source Path">
+                            <s:HGroup width="100%" verticalAlign="middle">
+                                <s:TextInput id="as3SourcePathTxt" width="100%"/>
+                                <s:Button label="Browse" click="browseForPath('as3')"/>
+                            </s:HGroup>
+                        </mx:FormItem>
 
-                        <components:ExtendedFormItem width="100%" label=" Package">
-                            <s:VGroup width="100%" verticalAlign="middle" horizontalAlign="right">
-                                <s:TextArea id="packageTxt" width="100%" prompt="org.aerialframework"
-                                            change="refreshConfigOptions()" restrict="[a-zA-Z0-9\.\_]"
-                                            heightInLines="2"/>
-                                <s:CheckBox id="bindPackage" label="Bind" selected="true"/>
-                            </s:VGroup>
-                        </components:ExtendedFormItem>
-                        <components:ExtendedFormItem width="100%" label="Bootstrap Folder">
-                            <s:TextArea id="bootstrapTxt" width="100%"
-                                        change="refreshConfigOptions()" heightInLines="2"/>
-                        </components:ExtendedFormItem>
-                    </s:Form>
+                        <mx:FormItem width="100%" label="PHP Source Path">
+                            <s:HGroup width="100%" verticalAlign="middle">
+                                <s:TextInput id="phpSourcePathTxt" width="100%"/>
+                                <s:Button label="Browse" click="browseForPath('php')"/>
+                            </s:HGroup>
+                        </mx:FormItem>
+                    </mx:Form>
 
-                    <s:Spacer height="100%"/>
+                    <mx:Form width="100%" height="100%">
+                        <mx:FormItem width="100%" label="Package">
+                            <s:TextInput id="packageTxt" width="100%" restrict="[a-zA-Z0-9\.\_]"/>
+                        </mx:FormItem>
 
-                    <mx:Button width="100%" label="Save Options" chromeColor="#0E65A8" click="saveConfigOptions()"
-                               fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
-                               paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
-                </s:VGroup>
+                        <mx:FormItem width="100%" label="Models Suffix">
+                            <s:TextInput id="voSuffixTxt" width="100%"/>
+                        </mx:FormItem>
 
-                <s:Form width="100%" height="100%">
-                    <s:layout>
-                        <s:FormLayout gap="0" paddingLeft="-8" paddingRight="-8" paddingBottom="-8" paddingTop="-8"/>
-                    </s:layout>
+                        <mx:FormItem width="100%" label="Services Suffix">
+                            <s:TextInput id="serviceSuffixTxt" width="100%"/>
+                        </mx:FormItem>
+                    </mx:Form>
+                </s:HGroup>
 
-                    <components:ExtendedFormItem width="100%" label="Models Folder">
-                        <s:TextArea id="modelsTxt" width="100%" change="refreshConfigOptions()" heightInLines="2"/>
-                    </components:ExtendedFormItem>
-                    <components:ExtendedFormItem width="100%" label="Services Folder">
-                        <s:TextArea id="servicesTxt" width="100%" change="refreshConfigOptions()" heightInLines="2"/>
-                    </components:ExtendedFormItem>
-                    <components:ExtendedFormItem width="100%" label="Models Suffix">
-                        <s:TextInput id="voSuffixTxt" width="100%" prompt="VO" change="refreshConfigOptions()"/>
-                    </components:ExtendedFormItem>
-                    <components:ExtendedFormItem width="100%" label="Services Suffix">
-                        <s:TextInput id="serviceSuffixTxt" width="100%" prompt="Service"
-                                     change="refreshConfigOptions()"/>
-                    </components:ExtendedFormItem>
-                </s:Form>
+                <s:Spacer height="100%"/>
+
+                <mx:Button width="100%" label="Save Options" chromeColor="#0E65A8" click="saveConfigOptions()"
+                           fontWeight="bold" icon="@Embed('../assets/icons/visualization.png')"
+                           paddingBottom="6" paddingLeft="12" paddingRight="12" paddingTop="6"/>
             </s:Panel>
-        </s:VGroup>
+        </mx:VDividedBox>
     </mx:HDividedBox>
 
     <fx:Script>
@@ -174,7 +161,6 @@
         import mx.rpc.Responder;
         import mx.rpc.events.FaultEvent;
         import mx.rpc.events.ResultEvent;
-        import mx.utils.ObjectUtil;
 
         import org.aerialframework.rpc.message.AerialErrorMessage;
 
@@ -185,12 +171,18 @@
         private var serverOK:Boolean;
 
         private var projectController:ProjectController;
+
         private var projectPreferences:Object;
+        private var projectConfig:Object;
+
+        private var _targetField:TextInput;
 
         private function init():void
         {
             projectController = ProjectController.instance;
+
             projectPreferences = projectController.getPreferences();
+            projectConfig = projectController.getConfiguration();
 
             NavigationController.instance.navigationChange.add(navigationChangeHandler);
 
@@ -199,7 +191,7 @@
 
         private function loadConfiguration():void
         {
-            var serverURL:String = projectController.getConfigNode("options/server-url", projectController.getConfiguration());
+            var serverURL:String = projectController.getConfigNode("options/server-url", projectConfig);
             if(!serverURL)
             {
                 fireInvalidServerURLError();
@@ -208,7 +200,7 @@
 
             configurationService.endpoint = serverURL;
 
-            setConfigOptionPrompts();
+            showConfigOptions();
 
             refresh();
         }
@@ -269,48 +261,48 @@
 
             options.packageString = getPackage();
 
-            var phpModelsPath:String = projectController.getConfigNode("paths/php-models", projectPreferences);
-            var phpBaseModelsPath:String = projectController.getConfigNode("paths/php-models", projectPreferences) + File.separator + "base";
-            var phpServicesPath:String = projectController.getConfigNode("paths/php-services", projectPreferences);
+            var phpModelsPath:String = projectController.getConfigNode("paths/php-models", projectConfig);
+            var phpBaseModelsPath:String = projectController.getConfigNode("paths/php-models", projectConfig) + File.separator + "base";
+            var phpServicesPath:String = projectController.getConfigNode("paths/php-services", projectConfig);
 
-            if(bootstrap || as3Services)
-                options.bootstrapPath = validatePath(getBootstrapPath(), base);
+            /*if(bootstrap || as3Services)
+             options.bootstrapPath = validatePath(getBootstrapPath(), base);
 
-            if(as3Models || as3Services)
-                options.as3ModelsPath = validatePath(getModelFolder(), base);
+             if(as3Models || as3Services)
+             options.as3ModelsPath = validatePath(getModelFolder(), base);
 
-            if(as3Services)
-                options.as3ServicesPath = validatePath(getServiceFolder(), base);
+             if(as3Services)
+             options.as3ServicesPath = validatePath(getServiceFolder(), base);
 
-            if(phpModels || as3Models || as3Services)
-            {
-                options.phpModelsPath = validatePath(phpModelsPath, base);
-                options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
-            }
+             if(phpModels || as3Models || as3Services)
+             {
+             options.phpModelsPath = validatePath(phpModelsPath, base);
+             options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
+             }
 
-            if(phpServices)
-                options.phpServicesPath = validatePath(phpServicesPath, base);
+             if(phpServices)
+             options.phpServicesPath = validatePath(phpServicesPath, base);
 
-            options.voSuffix = getVOSuffix();
-            options.serviceSuffix = getServiceSuffix();
+             options.voSuffix = getVOSuffix();
+             options.serviceSuffix = getServiceSuffix();
 
-            if(bootstrap && (!options.bootstrapPath || !options.bootstrapPath.exists))
-            {
-                Alert.show("Cannot use the path\n" + getBootstrapPath() + "\nfor the Aerial bootstrapper", "Error");
-                return;
-            }
+             if(bootstrap && (!options.bootstrapPath || !options.bootstrapPath.exists))
+             {
+             Alert.show("Cannot use the path\n" + getBootstrapPath() + "\nfor the Aerial bootstrapper", "Error");
+             return;
+             }
 
-            if(as3Models && (!options.as3ModelsPath || !options.as3ModelsPath.exists))
-            {
-                Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript models", "Error");
-                return;
-            }
+             if(as3Models && (!options.as3ModelsPath || !options.as3ModelsPath.exists))
+             {
+             Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript models", "Error");
+             return;
+             }
 
-            if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
-            {
-                Alert.show("Cannot use the path\n" + getServiceFolder() + "\nfor the ActionScript services", "Error");
-                return;
-            }
+             if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
+             {
+             Alert.show("Cannot use the path\n" + getServiceFolder() + "\nfor the ActionScript services", "Error");
+             return;
+             }*/
 
             if(phpModels && ((!options.phpModelsPath || !options.phpModelsPath.exists) ||
                     (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
@@ -357,109 +349,87 @@
             return file;
         }
 
-        private function setConfigOptionPrompts():void
+        private function browseForPath(type:String):void
         {
-            packageTxt.text = "";
-            bootstrapTxt.text = "";
-            modelsTxt.text = "";
-            servicesTxt.text = "";
-            voSuffixTxt.text = "";
-            serviceSuffixTxt.text = "";
+            if(type == 'as3')
+                _targetField = as3SourcePathTxt;
+            else if(type == 'php')
+                _targetField = phpSourcePathTxt;
+            else
+            {
+                _targetField = null;
+                return;
+            }
 
+            var pathFile:File = new File();
+            pathFile.addEventListener(Event.SELECT, pathSelectionHandler);
+            pathFile.browseForDirectory("Select your " + (type == 'as3' ? "ActionScript" : "PHP") + " source folder");
+        }
+
+        private function pathSelectionHandler(event:Event):void
+        {
+            var path:File = event.currentTarget as File;
+            if(!path || !_targetField)
+                return;
+
+            _targetField.text = path.nativePath;
+        }
+
+        private function showConfigOptions():void
+        {
             var packageStr:String = projectController.getConfigNode("code-generation/package", projectPreferences);
-            var bootstrapFolder:String = projectController.getConfigNode("code-generation/bootstrap", projectPreferences);
-            var modelsFolder:String = projectController.getConfigNode("code-generation/as3-models", projectPreferences);
-            var servicesFolder:String = projectController.getConfigNode("code-generation/as3-services", projectPreferences);
             var voSuffix:String = projectController.getConfigNode("code-generation/vo-suffix", projectPreferences);
             var serviceSuffix:String = projectController.getConfigNode("code-generation/service-suffix", projectPreferences);
 
-            bootstrapFolder = bootstrapFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
-            modelsFolder = modelsFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
-            servicesFolder = servicesFolder.replace("[package]", packageStr.replace(/\./gi, "/"));
+            var as3SourcePath:String = projectController.getConfigNode("project/as3-source-path", projectPreferences);
+            var phpSourcePath:String = projectController.getConfigNode("project/php-source-path", projectPreferences);
 
-            packageTxt.prompt = packageStr;
-            bootstrapTxt.prompt = bootstrapFolder;
-            modelsTxt.prompt = modelsFolder;
-            servicesTxt.prompt = servicesFolder;
-            voSuffixTxt.prompt = voSuffix;
-            serviceSuffixTxt.prompt = serviceSuffix;
-        }
+            packageTxt.text = packageStr;
+            voSuffixTxt.text = voSuffix;
+            serviceSuffixTxt.text = serviceSuffix;
 
-        private function refreshConfigOptions():void
-        {
-            var packageStr:String = packageTxt.text;
-            var bootstrapFolder:String = bootstrapTxt.text;
-            var modelsFolder:String = modelsTxt.text;
-            var servicesFolder:String = servicesTxt.text;
-            var voSuffix:String = voSuffixTxt.text;
-            var serviceSuffix:String = serviceSuffixTxt.text;
-
-            var packageDefault:String = projectController.getConfigNode("code-generation/package", projectPreferences);
-            var bootstrapDefault:String = projectController.getConfigNode("code-generation/bootstrap", projectPreferences);
-            var modelsFolderDefault:String = projectController.getConfigNode("code-generation/as3-models", projectPreferences);
-            var servicesFolderDefault:String = projectController.getConfigNode("code-generation/as3-services", projectPreferences);
-            var voSuffixDefault:String = projectController.getConfigNode("code-generation/vo-suffix", projectPreferences);
-            var serviceSuffixDefault:String = projectController.getConfigNode("code-generation/service-suffix", projectPreferences);
-
-            if(bindPackage.selected && bootstrapFolder != bootstrapDefault && packageStr != "")
-                bootstrapTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/bootstrap/";	    // default
-
-            if(bindPackage.selected && modelsFolder != modelsFolderDefault && packageStr != "")
-                modelsTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/vo/";				// default
-
-            if(bindPackage.selected && servicesFolder != servicesFolderDefault && packageStr != "")
-                servicesTxt.prompt = "src_flex/" + packageStr.replace(/\./gi, "/") + "/services/";		// default
-
-            if(voSuffix != voSuffixDefault)
-                voSuffixTxt.prompt = "VO";	    														// default
-
-            if(serviceSuffix != serviceSuffixDefault)
-                serviceSuffixTxt.prompt = "Service";													// default
+            as3SourcePathTxt.text = as3SourcePath;
+            phpSourcePathTxt.text = phpSourcePath;
         }
 
         private function getPackage():String
         {
-            return packageTxt.text == null || packageTxt.text == "" ? packageTxt.prompt : packageTxt.text;
-        }
-
-        private function getBootstrapPath():String
-        {
-            return bootstrapTxt.text == null || bootstrapTxt.text == "" ? bootstrapTxt.prompt : bootstrapTxt.text;
-        }
-
-        private function getModelFolder():String
-        {
-            return modelsTxt.text == null || modelsTxt.text == "" ? modelsTxt.prompt : modelsTxt.text;
-        }
-
-        private function getServiceFolder():String
-        {
-            return servicesTxt.text == null || servicesTxt.text == "" ? servicesTxt.prompt : servicesTxt.text;
+            return packageTxt.text;
         }
 
         private function getVOSuffix():String
         {
-            return voSuffixTxt.text == null || voSuffixTxt.text == "" ? voSuffixTxt.prompt : voSuffixTxt.text;
+            return voSuffixTxt.text;
         }
 
         private function getServiceSuffix():String
         {
-            return serviceSuffixTxt.text == null || serviceSuffixTxt.text == "" ? serviceSuffixTxt.prompt : serviceSuffixTxt.text;
+            return serviceSuffixTxt.text;
+        }
+
+        private function getAS3SourcePath():String
+        {
+            return as3SourcePathTxt.text;
+        }
+
+        private function getPHPSourcePath():String
+        {
+            return phpSourcePathTxt.text;
         }
 
         private function saveConfigOptions():void
         {
             var packageStr:String = getPackage();
-            var bootstrapFile:String = getBootstrapPath();
-            var modelsFolder:String = getModelFolder();
-            var servicesFolder:String = getServiceFolder();
             var voSuffix:String = getVOSuffix();
             var serviceSuffix:String = getServiceSuffix();
 
-            var paths:Array = ["code-generation/package", "code-generation/bootstrap", "code-generation/as3-models",
-                "code-generation/as3-services", "code-generation/vo-suffix", "code-generation/service-suffix"];
+            var as3SourcePath:String = getAS3SourcePath();
+            var phpSourcePath:String = getPHPSourcePath();
 
-            var data:Array = [packageStr, bootstrapFile, modelsFolder, servicesFolder, voSuffix, serviceSuffix];
+            var paths:Array = ["code-generation/package", "code-generation/vo-suffix", "code-generation/service-suffix",
+                "project/as3-source-path", "project/php-source-path"];
+
+            var data:Array = [packageStr, voSuffix, serviceSuffix, as3SourcePath, phpSourcePath];
 
             throw new Error("Implement saving!");
             //AerialPreferences.setNodes(paths, data);
@@ -516,6 +486,53 @@
             return ret;
         }
 
+        private function validateSourcePaths():Boolean
+        {
+            var as3SourcePathValid:Boolean = new File(getAS3SourcePath()).exists;
+            var phpSourcePathValid:Boolean = new File(getPHPSourcePath()).exists;
+
+            var errorMessage:String = "Please check that the following paths are correct before attempting to generate code:\n\n";
+
+            if(!as3SourcePathValid)
+            {
+                errorMessage += "ActionScript Source Path: " + getAS3SourcePath() + "\n\n";
+            }
+
+            if(!phpSourcePathValid)
+            {
+                errorMessage += "PHP Source Path: " + getPHPSourcePath() + "\n\n";
+            }
+
+            if(!as3SourcePathValid || !phpSourcePathValid)
+            {
+                Alert.show(errorMessage, "Code Generation Error");
+                return false;
+            }
+
+            return true;
+        }
+
+        private function getAS3ModelsPath():String
+        {
+            var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
+
+            return getAS3SourcePath() + File.separator + packageToDirectories + File.separator + "vo" + File.separator;
+        }
+
+        private function getAS3ServicesPath():String
+        {
+            var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
+
+            return getAS3SourcePath() + File.separator + packageToDirectories + File.separator + "services" + File.separator;
+        }
+
+        private function getPHPServicesPath():String
+        {
+            var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
+
+            return getPHPSourcePath() + File.separator + packageToDirectories + File.separator + "services" + File.separator;
+        }
+
         private function processModelDefinitions(definitions:Object):void
         {
             if(!definitions)
@@ -544,6 +561,9 @@
                 }
                 else
                 {
+                    if(!validateSourcePaths())
+                        return;
+
                     var definition:ModelDefinition = new ModelDefinition();
                     var base:File = null;
 
@@ -558,13 +578,10 @@
                     definition.phpModel.path = getPath(files["topLevelClass"].path, base);
                     definition.phpModel.content = files["topLevelClass"].file.toString();
 
-                    // load php services path from config
-                    var phpServicesFolder:String = projectController.getConfigNode("paths/php-services", projectPreferences);
-                    definition.phpService.path = getPath(phpServicesFolder + File.separator + definition.modelName + serviceSuffix + ".php", base);
-                    trace(definition.phpService.path.nativePath);
+                    definition.phpService.path = new File(getPHPServicesPath() + definition.modelName + serviceSuffix + ".php");
 
-                    definition.as3Model.path = getPath(getModelFolder() + File.separator + definition.modelName + voSuffix + ".as", base);
-                    definition.as3Service.path = getPath(getServiceFolder() + File.separator + definition.modelName + serviceSuffix + ".as", base);
+                    definition.as3Model.path = new File(getAS3ModelsPath() + definition.modelName + voSuffix + ".as");
+                    definition.as3Service.path = new File(getAS3ServicesPath() + definition.modelName + serviceSuffix + ".as");
 
                     modelDefinitions.addItem(definition);
                 }
@@ -636,7 +653,7 @@
 	</fx:Script>
 
     <fx:Declarations>
-        <s:RemoteObject id="configurationService" source="Configuration" destination="amfphp"
+        <s:RemoteObject id="configurationService" source="aerialframework.core.Configuration" destination="amfphp"
                         fault="fault(event)"/>
     </fx:Declarations>
 </s:VGroup>
