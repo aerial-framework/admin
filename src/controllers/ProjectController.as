@@ -272,7 +272,7 @@ package controllers
 				if(child.nodeKind() == "comment")
 					continue;
 
-				if(child.attribute("include-in-bootstrap").toString() == "true")
+				if(child.attribute("expose").toString() == "true")
 				{
 					(child.children().length() > 1 || (child.children().length() == 1 && child.hasComplexContent()))
 					?	chain[child.name().toString()] = xmlToObject(child, chain[child.name().toString()])

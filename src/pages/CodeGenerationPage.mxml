@@ -241,15 +241,7 @@
 
         private function generate(phpModels:Boolean, phpServices:Boolean, as3Models:Boolean, as3Services:Boolean, bootstrap:Boolean):void
         {
-            var base:File = null;
-            if(!base)
-            {
-                Alert.show("Could not verify the project base path", "Error");
-                return;
-            }
-
             var options:GenerationOptions = new GenerationOptions();
-            options.basePath = base;
 
             options.generateBootstrap = bootstrap;
             options.generateAS3Models = as3Models;
@@ -261,48 +253,48 @@
 
             options.packageString = getPackage();
 
-            var phpModelsPath:String = projectController.getConfigNode("paths/php-models", projectConfig);
-            var phpBaseModelsPath:String = projectController.getConfigNode("paths/php-models", projectConfig) + File.separator + "base";
-            var phpServicesPath:String = projectController.getConfigNode("paths/php-services", projectConfig);
+            var phpModelsPath:String = getPHPModelsPath();
+            var phpBaseModelsPath:String = getPHPModelsPath() + File.separator + "base";
+            var phpServicesPath:String = getPHPServicesPath();
 
-            /*if(bootstrap || as3Services)
-             options.bootstrapPath = validatePath(getBootstrapPath(), base);
+            if(bootstrap || as3Services)
+                options.bootstrapPath = new File(getAS3BootstrapPath());
 
-             if(as3Models || as3Services)
-             options.as3ModelsPath = validatePath(getModelFolder(), base);
+            if(as3Models || as3Services)
+                options.as3ModelsPath = new File(getAS3ModelsPath());
 
-             if(as3Services)
-             options.as3ServicesPath = validatePath(getServiceFolder(), base);
+            if(as3Services)
+                options.as3ServicesPath = new File(getAS3ServicesPath());
 
-             if(phpModels || as3Models || as3Services)
-             {
-             options.phpModelsPath = validatePath(phpModelsPath, base);
-             options.phpBaseModelsPath = validatePath(phpBaseModelsPath, base);
-             }
+            if(phpModels || as3Models || as3Services)
+            {
+                options.phpModelsPath = new File(phpModelsPath);
+                options.phpBaseModelsPath = new File(phpBaseModelsPath);
+            }
 
-             if(phpServices)
-             options.phpServicesPath = validatePath(phpServicesPath, base);
+            if(phpServices)
+                options.phpServicesPath = new File(phpServicesPath);
 
-             options.voSuffix = getVOSuffix();
-             options.serviceSuffix = getServiceSuffix();
+            options.voSuffix = getVOSuffix();
+            options.serviceSuffix = getServiceSuffix();
 
-             if(bootstrap && (!options.bootstrapPath || !options.bootstrapPath.exists))
-             {
-             Alert.show("Cannot use the path\n" + getBootstrapPath() + "\nfor the Aerial bootstrapper", "Error");
-             return;
-             }
+            if(bootstrap && (!options.bootstrapPath || !options.bootstrapPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getAS3BootstrapPath() + "\nfor the Aerial bootstrapper", "Error");
+                return;
+            }
 
-             if(as3Models && (!options.as3ModelsPath || !options.as3ModelsPath.exists))
-             {
-             Alert.show("Cannot use the path\n" + getModelFolder() + "\nfor the ActionScript models", "Error");
-             return;
-             }
+            if(as3Models && (!options.as3ModelsPath || !options.as3ModelsPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getAS3ModelsPath() + "\nfor the ActionScript models", "Error");
+                return;
+            }
 
-             if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
-             {
-             Alert.show("Cannot use the path\n" + getServiceFolder() + "\nfor the ActionScript services", "Error");
-             return;
-             }*/
+            if(as3Services && (!options.as3ServicesPath || !options.as3ServicesPath.exists))
+            {
+                Alert.show("Cannot use the path\n" + getAS3ServicesPath() + "\nfor the ActionScript services", "Error");
+                return;
+            }
 
             if(phpModels && ((!options.phpModelsPath || !options.phpModelsPath.exists) ||
                     (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
@@ -512,6 +504,13 @@
             return true;
         }
 
+        private function getAS3BootstrapPath():String
+        {
+            var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
+
+            return getAS3SourcePath() + File.separator + packageToDirectories + File.separator + "bootstrap" + File.separator;
+        }
+
         private function getAS3ModelsPath():String
         {
             var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
@@ -524,6 +523,13 @@
             var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
 
             return getAS3SourcePath() + File.separator + packageToDirectories + File.separator + "services" + File.separator;
+        }
+
+        private function getPHPModelsPath():String
+        {
+            var packageToDirectories:String = getPackage().replace(/\./g, File.separator);
+
+            return getPHPSourcePath() + File.separator + packageToDirectories + File.separator + "vo" + File.separator;
         }
 
         private function getPHPServicesPath():String
