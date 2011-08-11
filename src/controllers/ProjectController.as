@@ -299,7 +299,7 @@ package controllers
 
 			for each(var child:XML in xml.children())
 			{
-				if(child.nodeKind() == "comment")
+				if(child.nodeKind() == "comment" || !child.name())		// thanks Allen!
 					continue;
 
 				if(child.attribute("expose").toString() == "true")
