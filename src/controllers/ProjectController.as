@@ -203,6 +203,36 @@ package controllers
             return configLookup.hasOwnProperty("value") ? configLookup.value.toString() : null;
         }
 
+        public function updatePreferences(hierarchies:Array, data:Array):Boolean
+        {
+			for(var i:uint = 0; i < hierarchies.length; i++)
+			{
+				var hierarchySplit:Array = hierarchies[i].split("/");
+				var configFile:File = this.selectedProject.preferencesFile;
+				var config:XML = this.selectedProject.preferences;
+
+				if(!config || config.children().length() == 0)
+				{
+					Alert.show("Could not save " + hierarchies[i] + " to Aerial Admin configuration file", "Error");
+					return false;
+				}
+
+				var node:XML = config;
+				for each(var element:String in hierarchySplit)
+				{
+					if(!element || element.length == 0)
+						continue;
+
+					node = XML(node.child(element));
+				}
+
+				node = node.setChildren(data[i]);
+			}
+
+			var content:String = '<?xml version="1.0" encoding="UTF-8"?>\n' + config.toXMLString();
+			return FileIOController.write(configFile, content, false, String);
+		}
+
 		/**
 		 * Compare one object to another recursively and replace properties of the parent object with values of
 		 * the comparison object where the values exist & differ from the parent object

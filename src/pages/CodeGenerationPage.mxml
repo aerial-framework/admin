@@ -423,9 +423,10 @@
 
             var data:Array = [packageStr, voSuffix, serviceSuffix, as3SourcePath, phpSourcePath];
 
-            throw new Error("Implement saving!");
-            //AerialPreferences.setNodes(paths, data);
-            Alert.show("Configuration options saved.", "Notice");
+            if(projectController.updatePreferences(paths, data))
+            {
+                Alert.show("Configuration options saved.", "Notice");
+            }
 
             if(serverOK) refresh();
         }
