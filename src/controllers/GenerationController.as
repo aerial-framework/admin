@@ -189,6 +189,9 @@ package controllers
                 var accessors:Array = [];
 
                 var accessorStub:String = getPart("all.xml", "as3AccessorStub");
+				
+				// see http://livedocs.adobe.com/flex/3/html/help.html?content=databinding_4.html#199771 for more info
+				var booleanAccessorStub:String = getPart("all.xml", "as3BooleanAccessorStub");
 
                 var toImport:Array = [];
                 for each(var field:FieldDefinition in definition.fields)
@@ -223,8 +226,19 @@ package controllers
 
                     properties.push("\t\tprivate var _" + name + ":*;\n");
 
-                    var accessor:String = accessorStub.replace(new RegExp("{{field}}", "gi"), name);
-                    accessor = accessor.replace(new RegExp("{{type}}", "gi"), type);
+                    var accessor:String;
+					
+					if(type != "Boolean")
+					{
+						accessor = accessorStub.replace(new RegExp("{{field}}", "gi"), name);
+	                    accessor = accessor.replace(new RegExp("{{type}}", "gi"), type);
+					}
+					else
+					{
+						// see http://livedocs.adobe.com/flex/3/html/help.html?content=databinding_4.html#199771 for more info
+						accessor = booleanAccessorStub.replace(new RegExp("{{field}}", "gi"), name);
+						accessor = accessor.replace(new RegExp("{{type}}", "gi"), type);
+					}
 
                     accessors.push(accessor);
                 }
