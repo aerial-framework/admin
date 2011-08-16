@@ -481,6 +481,8 @@
 
         private function validateSourcePaths():Boolean
         {
+			if(!getAS3SourcePath() || !getPHPSourcePath())
+				return false;
             var as3SourcePathValid:Boolean = new File(getAS3SourcePath()).exists;
             var phpSourcePathValid:Boolean = new File(getPHPSourcePath()).exists;
 
