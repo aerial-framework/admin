@@ -296,10 +296,14 @@
                 return;
             }
 
-            if(phpModels && ((!options.phpModelsPath || !options.phpModelsPath.exists) ||
-                    (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)))
+            if(phpModels && (!options.phpModelsPath || !options.phpModelsPath.exists))
+			{
+				Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");	
+			}
+            
+			if (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)
             {
-                Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");
+                Alert.show("Cannot use the path\n" + phpBaseModelsPath + "\nfor the PHP models", "Error");
                 return;
             }
 
