@@ -202,7 +202,7 @@ package controllers
                     var type:String;
 
                     if(many)
-                        type = "IList";
+                        type = "ArrayCollection";
                     else
                     {
                         type = field.type;
