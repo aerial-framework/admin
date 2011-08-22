@@ -35,6 +35,20 @@
 			_{{field}} = value;
 		}]]></content>
     </part>
+    <part name="as3BooleanAccessorStub">
+        <content><![CDATA[
+        [Bindable("propertyChanged")]
+		public function get {{field}}():{{type}}
+		{
+			return _{{field}};
+		}
+		
+		public function set {{field}}(value:{{type}}):void
+		{
+			_{{field}} = value;
+			this.dispatchEvent(new Event("propertyChanged"));
+		}]]></content>
+    </part>
     <part name="phpServiceStub">
         <content><![CDATA[
 		public function {{function}}(${{argument}}_id)
