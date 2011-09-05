@@ -158,10 +158,13 @@ package controllers
 			var altData:XML = FileIOController.read(selectedProject.configAltFile, false, XML);
 
 			var parsed:Object = xmlToObject(data);
-			var parsedAlt:Object = xmlToObject(altData);
-
-			for(var key:String in parsed)
-				compareAndOverwrite(parsed, [key], parsedAlt);
+			
+			if(altData)
+			{
+				var parsedAlt:Object = xmlToObject(altData);
+				for(var key:String in parsed)
+					compareAndOverwrite(parsed, [key], parsedAlt);
+			}
 
 			return parsed;
 		}
