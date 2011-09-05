@@ -5,7 +5,7 @@
                        xmlns:pages="pages.*" backgroundColor="#EFEFEF" status="Status!"
                        minWidth="1024" minHeight="768" applicationComplete="init()"
                        skinClass="skins.DarkApplicationStatusSkin" invoke="applicationInvokeHandler(event)"
-                       xmlns:nativemenu="com.jacwright.nativemenu.*" autoExit="false"
+                       xmlns:nativemenu="com.jacwright.nativemenu.*" autoExit="true"
                        currentState="start">
 
     <s:states>
@@ -34,7 +34,7 @@
 
             Menus.initMainMenu(mainMenu, stage.nativeWindow);
 
-            this.nativeWindow.addEventListener(Event.CLOSING, closeApplication);
+            //this.nativeWindow.addEventListener(Event.CLOSING, closeApplication);
 
             NavigationController.instance.navigationChange.add(navigationChangeHandler);
 
