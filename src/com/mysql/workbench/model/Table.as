@@ -11,10 +11,12 @@ package com.mysql.workbench.model
 		public var foreignKeys:Array;
 		public var indices:Array;
 		public var relations:Array;
+		public var schema:Schema;
 		
-		public function Table(xml:XML)
+		public function Table(sch:Schema, xml:XML)
 		{
 			super(xml);
+			schema = sch;
 			name = String(xml.value.(@key=='name'));
 			className = Inflector.singularPascalize(name);
 			columns = new Array();

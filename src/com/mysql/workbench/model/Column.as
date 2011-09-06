@@ -20,9 +20,23 @@ package com.mysql.workbench.model
 		{
 			super(xml);
 			
+			var ownerId:String = XMLList(xml.link.(@key=="owner")).toString();
+			owner = Registry.getInstance().getModel(ownerId) as Table;
+			
 			name = xml.value.(@key=='name');
 			propertyName = Inflector.singularCamelize(name);
-			type = DatatypeConverter.getDataType(xml.link.(@key == 'simpleType'));
+			
+			if(XMLList(xml.link.(@key == 'simpleType')).length() > 0)
+			{
+				type = DatatypeConverter.getDataType(xml.link.(@key == 'simpleType'));
+			}
+			else
+			{
+				type = DatatypeConverter.getDataType(xml.link.(@key == 'userType'));
+				if(!type)
+					type = this.owner.schema.document.userDefinedTypes[XMLList(xml.link.(@key == 'userType')).toString()];
+			}
+			
 			isNotNull = Boolean(int(xml.value.(@key=='isNotNull')));
 			autoIncrement = Boolean(int(xml.value.(@key=='autoIncrement')));
 			defaultValue = xml.value.(@key == 'defaultValue');
@@ -31,8 +45,7 @@ package com.mysql.workbench.model
 			if(typeLength != -1)
 				type += "(" + String(typeLength) + ")";
 			
-			var ownerId:String = XMLList(xml.link.(@key=="owner")).toString();
-			owner = Registry.getInstance().getModel(ownerId) as Table;
+			
 		}
 	}
 }

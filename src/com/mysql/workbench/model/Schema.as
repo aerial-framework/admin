@@ -10,10 +10,13 @@ package com.mysql.workbench.model
 		public var views:Array;
 		public var defaultCollationName:String;
 		public var defaultCharacterSetName:String;
+		public var document:Document;
 		
 		
-		public function Schema(xml:XML = null)
+		public function Schema(doc:Document, xml:XML = null)
 		{
+			document = doc;
+			
 			/*Set Schema name*/
 			name = String(xml.value.(@key=='name'));
 			defaultCollationName = String(xml.value.(@key=='defaultCollationName'));
@@ -25,7 +28,7 @@ package com.mysql.workbench.model
 			var xmlTables:XMLList = xml.value.(@key=='tables').value;
 			for each(var xmlTable:XML in xmlTables)
 			{
-				tables.push(new Table(xmlTable));
+				tables.push(new Table(this, xmlTable));
 			}
 			
 			/*Set PK's & ForeignKeys*/
