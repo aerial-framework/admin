@@ -254,7 +254,7 @@
             options.packageString = getPackage();
 
             var phpModelsPath:String = getPHPModelsPath();
-            var phpBaseModelsPath:String = getPHPModelsPath() + File.separator + "base";
+            var phpBaseModelsPath:String = getPHPModelsPath() + "base";
             var phpServicesPath:String = getPHPServicesPath();
 
             if(bootstrap || as3Services)
@@ -299,6 +299,7 @@
             if(phpModels && (!options.phpModelsPath || !options.phpModelsPath.exists))
 			{
 				Alert.show("Cannot use the path\n" + phpModelsPath + "\nfor the PHP models", "Error");	
+				return;
 			}
             
 			if (!options.phpBaseModelsPath || !options.phpBaseModelsPath.exists)
